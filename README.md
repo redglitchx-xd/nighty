@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/media/brand/apex.png" width="256" height="256" alt="Apex Android Logo" />
+  <img src="https://i.postimg.cc/HkfHftt8/minecraft-title-%2819%29.png" width="750" alt="Apex Android Banner" />
   <h1>Apex Android Edition</h1>
   <p><strong>Ultra-Fast Native Ahead-of-Time Rust Client for Minecraft Java Edition 26.3</strong></p>
   <p><em>Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
@@ -9,6 +9,7 @@
     <a href="docs/">Documentation</a>
   </p>
 </div>
+
 
 
 ---
