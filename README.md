@@ -51,23 +51,6 @@ Mod extensions compile to WebAssembly (`.hmod`) and run in a deterministic, memo
 
 ---
 
-## Gameplay & Mobile Screenshots
-
-Authentic captures from the native Android port across touch navigation, world generation, and multiplayer:
-
-| Joystick Navigation & Crosshair Targeting | D-Pad Controls & Gesture Touch Aiming |
-| :---: | :---: |
-| ![Joystick Controls](docs/media/android/joystick-fox.png) | ![D-pad Controls](docs/media/android/dpad-river.png) |
-
-| Multiplayer Network Play (Hypixel Arcade) | Native Chunk Meshing & World Generation |
-| :---: | :---: |
-| ![Hypixel Arcade](docs/media/android/hypixel-arcade.png) | ![Snowy Landscape](docs/media/android/snow-landscape.png) |
-
-| Vulkan Atmospheric Lighting & Desert Terrain | Third-Person Perspective & Dynamic FOV |
-| :---: | :---: |
-| ![Desert Panorama](docs/media/android/desert-panorama.png) | ![Third Person](docs/media/android/third-person-desert.png) |
-
----
 
 ## Supported Version Matrix
 
