@@ -1483,11 +1483,7 @@ impl Launcher {
             let tx = self.tx.clone();
             std::thread::spawn(move || {
                 let progress = |phase| {
-                    let _ = tx.send(Msg::AccountProgress(
-                        account.key(),
-                        generation,
-                        phase,
-                    ));
+                    let _ = tx.send(Msg::AccountProgress(account.key(), generation, phase));
                 };
                 progress(account::session::Phase::Keychain);
                 let store = account::store();
@@ -2329,7 +2325,7 @@ impl Launcher {
             .flex_none()
             .items_center()
             .h(px(theme::TOPBAR))
-            .pl(px(theme::PAGE_GUTTER - 14.))
+            .pl(px(theme::PAGE_GUTTER - 16.))
             .pr(px(12.))
             .border_b_1()
             .border_color(plate::alpha(n.stroke, n.rule_alpha))
@@ -2365,7 +2361,7 @@ impl Launcher {
             .flex()
             .flex_col()
             .gap(px(2.))
-            .child(heading(tr("INSTANCES").into()).child(add))
+            .child(heading(tr("Instances").into()).child(add))
             .children(items);
         let servers: Vec<_> = self
             .servers
@@ -2374,7 +2370,7 @@ impl Launcher {
             .unwrap_or_else(|| self.side_servers.clone());
         let mut list = list;
         if !servers.is_empty() {
-            list = list.child(heading(tr("SERVERS").into()));
+            list = list.child(heading(tr("Servers").into()));
         }
         rows += servers.len();
         let headings = 1 + usize::from(!servers.is_empty());
@@ -2492,8 +2488,8 @@ impl Launcher {
         if self.page != Page::Servers && !self.settings.partner_hidden {
             let free = f32::from(window.viewport_size().height)
                 - theme::TOPBAR
-                - 40. * headings as f32
-                - 52. * rows as f32
+                - 48. * headings as f32
+                - 48. * rows as f32
                 - 110.;
             let mut side = div().relative().mb(px(8.)).child(partner::card(
                 "partner-side",
@@ -2571,7 +2567,7 @@ impl Launcher {
             .flex_none()
             .w(px(theme::SIDEBAR))
             .h_full()
-            .px(px(10.))
+            .px(px(12.))
             .pb(px(12.))
             .overflow_y_scroll()
             .children(brand)
@@ -2983,10 +2979,10 @@ impl Launcher {
             .flex()
             .flex_col()
             .justify_end()
-            .min_h(px(340.))
+            .min_h(px(320.))
             .mx(px(-theme::PAGE_GUTTER))
             .px(px(theme::PAGE_GUTTER))
-            .pb(px(28.))
+            .pb(px(32.))
             .gap(px(24.))
             .overflow_hidden()
             .children(picture.into_iter().flatten())
@@ -2995,14 +2991,14 @@ impl Launcher {
                     .relative()
                     .flex()
                     .items_end()
-                    .gap(px(32.))
+                    .gap(px(24.))
                     .child(
                         div()
                             .flex_1()
                             .min_w_0()
                             .flex()
                             .flex_col()
-                            .gap(px(28.))
+                            .gap(px(24.))
                             .child(hero)
                             .child(actions)
                             // The preparation's steps right under Play, where the player looks
@@ -3012,7 +3008,7 @@ impl Launcher {
                     // Notes and friends are Horizon's.
                     .children(java.is_none().then(|| self.home_card(&tag, cx))),
             );
-        let mut page = div().flex().flex_col().gap(px(28.)).child(banner);
+        let mut page = div().flex().flex_col().gap(px(32.)).child(banner);
         if let Some(e) = self.prepare_error.clone() {
             page = page.child(notice(e, &t));
         }

@@ -84,9 +84,8 @@ impl Launcher {
             )
             .child(
                 shell::text(night::CAPTION, c(n.ink_soft))
-                    .font_weight(FontWeight::MEDIUM)
                     .flex()
-                    .gap(px(4.))
+                    .gap(px(8.))
                     .child(what.join(" · "))
                     .children(playing)
                     .children(official),
@@ -96,7 +95,7 @@ impl Launcher {
             .flex()
             .flex_none()
             .flex_col()
-            .gap(px(10.))
+            .gap(px(16.))
             .child(state)
             .child(
                 div()
@@ -121,7 +120,7 @@ impl Launcher {
                 .flex()
                 .items_center()
                 .gap(px(8.))
-                .child(div().size(px(6.)).bg(c(n.accent_hi)))
+                .child(div().size(px(6.)).bg(c(n.muted)))
                 .child(trf(
                     "{version} available",
                     &[("version", update_name(release))],
@@ -138,10 +137,9 @@ impl Launcher {
                 None => line.child(
                     div()
                         .id("install-update")
-                        .text_color(c(n.accent_hi))
-                        .font_weight(FontWeight::SEMIBOLD)
+                        .text_color(c(n.ink_soft))
                         .cursor_pointer()
-                        .hover(|s| s.opacity(0.8))
+                        .hover(|s| s.text_color(c(n.ink)))
                         .child(tr("Install"))
                         .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
                             this.install_update();
@@ -158,7 +156,7 @@ impl Launcher {
                     .flex()
                     .flex_none()
                     .flex_col()
-                    .gap(px(6.))
+                    .gap(px(8.))
                     .p(px(16.))
                     .w_full()
                     .max_w(px(560.))
@@ -173,12 +171,11 @@ impl Launcher {
                             .child(tr(telemetry::PING)),
                     )
                     .child(
-                        shell::text(night::UI, c(n.accent_hi))
+                        shell::text(night::UI, c(n.ink_soft))
                             .relative()
                             .id("ping-notice-ok")
-                            .font_weight(FontWeight::SEMIBOLD)
                             .cursor_pointer()
-                            .hover(|s| s.opacity(0.8))
+                            .hover(|s| s.text_color(c(n.ink)))
                             .child(tr("Got it"))
                             .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
                                 this.settings.ping_notice_seen = true;
@@ -211,10 +208,10 @@ impl Launcher {
             return div()
                 .flex()
                 .items_center()
-                .gap(px(10.))
+                .gap(px(8.))
                 .child(
                     action("play", Action::Main, &t)
-                        .min_w(px(260.))
+                        .min_w(px(240.))
                         .cursor_default()
                         .child(label(busy)),
                 )
@@ -254,31 +251,15 @@ impl Launcher {
                 }))
             }
         }
-        let folder = self.selected_instance().map(|i| i.home.clone());
         div()
             .flex()
             .flex_wrap()
             .items_center()
-            .gap(px(10.))
+            .gap(px(8.))
             .child(play)
-            // Horizon's versions don't apply to a Java instance.
+            // Horizon's versions don't apply to a Java instance. Mods and the instance folder
+            // live in the tabs and the Overview row below, not beside the main action.
             .children((!java).then(|| self.picker(cx)))
-            .child(
-                action("home-mods", Action::Quiet, &t)
-                    .child(label(tr("Mods").to_string()))
-                    .on_click(cx.listener(|this, _: &ClickEvent, _, cx| {
-                        this.go(Page::Mods);
-                        cx.notify();
-                    })),
-            )
-            .children(folder.map(|home| {
-                action("home-folder", Action::Quiet, &t)
-                    .child(label(tr("Folder").to_string()))
-                    .on_click(move |_, _, cx| {
-                        let _ = std::fs::create_dir_all(&home);
-                        cx.open_with_system(&home);
-                    })
-            }))
     }
 
     /// The card beside the hero, for a Horizon version: a line from a release's notes, and
@@ -298,7 +279,6 @@ impl Launcher {
         let heading = |s: &str| {
             shell::text(night::CAPTION, c(n.muted))
                 .relative()
-                .font_weight(FontWeight::SEMIBOLD)
                 .child(tr(s).to_string())
         };
         let mut card = crate::plate::plate(&n)
@@ -307,18 +287,15 @@ impl Launcher {
             .flex_col()
             .gap(px(8.))
             .w(px(320.))
-            .p(px(20.));
+            .p(px(24.));
         if let Some(line) = summary {
             card = card
                 .child(heading("What's new"))
                 .child(
-                    shell::text(night::UI, c(n.ink))
-                        .relative()
-                        .font_weight(FontWeight::BOLD)
-                        .child(
-                            horizon_launcher::nightly::label(tag)
-                                .unwrap_or_else(|| tag.trim_start_matches('v').to_string()),
-                        ),
+                    shell::text(night::TITLE, c(n.ink)).relative().child(
+                        horizon_launcher::nightly::label(tag)
+                            .unwrap_or_else(|| tag.trim_start_matches('v').to_string()),
+                    ),
                 )
                 .child(
                     shell::text(night::CAPTION, c(n.ink_soft))
@@ -473,7 +450,7 @@ impl Launcher {
             div()
                 .flex()
                 .items_center()
-                .gap(px(6.))
+                .gap(px(8.))
                 .child(match mark {
                     Some(icon) => icon.into_any_element(),
                     None => div()
@@ -485,17 +462,13 @@ impl Launcher {
                         })
                         .into_any_element(),
                 })
-                .child(
-                    shell::text(night::CAPTION, color)
-                        .font_weight(FontWeight::MEDIUM)
-                        .child(tr(name).to_string()),
-                )
+                .child(shell::text(night::CAPTION, color).child(tr(name).to_string()))
         };
         div()
             .flex()
             .flex_col()
-            .gap(px(10.))
-            .max_w(px(620.))
+            .gap(px(8.))
+            .max_w(px(624.))
             .child(div().flex().child(progress_bar(
                 download.map(|(done, total)| {
                     let f = done as f32 / total as f32;

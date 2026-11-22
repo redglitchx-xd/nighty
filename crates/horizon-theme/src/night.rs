@@ -15,14 +15,14 @@ pub const DISPLAY: Step = step(
     56.,
     Web::Fluid(40., 72.),
     1.,
-    -0.035,
-    700,
+    -0.03,
+    500,
     false,
 );
 /// Section and card heads.
-pub const TITLE: Step = step("night-title", 20., Web::Fixed, 1.25, -0.01, 700, false);
+pub const TITLE: Step = step("night-title", 20., Web::Fixed, 1.25, 0., 500, false);
 /// Text, rows, buttons and navigation.
-pub const UI: Step = step("night-ui", 14., Web::Fixed, 1.45, -0.005, 500, false);
+pub const UI: Step = step("night-ui", 14., Web::Fixed, 1.45, 0., 400, false);
 /// One-line states and details under a name ("Ready · 26.3").
 pub const CAPTION: Step = step("night-caption", 12., Web::Fixed, 1.4, 0., 400, false);
 /// A screen uses two or three of these, plus [`crate::MICRO`] for paths and counts.
@@ -36,7 +36,7 @@ pub const TYPE: [Step; 4] = [DISPLAY, TITLE, UI, CAPTION];
 pub const PIXEL_CORNER: f32 = 4.;
 pub const RADIUS_CONTROL: f32 = 8.;
 /// The main action (Play) is taller than the other controls.
-pub const PLAY: f32 = 56.;
+pub const PLAY: f32 = 48.;
 
 /// How many of the sky's stops, from the top, can sit behind text without a plate: the night's
 /// lower stops (the sunset) are too bright for light text, so text there always has a plate.

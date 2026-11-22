@@ -78,8 +78,8 @@ pub fn row(id: impl Into<SharedString>, selected_now: bool, t: &Theme) -> Statef
         .relative()
         .flex()
         .items_center()
-        .gap(px(12.))
-        .h(px(52.))
+        .gap(px(8.))
+        .h(px(48.))
         .px(px(8.))
         .cursor_pointer();
     let d = if selected_now {
@@ -99,17 +99,12 @@ pub fn row_text(name: impl Into<SharedString>, sub: String, state: Option<Hsla>,
         .flex()
         .flex_col()
         .min_w_0()
-        .child(
-            text(night::UI, c(n.ink))
-                .font_weight(FontWeight::SEMIBOLD)
-                .truncate()
-                .child(name.into()),
-        )
+        .child(text(night::UI, c(n.ink)).truncate().child(name.into()))
         .child(
             div()
                 .flex()
                 .items_center()
-                .gap(px(6.))
+                .gap(px(8.))
                 .min_w_0()
                 .children(state.map(|s| div().flex_none().size(px(6.)).bg(s)))
                 .child(text(night::CAPTION, c(n.muted)).truncate().child(sub)),
@@ -125,12 +120,8 @@ pub fn heading(label: impl Into<SharedString>, t: &Theme) -> Div {
         .justify_between()
         .h(px(32.))
         .px(px(8.))
-        .mt(px(8.))
-        .child(
-            text(night::CAPTION, c(t.night.muted))
-                .font_weight(FontWeight::SEMIBOLD)
-                .child(label.into()),
-        )
+        .mt(px(16.))
+        .child(text(night::CAPTION, c(t.night.muted)).child(label.into()))
 }
 
 /// A page's tab in the top bar: its name, on a plate cut in one step while it is the page shown.
@@ -143,7 +134,7 @@ pub fn tab(id: impl Into<SharedString>, label: &str, active: bool, t: &Theme) ->
         .flex()
         .items_center()
         .h(px(32.))
-        .px(px(14.))
+        .px(px(16.))
         .cursor_pointer();
     let d = if active {
         d.child(selected(1, t))
@@ -211,7 +202,7 @@ pub fn chip(id: impl Into<SharedString>, t: &Theme) -> Stateful<Div> {
         .flex()
         .min_w_0()
         .items_center()
-        .gap(px(10.))
+        .gap(px(8.))
         .h(px(40.))
         .pl(px(6.))
         .pr(px(12.))
@@ -254,7 +245,7 @@ pub fn action(id: impl Into<SharedString>, kind: Action, t: &Theme) -> Stateful<
         .flex_none()
         .items_center()
         .justify_center()
-        .gap(px(10.))
+        .gap(px(8.))
         .px(px(16.))
         .font_family(theme::FONT)
         .font_weight(FontWeight::MEDIUM)
@@ -265,9 +256,8 @@ pub fn action(id: impl Into<SharedString>, kind: Action, t: &Theme) -> Stateful<
     let d = match kind {
         Action::Main => d
             .h(px(night::PLAY))
-            .px(px(28.))
+            .px(px(24.))
             .text_size(px(night::TITLE.px))
-            .font_weight(FontWeight::BOLD)
             .text_color(c(n.on_accent))
             .child(fill(cut(
                 night::PIXEL_CORNER,
