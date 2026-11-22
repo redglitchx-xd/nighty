@@ -220,9 +220,9 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 | Token           | App px | Line | Tracking (web) | Weight | Use |
 |-----------------|--------|------|----------------|--------|-----|
-| `night-display` | 56     | 1.0  | -0.035em       | 700    | instance and page names (display cut) |
-| `night-title`   | 20     | 1.25 | -0.01em        | 700    | section and card heads |
-| `night-ui`      | 14     | 1.45 | -0.005em       | 500    | text, rows, buttons, navigation |
+| `night-display` | 56     | 1.0  | -0.03em        | 500    | instance and page names (display cut) |
+| `night-title`   | 20     | 1.25 | 0              | 500    | section and card heads |
+| `night-ui`      | 14     | 1.45 | 0              | 400    | text, rows, buttons, navigation |
 | `night-caption` | 12     | 1.4  | 0              | 400    | one-line states and details |
 
 - **Colour** (night / dawn). Every text colour reaches AA on both plates over every stop of the sky,
@@ -241,11 +241,10 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 | `accent-hi` | `#a08cff` | `#5333c9` | accent text, focus ring |
 | `success`, `warn`, `danger` | `#5fd39a` `#f5b45a` `#ff8a78` | `#136336` `#7a4f00` `#a3301d` | Ready, updates, errors |
 
-- **Motion that means something**: the sky drifts slowly and stops when the window is hidden or
-  unfocused; the interface moves only to show cause and effect (a row arrives where it was added,
-  progress fills). Reduced motion: nothing moves. The launcher's sky (`launcher/src/sky.rs`) moves
-  in whole texels on a half-second beat, so it asks for two frames a second at most;
-  `HORIZON_LAUNCHER_MOTION=off` stills it, `always` keeps it moving unfocused (for recordings).
+- **Motion that means something**: the sky is still by default; the interface moves only to show
+  cause and effect (a row arrives where it was added, progress fills). Reduced motion: nothing
+  moves. `HORIZON_LAUNCHER_MOTION=full` lets the sky drift in whole texels on a half-second beat,
+  stopping when the window is hidden or unfocused; `always` keeps it moving for recordings.
 - **Copy says what happens** ("Downloads 26.3 and Java 21, about 600 MB"), never praises.
 - The specimen (`HORIZON_LAUNCHER_PAGE=specimen horizon-launcher`) draws the type and colours in the
   launcher itself.
@@ -253,11 +252,13 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   bottom (the wordmark, instances by group, servers, the launcher's version); the top bar over the
   pages has no plate, only a rule. A selected row or tab sits on `card_hi` cut in steps (two for
   rows, one for tabs and icon buttons); a hovered one gets the same shape at half its opacity,
-  eased in. A row's second line is its state, after a small square in the state's colour.
+  eased in. Rows are 48 high on a 4 px rhythm; a row's second line is its state, after a small
+  square in the state's colour.
 - **Home** (`launcher/src/home.rs`): the selected instance's name in the display cut over the bare
   sky, a caption above it naming what it plays and its state (the same square), and when it was
   played below. Play is the main action (`night::PLAY` tall, cut in one step); the version picker
-  is a raised control of the same height; Mods and Folder are quiet buttons. A Horizon instance
+  is a raised control of the same height. Mods lives in the tabs, and the folder in the Overview
+  row, not beside the main action. A Horizon instance
   gets a plate on the right: a release's notes in one line (not a Nightly's) and Join a friend.
   While it gets ready, Play names it ("Getting ready… 34%") beside Cancel, and below sit the
   bar, what is happening with the time left, and the steps (game files, Java, sounds, prepare,

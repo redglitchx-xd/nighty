@@ -25,10 +25,10 @@ pub use tokens::{CONTROL_LARGE, DISABLED, FIELD, PRESSED, RISE, ROW, SEGMENT};
 pub const RADIUS: f32 = 0.;
 pub const RADIUS_PLATE: f32 = 0.;
 /// Buttons are a little taller than the quiet look's, for their lip.
-pub const CONTROL: f32 = 34.;
+pub const CONTROL: f32 = 32.;
 /// The top bar, and the sidebar of instances and servers.
-pub const TOPBAR: f32 = 56.;
-pub const SIDEBAR: f32 = 248.;
+pub const TOPBAR: f32 = 64.;
+pub const SIDEBAR: f32 = 256.;
 pub const PAGE_GUTTER: f32 = 32.;
 
 /// Motion: short and eased out, never bouncy.

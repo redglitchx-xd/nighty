@@ -247,4 +247,5 @@ pub fn remove(home: &Path, name: &str) -> Result<Entry, String> {
 }
 
 #[cfg(test)]
+#[path = "java_instance/tests.rs"]
 mod tests;

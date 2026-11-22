@@ -1,12 +1,10 @@
-//! The night sky behind the launcher ("Night" in `docs/design-system.md`): banded sky, stars that
-//! twinkle in steps, three layers of clouds drifting a texel at a time, a sun cut in slices and two
-//! skylines, all drawn by hand below as small sprites.
+//! The night sky behind the launcher ("Night" in `docs/design-system.md`): banded sky, stars,
+//! three layers of clouds, a sun cut in slices and two skylines, all drawn by hand below as small
+//! sprites.
 //!
-//! It costs almost nothing at rest: the sky's bands and the stars are plain quads, the sprites are
-//! baked once per appearance and scale into tiles whose size doesn't depend on the window, and a
-//! frame is asked for only when something on screen changes (a cloud moves one texel, a group of
-//! stars steps to its next brightness): a few frames a second. The sky stands still under reduced
-//! motion, and stops 10 s after the window loses focus ([`motion`]).
+//! The sky is still by default: the art is baked once per appearance and scale into tiles whose
+//! size doesn't depend on the window. Motion is opt-in with `HORIZON_LAUNCHER_MOTION=full` (clouds
+//! drift, stars step, stopping 10 s after the window loses focus) or `always` for recordings.
 use crate::art::bake;
 use gpui::{div, img, prelude::*, px, rgb, Div, RenderImage};
 use horizon_theme::night::Night;
@@ -191,9 +189,9 @@ const STAR_LEVELS: [f32; 4] = [0.95, 0.6, 0.3, 0.6];
 /// different layers share frames: two a second at most.
 const STAR_PERIODS: [f32; 4] = [4., 6., 8., 10.];
 
-/// How the sky moves: not at all under the system's reduced motion (macOS) or with
-/// `HORIZON_LAUNCHER_MOTION=off`; while the window is in front (and 10 s after); or always, with
-/// `HORIZON_LAUNCHER_MOTION=always`, for recordings.
+/// How the sky moves: still by default, under the system's reduced motion (macOS) or with
+/// `HORIZON_LAUNCHER_MOTION=off`; while the window is in front (and 10 s after) with
+/// `HORIZON_LAUNCHER_MOTION=full`; or always, with `always`, for recordings.
 #[derive(Clone, Copy, PartialEq)]
 enum Motion {
     Still,
@@ -213,7 +211,7 @@ fn motion() -> Motion {
         if objc2_app_kit::NSWorkspace::sharedWorkspace().accessibilityDisplayShouldReduceMotion() {
             return Motion::Still;
         }
-        Motion::InFront
+        Motion::Still
     });
     *MOTION
 }

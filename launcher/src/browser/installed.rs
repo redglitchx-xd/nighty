@@ -381,4 +381,5 @@ pub fn install_datapack(
 }
 
 #[cfg(test)]
+#[path = "installed/tests.rs"]
 mod tests;

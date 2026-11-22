@@ -109,7 +109,7 @@ impl Launcher {
         div()
             .flex()
             .flex_col()
-            .gap(px(20.))
+            .gap(px(24.))
             .child(
                 div()
                     .flex()

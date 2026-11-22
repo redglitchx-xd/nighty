@@ -1,4 +1,4 @@
-use super::*;
+use crate::browser::*;
 use serde_json::json;
 use sha2::Digest;
 
@@ -194,7 +194,7 @@ fn java_mods_are_checked_for_universal_support() {
         "26.1-snapshot-2",
         "",
     ] {
-        assert_eq!(portable_version(version), true, "{version}");
+        assert!(portable_version(version), "{version}");
     }
     let versions = [
         version("snapshot", &["26.4-snapshot-1"], &["fabric"]),
