@@ -772,7 +772,7 @@ impl Launcher {
                             names.join(", ")
                         ));
                     }
-                    if p.source == SourceId::Apex && p.kind == PackKind::Mod {
+                    if p.source == SourceId::Horizon && p.kind == PackKind::Mod {
                         return Ok(format!(
                             "Installed {} into horizon-mods and turned it on, checksum checked \
                              (Options > Mods in the game).",
@@ -1558,7 +1558,7 @@ impl Launcher {
                     ),
                     &t,
                 );
-            } else if m.source == SourceId::Apex {
+            } else if m.source == SourceId::Horizon {
                 tr("Nothing in Apex's registry matches yet.")
             } else if m.everything {
                 tr("Nothing found.")

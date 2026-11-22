@@ -678,7 +678,7 @@ enum SourceArg {
     /// CurseForge support is coming soon
     Curseforge,
     /// Horizon's own registry: mods, modpacks and resource packs made for Horizon, reviewed
-    Apex,
+    Horizon,
 }
 
 impl SourceArg {

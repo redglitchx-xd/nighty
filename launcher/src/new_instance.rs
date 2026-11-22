@@ -15,7 +15,7 @@ const ROWS: usize = 60;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NewKind {
-    Apex,
+    Horizon,
     Vanilla,
     Modded,
 }
