@@ -7,7 +7,7 @@
 Requires an approved build window, cached lockfile dependencies and macOS developer tools.
 Without --run, only prints this help. --run tests filesystem/query/signature seams; adding
 --keychain runs signed synthetic bundles, real lsof and real Keychain with UUID keys under
-dev.playhorizon.launcher.diagnostic ONLY, removing and checking those keys afterwards.
+dev.playapex.launcher.diagnostic ONLY, removing and checking those keys afterwards.
 No real launcher, OAuth, accounts, network or player data. Synthetic peers model multiple
 GUI/MCP processes sharing a vnode; actual launcher startup/MCP wiring needs separate QA.
 The scratch crate uses normal Rust module layout and byte-identical copies of the product
@@ -39,8 +39,8 @@ PROBE = r'''
 mod mac_update;
 use std::{io::{self, BufRead, Write}, path::PathBuf, process::Command};
 use std::os::unix::process::CommandExt;
-const SERVICE: &str = "dev.playhorizon.launcher.diagnostic";
-const MARKER: &str = "horizon synthetic updater regression";
+const SERVICE: &str = "dev.playapex.launcher.diagnostic";
+const MARKER: &str = "apex synthetic updater regression";
 fn entry(key: &str) -> Result<keyring::Entry, String> {
     if key.len() != 36 || !key.bytes().all(|b| b.is_ascii_hexdigit() || b == b'-') {
         return Err("expected diagnostic UUID".into());
@@ -88,7 +88,7 @@ fn main() {
                     _ => Err("diagnostic key absence not verified".into()),
                 }
             },
-            "exec" => Err(Command::new(app.join("Contents/MacOS/horizon-launcher"))
+            "exec" => Err(Command::new(app.join("Contents/MacOS/apex-launcher"))
                 .arg(&app).exec().to_string()),
             _ => Err("unknown probe command".into()),
         })();
@@ -110,7 +110,7 @@ def pins(text):
 
 class Peer:
     def __init__(self, app, env):
-        self.proc = subprocess.Popen([str(app / 'Contents/MacOS/horizon-launcher'), str(app)],
+        self.proc = subprocess.Popen([str(app / 'Contents/MacOS/apex-launcher'), str(app)],
                                      env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
 
     def line(self):
@@ -138,19 +138,19 @@ class Peer:
 
 def keychain_scenario(work, binary, env):
     peers, keys = [], [str(uuid.uuid4()) for _ in range(3)]
-    app = work / 'Applications/Horizon.app'
+    app = work / 'Applications/Apex.app'
     # Recovery custody if an assertion or native permission prompt interrupts the run.
-    print(json.dumps({'diagnostic_service': 'dev.playhorizon.launcher.diagnostic',
+    print(json.dumps({'diagnostic_service': 'dev.playapex.launcher.diagnostic',
                       'diagnostic_uuids': keys, 'scratch': str(work)}), flush=True)
 
     def bundle(path, version):
         (path / 'Contents/MacOS').mkdir(parents=True)
         (path / 'Contents/Resources').mkdir()
-        shutil.copy2(binary, path / 'Contents/MacOS/horizon-launcher')
+        shutil.copy2(binary, path / 'Contents/MacOS/apex-launcher')
         (path / 'Contents/Resources/version').write_text(version)
         (path / 'Contents/Info.plist').write_text('''<?xml version="1.0"?><plist version="1.0"><dict>
-<key>CFBundleExecutable</key><string>horizon-launcher</string>
-<key>CFBundleIdentifier</key><string>dev.playhorizon.launcher.diagnostic</string>
+<key>CFBundleExecutable</key><string>apex-launcher</string>
+<key>CFBundleIdentifier</key><string>dev.playapex.launcher.diagnostic</string>
 <key>CFBundlePackageType</key><string>APPL</string></dict></plist>''')
         run('/usr/bin/codesign', '--force', '--sign', '-', path, env=env)
         return path
@@ -162,11 +162,11 @@ def keychain_scenario(work, binary, env):
         return p
 
     def retired():
-        return set(app.parent.glob('.Horizon.app.old-*'))
+        return set(app.parent.glob('.Apex.app.old-*'))
 
     bundle(app, 'v1')
-    v2 = bundle(work / 'v2/Horizon.app', 'v2')
-    v3 = bundle(work / 'v3/Horizon.app', 'v3')
+    v2 = bundle(work / 'v2/Apex.app', 'v2')
+    v3 = bundle(work / 'v3/Apex.app', 'v3')
     try:
         a, b = start(), start()  # two users of the same original executable, like GUI + MCP
         a.ask(f'update {v2}')
@@ -238,11 +238,11 @@ def main():
     before = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}
     lock = LOCK.read_text()
     print(json.dumps({'starting_snapshot_sha256': before}), flush=True)
-    with tempfile.TemporaryDirectory(prefix='horizon-macos-update-') as tmp:
+    with tempfile.TemporaryDirectory(prefix='apex-macos-update-') as tmp:
         work = Path(tmp)
         env = dict(os.environ, CARGO_BUILD_JOBS='1', CARGO_TARGET_DIR=str(work / 'target'))
-        for key in ['HORIZON_HOME', 'HORIZON_LAUNCHER_HOME', 'XDG_DATA_HOME', 'XDG_CONFIG_HOME',
-                    'HORIZON_LAUNCHER_TRASH', 'HORIZON_LAUNCHER_CLIPBOARD', 'HORIZON_LAUNCHER_DESKTOP']:
+        for key in ['APEX_HOME', 'APEX_LAUNCHER_HOME', 'XDG_DATA_HOME', 'XDG_CONFIG_HOME',
+                    'APEX_LAUNCHER_TRASH', 'APEX_LAUNCHER_CLIPBOARD', 'APEX_LAUNCHER_DESKTOP']:
             env[key] = str(work / key.lower())
             Path(env[key]).mkdir()
         # Force fresh homes before the official helper preserves caller-provided folders.
@@ -259,7 +259,7 @@ def main():
                 f'copied source differs from starting snapshot: {source}'
         manifest = work / 'Cargo.toml'
         manifest.write_text('''[package]
-name = "horizon-macos-update-regression"
+name = "apex-macos-update-regression"
 version = "0.0.0"
 edition = "2021"
 [workspace]
@@ -278,7 +278,7 @@ keyring = { version = "=3.6.3", features = ["apple-native"] }
         result = {'module_tests': 'see cargo counts above', 'keychain': 'not requested'}
         if args.keychain:
             run('cargo', 'build', '--offline', '--locked', '-j1', '--manifest-path', manifest, env=env)
-            result['keychain'] = keychain_scenario(work, work / 'target/debug/horizon-macos-update-regression', env)
+            result['keychain'] = keychain_scenario(work, work / 'target/debug/apex-macos-update-regression', env)
         after = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}
         assert before == after, 'source/lock snapshot changed during regression'
         print(json.dumps({'snapshot_sha256': before, 'registry_pins': len(resolved), **result}, indent=2))

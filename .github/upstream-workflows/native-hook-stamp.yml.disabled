@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   stamp:
-    if: github.repository == 'horizon-rust/horizon'
+    if: github.repository == 'apex-rust/apex'
     runs-on: ubuntu-latest
     permissions:
       contents: write

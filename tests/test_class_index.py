@@ -150,12 +150,12 @@ class VanillaMapTests(unittest.TestCase):
             "net/minecraft/world/level/Level", "net/minecraft/server/level/ServerLevel"})
 
     def test_probe_modules(self):
-        sources = {"crates/horizon-world/src/food.rs", "crates/horizon-world/src/level/mod.rs",
-                   "crates/horizon-world/src/level/tick.rs"}
-        text = "use horizon_world::food::FoodData;\nuse horizon_world::level::tick::{a, b};\nuse crate::level;\n"
-        self.assertEqual(vanilla_map.module_files("crates/horizon-world/examples/p.rs", text, sources),
-                         {"crates/horizon-world/src/food.rs", "crates/horizon-world/src/level/tick.rs",
-                          "crates/horizon-world/src/level/mod.rs"})
+        sources = {"crates/apex-world/src/food.rs", "crates/apex-world/src/level/mod.rs",
+                   "crates/apex-world/src/level/tick.rs"}
+        text = "use apex_world::food::FoodData;\nuse apex_world::level::tick::{a, b};\nuse crate::level;\n"
+        self.assertEqual(vanilla_map.module_files("crates/apex-world/examples/p.rs", text, sources),
+                         {"crates/apex-world/src/food.rs", "crates/apex-world/src/level/tick.rs",
+                          "crates/apex-world/src/level/mod.rs"})
         self.assertEqual(vanilla_map.probe_files("run(['food_fixture'])", {"food_fixture": "e.rs", "food": "f.rs"}),
                          {"food_fixture": "e.rs"})
         self.assertEqual(vanilla_map.harness_name("tools/test_food_parity.py"), "food")

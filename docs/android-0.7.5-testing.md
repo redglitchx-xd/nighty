@@ -54,7 +54,7 @@ Touch gestures with crosshair: targeting should use the center, not the finger.
 
 In Touch Controls enable Gyroscope, initially at low sensitivity.
 
-- In active touch gameplay, tilt horizontally and vertically; check direction.
+- In active touch gameplay, tilt apextally and vertically; check direction.
 - Increase sensitivity and repeat. Turn it off: tilting must stop moving the view.
 - Repeat after rotating the display to each orientation allowed by the client.
 - Enter menus, use another input mode and background the app: gyro must not keep

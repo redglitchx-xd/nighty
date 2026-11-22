@@ -4,7 +4,7 @@
 //!
 //! The launcher never signs in for anyone and never uses Funnel: signing in happens in Tailscale's own app
 //! or page, and the access token is one the player makes in the admin console and pastes here (it is
-//! kept in the system keychain). `HORIZON_LAUNCHER_TAILSCALE` (the CLI) and `HORIZON_TAILSCALE_API` (the
+//! kept in the system keychain). `APEX_LAUNCHER_TAILSCALE` (the CLI) and `APEX_TAILSCALE_API` (the
 //! API's address) point the tests at stand-ins.
 use serde_json::{json, Value};
 use std::path::PathBuf;

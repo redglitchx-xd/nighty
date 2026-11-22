@@ -75,13 +75,13 @@ impl Build {
         })
     }
 
-    /// The Horizon it was built on, as a player reads it (`horizon_label`).
-    pub fn horizon(&self) -> String {
-        horizon_label(&self.base)
+    /// The Apex it was built on, as a player reads it (`apex_label`).
+    pub fn apex(&self) -> String {
+        apex_label(&self.base)
     }
 
     /// The same, short enough for the instance list: `Nightly 10-28`.
-    pub fn horizon_short(&self) -> String {
+    pub fn apex_short(&self) -> String {
         match crate::nightly::date_of(&self.base) {
             Some(date) => format!("Nightly {}", &date[5..]),
             None => self.base.clone(),
@@ -91,7 +91,7 @@ impl Build {
 
 /// A release or Nightly as a player reads it beside "Apex": `v0.2.93` as it is,
 /// `nightly-2026-10-29-4baa571` as `Nightly 2026-10-29`.
-pub fn horizon_label(version: &str) -> String {
+pub fn apex_label(version: &str) -> String {
     match crate::nightly::date_of(version) {
         Some(date) => format!("Nightly {date}"),
         None => version.to_owned(),
@@ -104,7 +104,7 @@ pub fn horizon_label(version: &str) -> String {
 pub fn enabled(home: &Path) -> Vec<Mod> {
     let mut out = Vec::new();
     for path in hnmods(home) {
-        match horizon_mods::index::native::Bundle::read(&path) {
+        match apex_mods::index::native::Bundle::read(&path) {
             Ok(b) => {
                 if java::is_enabled(home, &b.manifest.id) {
                     let digest = native_mods::digest(
@@ -138,7 +138,7 @@ pub fn untracked(home: &Path) -> Vec<Installed> {
             if !path.is_file() || tracked.entries.iter().any(|e| e.file == file) {
                 return None;
             }
-            let (id, version) = horizon_mods::index::native::Bundle::read(&path)
+            let (id, version) = apex_mods::index::native::Bundle::read(&path)
                 .map(|b| (b.manifest.id, b.manifest.version))
                 .unwrap_or_else(|_| (stem(&path), String::new()));
             let origin = (path.file_stem()?.to_str()? == id)
@@ -183,7 +183,7 @@ fn parse_built(about: &serde_json::Value) -> Vec<Mod> {
 pub fn fingerprint(home: &Path, version: Option<&str>) -> String {
     let mut out = format!("{}\n{version:?}\n", home.display());
     // The on/off list (`browser::java::is_enabled`).
-    out += &fs::read_to_string(home.join("horizon-mods.txt")).unwrap_or_default();
+    out += &fs::read_to_string(home.join("apex-mods.txt")).unwrap_or_default();
     for path in hnmods(home)
         .into_iter()
         .flat_map(|p| [p.clone(), p.with_extension("origin.json")])
@@ -240,11 +240,11 @@ mod tests {
                 .join(native_mods::INSTALLED)
                 .join(format!("{file}.hnmod"));
             let mut zip = zip::ZipWriter::new(fs::File::create(path).unwrap());
-            let manifest = serde_json::json!({"schema":1,"id":id,"version":"1.2","game":"26.3","horizon":pin,"mixins":pin});
-            let source = format!("[mod]\nid = \"{id}\"\nversion = \"1.2\"\n[compatibility]\nhorizon_revision = \"{pin}\"\n");
+            let manifest = serde_json::json!({"schema":1,"id":id,"version":"1.2","game":"26.3","apex":pin,"mixins":pin});
+            let source = format!("[mod]\nid = \"{id}\"\nversion = \"1.2\"\n[compatibility]\napex_revision = \"{pin}\"\n");
             for (name, bytes) in [
-                ("horizon-native.json".into(), manifest.to_string()),
-                (format!("mixins/{id}/horizon-mixin.toml"), source),
+                ("apex-native.json".into(), manifest.to_string()),
+                (format!("mixins/{id}/apex-mixin.toml"), source),
             ] {
                 zip.start_file(name, zip::write::SimpleFileOptions::default())
                     .unwrap();
@@ -269,7 +269,7 @@ mod tests {
         .unwrap();
         installed::Installed {
             entries: vec![installed::Entry {
-                source: SourceId::Horizon,
+                source: SourceId::Apex,
                 project: "registry".into(),
                 slug: "registry".into(),
                 title: "Registry mod".into(),
@@ -375,7 +375,7 @@ mod tests {
     #[test]
     fn native_mods_json_gives_the_built_mods() {
         let about = serde_json::json!({
-            "base": "v0.1.0", "horizon": "abc", "rust": "1.99.1",
+            "base": "v0.1.0", "apex": "abc", "rust": "1.99.1",
             "mods": [{"id": "zoom", "version": "2.1"}, {"id": "x"}, {"id": "y", "version": "1", "sha256": "ab"}],
         });
         assert_eq!(parse_built(&about), [m("zoom", "2.1"), d("y", "1", "ab")]);
@@ -384,30 +384,30 @@ mod tests {
     }
 
     #[test]
-    fn builds_name_the_horizon_they_were_built_on() {
-        assert_eq!(horizon_label("v0.2.93"), "v0.2.93");
+    fn builds_name_the_apex_they_were_built_on() {
+        assert_eq!(apex_label("v0.2.93"), "v0.2.93");
         assert_eq!(
-            horizon_label("nightly-2026-10-29-4baa571"),
+            apex_label("nightly-2026-10-29-4baa571"),
             "Nightly 2026-10-29"
         );
-        assert_eq!(horizon_label("nightly-2026-10-29"), "Nightly 2026-10-29");
+        assert_eq!(apex_label("nightly-2026-10-29"), "Nightly 2026-10-29");
         let build = Build {
             base: "nightly-2026-10-28-0c02067".into(),
         };
-        assert_eq!(build.horizon(), "Nightly 2026-10-28");
-        assert_eq!(build.horizon_short(), "Nightly 10-28");
+        assert_eq!(build.apex(), "Nightly 2026-10-28");
+        assert_eq!(build.apex_short(), "Nightly 10-28");
         let release = Build {
             base: "v0.2.93".into(),
         };
-        assert_eq!(release.horizon_short(), "v0.2.93");
+        assert_eq!(release.apex_short(), "v0.2.93");
         assert_eq!(Build::read("v0.1.0"), None, "not a native build");
     }
 
     #[test]
     fn only_hnmods_in_the_native_folder_are_native() {
-        assert!(is_native_file("horizon-native-mods/veinminer.hnmod"));
-        assert!(!is_native_file("horizon-native-mods-old/x.hnmod"));
-        assert!(!is_native_file("horizon-mods/zoom.hmod"));
+        assert!(is_native_file("apex-native-mods/veinminer.hnmod"));
+        assert!(!is_native_file("apex-native-mods-old/x.hnmod"));
+        assert!(!is_native_file("apex-mods/zoom.hmod"));
         assert!(!is_native_file("resourcepacks/x.zip"));
     }
 

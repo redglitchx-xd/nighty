@@ -7,8 +7,8 @@ Apex started as a decompilation and optimization lab. This page describes the lo
 Game JARs, decompiled Java, libraries, inventories, worlds and logs live **inside this checkout** under gitignored **`.local/`**. No game code is in Git history or release downloads. Fresh clones rebuild the inspection workspace from your own copy of the game (see [Build from source](../README.md#build-from-source)); nothing of the game is downloaded.
 
 ```sh
-git clone https://github.com/horizon-rust/horizon.git
-cd horizon
+git clone https://github.com/apex-rust/apex.git
+cd apex
 git config core.hooksPath .githooks
 python3 tools/lab.py prepare --server-jar ~/Downloads/server.jar
 python3 tools/lab.py decompile
@@ -21,7 +21,7 @@ Class-file SourceFile metadata covers inner classes, which often share a source 
 
 ## Original Rust research
 
-The dependency-free `horizon-core` crate starts the Rust simulation foundation:
+The dependency-free `apex-core` crate starts the Rust simulation foundation:
 integer block/chunk/section positions, legacy and xoroshiro seeded random streams and positional factories,
 padded palette-index storage, scheduled block/fluid tick queues, and double-precision
 bounding-box and voxel-grid collision geometry. Noise samplers, octave stacks and
@@ -52,7 +52,7 @@ The [density suite](density-functions.md) checks compiled scalar and bulk
 evaluation, including nested samplers, their different arithmetic paths, and
 selected interval operations used for graph range analysis.
 
-`horizon-world` adds NBT, four region compression codecs, `.mca`/`.mcc`
+`apex-world` adds NBT, four region compression codecs, `.mca`/`.mcc`
 reading and export, saved palettes, a version-checked block-state registry,
 and packed resident block sections. The world-data suite checks Rust output
 with the actual vanilla NBT, region and block-state decoders on both JARs.
@@ -78,7 +78,7 @@ cargo test --workspace
 ```
 
 Public branding and new mod downloads use **Apex**. The existing Fabric mod
-ID and `dev.horizonlab` namespace remain stable for installed instances and
-measurement compatibility. The installer backs up both old `horizon-lab-*.jar`
-and new `horizon-*.jar` versions before installing an update.
+ID and `dev.apexlab` namespace remain stable for installed instances and
+measurement compatibility. The installer backs up both old `apex-lab-*.jar`
+and new `apex-*.jar` versions before installing an update.
 

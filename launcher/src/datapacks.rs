@@ -161,7 +161,7 @@ pub const READ: [&str; 4] = ["function", "function tag", "predicate", "item_modi
 /// A data pack's files by kind (`function`, `worldgen`, `item tag`...), with how many each.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Coverage {
-    /// What Horizon runs.
+    /// What Apex runs.
     pub read: Vec<(String, usize)>,
     /// What it doesn't read yet.
     pub unread: Vec<(String, usize)>,
@@ -180,7 +180,7 @@ impl Coverage {
         }
     }
 
-    /// "1077 worldgen, 653 loot tables, 16 recipes": what Horizon doesn't read yet, the six
+    /// "1077 worldgen, 653 loot tables, 16 recipes": what Apex doesn't read yet, the six
     /// biggest kinds and how many other kinds.
     pub fn not_read(&self) -> String {
         let mut biggest = self.unread.clone();

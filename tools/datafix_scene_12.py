@@ -887,7 +887,7 @@ def make_player(Bot, varint, parse_varint, mcstring):
 
 # ------------------------------------------------------------------ multi-block and tile entity families
 DOORS = ['wooden_door', 'spruce_door', 'birch_door', 'jungle_door', 'acacia_door', 'dark_oak_door', 'iron_door']
-FACE_XZ = {0: (0, 1), 1: (-1, 0), 2: (0, -1), 3: (1, 0)}                      # horizontal index -> (dx, dz)
+FACE_XZ = {0: (0, 1), 1: (-1, 0), 2: (0, -1), 3: (1, 0)}                      # apextal index -> (dx, dz)
 FACE_XYZ = {0: (0, -1, 0), 1: (0, 1, 0), 2: (0, 0, -1), 3: (0, 0, 1), 4: (-1, 0, 0), 5: (1, 0, 0)}   # piston style facing
 
 

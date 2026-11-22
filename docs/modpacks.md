@@ -25,7 +25,7 @@ why Java jars cannot run in Apex, so we port instead). The ATM10 inventory behin
    │
    ├─ carry-over (mechanical, no agent): assets/ + data/ upgraded to 26.3 formats,
    │    block and item registrations from the oracle's facts export  →  <mod>.hmod
-   ├─ port (one agent per mod, tiers logic and up): a Rust native mod (a horizon-mixins
+   ├─ port (one agent per mod, tiers logic and up): a Rust native mod (a apex-mixins
    │    bundle), iterating until its harness passes                  →  <mod>.hnmod
    ├─ harness per mod: the Java mod in a dev-only NeoForge/Fabric oracle vs the port
    ▼
@@ -133,7 +133,7 @@ derivative work. These rules are part of the pipeline, not advice to users:
    Minecraft's own files: nothing is redistributed.
 2. **The licence is recorded per mod** in the inventory (`license` from `mods.toml` or
    `fabric.mod.json`, plus Modrinth's SPDX id where one exists) and travels with the port into
-   its `horizon-mod.toml` (`ported-from = { id, version, license, url }`).
+   its `apex-mod.toml` (`ported-from = { id, version, license, url }`).
 3. **Publishing needs permission.** A port can go into a mod index, the launcher browser or a
    server's download list only if its licence allows redistributing derivatives (permissive,
    or copyleft with the port under the same licence and its source published) or the author
@@ -143,7 +143,7 @@ derivative work. These rules are part of the pipeline, not advice to users:
 4. **Mod code never enters this repository, and nobody reads it.** Mod jars, Java oracle builds
    with mod code, and ports of mods we have no permission to publish all live outside the
    repo: in the user's pipeline work directory, or for our own development in
-   `~/code/horizon-parity/modports/` (dev-only, never pushed). A mod's code is never
+   `~/code/apex-parity/modports/` (dev-only, never pushed). A mod's code is never
    decompiled, read, quoted or paraphrased, by people or agents. Ports are written only from
    the mod's observed behaviour (the oracle and the harness), its own data files and its
    public documentation. The repository holds the pipeline, the API, metadata (ids, names, versions, licences, counts)
@@ -163,9 +163,9 @@ using the "Shape" column. What a content pack needs:
 
 | Feature | Content mod today | Needed by (ATM10 content+integration, by tier) | Planned in | Shape |
 |---|---|---|---|---|
-| Block registry: ids, states, properties, shapes, sounds, light | — | data and up (all 331) | **0.2** | declared in `data/<mod>/horizon/block/*.json`, each from a vanilla *template* block (below) |
-| Item registry, block items | — | data and up | **0.2** | `data/<mod>/horizon/item/*.json`, from a vanilla template item |
-| Mob effect registry: category, colour, icon, name | — | data and up | **0.2** | `data/<mod>/horizon/mob_effect/*.json` ([mods.md](mods.md#content-mods-api-02)); no tick behaviour yet: that needs native hook points |
+| Block registry: ids, states, properties, shapes, sounds, light | — | data and up (all 331) | **0.2** | declared in `data/<mod>/apex/block/*.json`, each from a vanilla *template* block (below) |
+| Item registry, block items | — | data and up | **0.2** | `data/<mod>/apex/item/*.json`, from a vanilla template item |
+| Mob effect registry: category, colour, icon, name | — | data and up | **0.2** | `data/<mod>/apex/mob_effect/*.json` ([mods.md](mods.md#content-mods-api-02)); no tick behaviour yet: that needs native hook points |
 | Recipes, loot tables, tags, advancements, lang, blockstates, models, textures, sounds in the mod's namespace | vanilla namespace only | data and up | **0.2** | the 26.3 data-pack and resource-pack formats, as they are |
 | Worldgen JSON: features, structures, template pools, processors, structure NBT, biome additions | vanilla bundle only | about 30 data-tier structure and biome mods | 0.2.x | carried into the `worldgen/` bundle |
 | Block and item behaviour callbacks: use, place, break, attack, random tick, scheduled tick, neighbour change, entity inside | — | logic and up (253) | **0.3** | `server` interface; hooks per registered id, budgeted |
@@ -193,9 +193,9 @@ A content mod (`.hmod`) carries `assets/` and `data/` and no code:
 
 ```
 ruby.hmod
-├── horizon-mod.toml          id = "ruby", api = "0.2", side = "both", capabilities = ["registries"]
-├── data/ruby/horizon/block/ruby_block.json
-├── data/ruby/horizon/item/ruby.json
+├── apex-mod.toml          id = "ruby", api = "0.2", side = "both", capabilities = ["registries"]
+├── data/ruby/apex/block/ruby_block.json
+├── data/ruby/apex/item/ruby.json
 ├── data/ruby/recipe/ruby_block.json            (26.3 data-pack formats)
 ├── data/ruby/loot_table/blocks/ruby_block.json
 ├── data/minecraft/tags/block/mineable/pickaxe.json   (adds to a vanilla tag)
@@ -265,12 +265,12 @@ How the game loads them, without touching vanilla's path:
   when its Java original ships them so (`namespaces = ["kaisyn", "towns_and_towers"]` for Towns
   and Towers, mod id `t_and_t`; docs/mods.md). No namespace has two owners: a mod whose id or
   listed namespace another mod that is on already owns is left out, with both named in the log.
-  `horizon-port-pack` avoids that inside a pack: a namespace two carried mods both claim (YUNG's
+  `apex-port-pack` avoids that inside a pack: a namespace two carried mods both claim (YUNG's
   structure mods all ship files under `yungsapi`, the namespace of YUNG's API, whose own jar isn't
   carried) is left to none of them, and its files stay outside. The launcher applies the game's
   rule before it starts a pack (`pipeline::loadable`) and lists what it left off.
 - The overlay is built on the first start with a set of mods and kept for later starts. A stamp
-  (`horizon-mod-content.stamp`) hashes the game executable, the base tables and every mod file's
+  (`apex-mod-content.stamp`) hashes the game executable, the base tables and every mod file's
   size and mtime. Adding, removing or editing a mod, or a new build of Apex, rebuilds it. For
   ATM10's 40 data-tier mods the build takes about a minute of the first start on a busy machine.
 - **Worldgen.** Mods' structures, structure sets, template pools, processor lists, configured and
@@ -295,15 +295,15 @@ How the game loads them, without touching vanilla's path:
   opened without a mod they used (vanilla turns unknown blocks into air; we will ask first),
   vanilla ids redefined by a mod (refused).
 
-## The pipeline: `horizon-port-pack`
+## The pipeline: `apex-port-pack`
 
-A Rust tool in this repo (`crates/horizon-port-pack`, a CLI the launcher also calls), modelled
+A Rust tool in this repo (`crates/apex-port-pack`, a CLI the launcher also calls), modelled
 on the version-port pipeline (`tools/version_port.py`: detect, diff, regen, harnesses, report,
 publish). Each step reads and writes files in a work directory, so it can be rerun, resumed and
 inspected:
 
 ```
-<work>/                       ~/.horizon/ports/<pack-slug>/ for players; ~/code/horizon-parity/modports/ for us
+<work>/                       ~/.apex/ports/<pack-slug>/ for players; ~/code/apex-parity/modports/ for us
 ├── pack.json                 normalised import
 ├── inventory.json            per mod: metadata, licence, census, class, tier, deps, layer
 ├── jars/                     the user's own jars (copied or linked from their instance), never uploaded
@@ -321,14 +321,14 @@ them all for what a player's machine can port (content mods of the data tier), a
 launcher's "Import modpack" does:
 
 ```
-cargo run -p horizon-port-pack -- import ~/Downloads/pack.mrpack ~/.horizon/ports/pack
-cargo run -p horizon-port-pack -- inventory ~/.horizon/ports/pack     # --offline reuses modrinth.json
-cargo run -p horizon-port-pack -- fetch ~/.horizon/ports/pack         # the portable mods' jars, or name them
+cargo run -p apex-port-pack -- import ~/Downloads/pack.mrpack ~/.apex/ports/pack
+cargo run -p apex-port-pack -- inventory ~/.apex/ports/pack     # --offline reuses modrinth.json
+cargo run -p apex-port-pack -- fetch ~/.apex/ports/pack         # the portable mods' jars, or name them
 #   --from <folder>: copy the player's own jars (an installed instance, a downloads folder)
-cargo run -p horizon-port-pack -- carry ~/.horizon/ports/pack         # content mods with a jar, or name them
+cargo run -p apex-port-pack -- carry ~/.apex/ports/pack         # content mods with a jar, or name them
 #   --resources <prepared root>: only templates Apex's tables have
-cargo run -p horizon-port-pack -- report ~/.horizon/ports/pack        # coverage.json and coverage.md
-cargo run -p horizon-port-pack -- port ~/Downloads/pack.zip ~/.horizon/ports/pack [--from <folder>] [--resources <root>]
+cargo run -p apex-port-pack -- report ~/.apex/ports/pack        # coverage.json and coverage.md
+cargo run -p apex-port-pack -- port ~/Downloads/pack.zip ~/.apex/ports/pack [--from <folder>] [--resources <root>]
 ```
 
 ### Resource packs from an imported modpack
@@ -517,18 +517,18 @@ Two cases the oracle fills in:
   - **Start and placement rules** (#820 in the game, #821 in carry). Repurposed Structures'
     and Moog's jigsaws refuse to start in liquid and check biomes and terrain height in a
     radius; their spreads keep a minimum distance from the world origin and away from other
-    sets (named by a structure set tag). Carry writes these under `horizon:start_checks`,
-    `horizon:min_distance_from_world_origin` and `horizon:exclusion_zone`; the game runs them
-    (`horizon-world`'s `structure/start_checks.rs`). Vanilla data has none of the keys. Moog's
+    sets (named by a structure set tag). Carry writes these under `apex:start_checks`,
+    `apex:min_distance_from_world_origin` and `apex:exclusion_zone`; the game runs them
+    (`apex-world`'s `structure/start_checks.rs`). Vanilla data has none of the keys. Moog's
     also spreads its structures 1.65 times as far apart as its files say, which carry now
     applies. MVS went from 829 starts to 90 in a 128×128-chunk square (seed 1234): 294 from the
     spacing, the rest from the start checks.
   - **Mo' Structures** (LGPL-3.0; 38 files). Its `mostructures:generic` is vanilla's jigsaw
     that starts only where the terrain under the 5×5 chunks around it varies by no more than
-    its `heightRange`: carry writes `minecraft:jigsaw` with `horizon:start_checks`
+    its `heightRange`: carry writes `minecraft:jigsaw` with `apex:start_checks`
     (`terrain_radius` 2, `terrain_range`). Its placement `mostructures:type` takes spacing and
     separation from the mod's config, not its files; carry writes the config's defaults
-    (keyed by `config_key`) and the sets it avoids within 3 chunks as `horizon:exclusion_zone`
+    (keyed by `config_key`) and the sets it avoids within 3 chunks as `apex:exclusion_zone`
     with `"their_zones": false`: like the mod, the game tests those sets by their spread and
     frequency alone, not by their own exclusion zones. Its two block-ageing processors
     (`jungle_rot_processor`, `simple_cobblestone`, 3 uses) are still dropped, as is its
@@ -541,17 +541,17 @@ Two cases the oracle fills in:
     template has them); 1,427 processors of 146 types in ATM10's mods, the most common
     `lithostitched:block_swap`, Formations' `biome_replacements` and Repurposed Structures'
     pillar, fluid and void processors.
-  - **Spawner processors** carried as data (`horizon-port-pack/src/processors.rs`). Most
+  - **Spawner processors** carried as data (`apex-port-pack/src/processors.rs`). Most
     chests in the mods' templates already name their loot table; what the Java processors add
     is the spawners' mobs. Moog's and Repurposed Structures' spawner randomizing processors
-    become `horizon:spawner_mobs` (a weighted mob per spawner, picked with the placement's
+    become `apex:spawner_mobs` (a weighted mob per spawner, picked with the placement's
     random as theirs do, and the spawner NBT they write; Repurposed's `rs_spawners` lists are
     written in). YUNG's Better Dungeons and Better Desert Temples turn a spawner or a
     placeholder block (gravel, bone block, yellow wool...) into a spawner of a fixed mob: that
     is vanilla's `rule` processor with an `append_static` block entity. Moog's vanilla loot
     swap acts only when a "replace vanilla" preset is on, and they ship off. Moog's trial
     spawner and vault processors keep the block and change its block entity: one `rule` per
-    block state, with the game's `horizon:edit` modifier, which takes out the state the
+    block state, with the game's `apex:edit` modifier, which takes out the state the
     template was saved with (a vault saved with `state_updating_resumes_at` far in the future
     never opens; a spawner's saved `spawn_data` blocks its own mobs) and merges in the
     spawner's normal and ominous configs (by id: the carry upgrades `trial_spawner/` files'
@@ -559,9 +559,9 @@ Two cases the oracle fills in:
     placeholder blocks (orange, red and white glass, blue and yellow concrete, red wool,
     polished diorite, blank pots) become what its processors make of them: the fixed swaps as
     vanilla's `rule`, the random ones (suspicious sand, sand and sandstone, upside-down stairs,
-    cobwebs, sherds on the pots) as the game's `horizon:pick`, on the same `nextFloat` as the
+    cobwebs, sherds on the pots) as the game's `apex:pick`, on the same `nextFloat` as the
     mod. Better Dungeons' small dungeons keep one chest and each other one with a fifth's
-    chance, two at most (the game's `horizon:count_cap`, counted per placement as the mod's
+    chance, two at most (the game's `apex:count_cap`, counted per placement as the mod's
     DungeonContext is): 12 chests in five small dungeons at seed 1234 become 6.
     Lithostitched's processors (all in ChoiceTheorem's Overhauled Village in ATM10) are the
     game's own types, read as the mod writes them. `block_swap` keeps the properties the new
@@ -585,13 +585,13 @@ Two cases the oracle fills in:
     jigsaw). Apex keeps vanilla's layouts, so with Lithostitched in a pack, structure layouts
     differ from the Java pack's for the same seed (their positions do not).
     The processors that build outside their template are carried too: Repurposed's and
-    Moog's pillar processors become the game's `horizon:pillar` (a column from a placeholder
+    Moog's pillar processors become the game's `apex:pillar` (a column from a placeholder
     block down to the ground, with the processor list they run on each of its blocks written
-    in), Repurposed's bottom pillars `horizon:bottom_pillar`, their fluid fix (a wall of the
+    in), Repurposed's bottom pillars `apex:bottom_pillar`, their fluid fix (a wall of the
     structure's block over water and lava sources next to its open blocks)
-    `horizon:close_off_fluid_sources`, and YUNG's pillars (Better Fortresses, Better Jungle
-    Temples) and Better Fortresses' stair supports `horizon:yung_pillar` and
-    `horizon:stair_pillar`. They write only in the chunk being generated, as the mods do.
+    `apex:close_off_fluid_sources`, and YUNG's pillars (Better Fortresses, Better Jungle
+    Temples) and Better Fortresses' stair supports `apex:yung_pillar` and
+    `apex:stair_pillar`. They write only in the chunk being generated, as the mods do.
     Dropped processors went from 570 to 456 in Repurposed Structures (its pillars, bottom
     pillars and fluid fixes: 242 lists), 14 to 1 in Moog's, 10 to 5 in Better Fortresses and
     52 to 50 in Better Jungle Temples; the structure starts are the same (382 starts, 37,451
@@ -604,21 +604,21 @@ Two cases the oracle fills in:
     chunks (the huge fungi there grow around the columns).
     Better Ocean Monuments' ten processors are carried as well, so its monuments are no longer
     dry: its templates are mostly air, which its air processor turns to water below the sea
-    level (the game's `horizon:flood_air`); its waterlog processor (`horizon:waterlog`)
+    level (the game's `apex:flood_air`); its waterlog processor (`apex:waterlog`)
     waterlogs what can be and marks the water on the chunk's edges for postprocessing, its
-    structure void keeps the world's block (`horizon:keep_world_block`), its placeholder
+    structure void keeps the world's block (`apex:keep_world_block`), its placeholder
     blocks become slabs, sponges, seagrass, gravel and aged copper (vanilla's `rule`, and
-    `horizon:pick` with a new `nextFloat` for each chance, as the mod draws), and its legs and
-    Better Witch Huts' log and fence legs are `horizon:yung_pillar`. In the monument at chunk
+    `apex:pick` with a new `nextFloat` for each chance, as the mod draws), and its legs and
+    Better Witch Huts' log and fence legs are `apex:yung_pillar`. In the monument at chunk
     (2, 8) (seed 1234), 318,512 blocks of air become water and none is left between y 30 and
     60 (227,034 before); its 5,142 placeholder blocks are gone.
     Repurposed's opposite fix, which walls off the air and other liquids beside its ocean
-    mineshafts' water, is `horizon:close_off_air_sources` (its 4 lists). It runs in the mod's
+    mineshafts' water, is `apex:close_off_air_sources` (its 4 lists). It runs in the mod's
     order, so the walls it builds keep the later blocks of the template from the mod's "where
     the world is air, keep it" rules: around the ocean mineshaft at chunk (-18, -54), seed
     1234, 650 blocks of air and cave air become prismarine and 614 more template water blocks
     stay water (1,303 blocks change in its 81 chunks).
-    Its mineshafts' sky view processor (71 lists) is `horizon:mineshaft_sky_view`: a block
+    Its mineshafts' sky view processor (71 lists) is `apex:mineshaft_sky_view`: a block
     of the template at or above the world's `OCEAN_FLOOR_WG` height in its column is not
     placed, so a mineshaft cut by a valley or a ravine is not built in the open, except
     plain rails over a block that can occlude, which stay (waterlogged where the world holds
@@ -643,10 +643,10 @@ Two cases the oracle fills in:
     blocks with three of the mod's own rule tests inside vanilla `rule` processors: what a
     block is made of (solid, liquid, air, with rails and chains), a chance over the distance
     from the template's origin along one axis, and a world height range. The game runs them
-    as `horizon:matter_phase`, `horizon:piece_origin_axis_aligned_linear_pos` and
-    `horizon:y_value` with the mod's fields, and carry renames them (213 in 75 lists).
+    as `apex:matter_phase`, `apex:piece_origin_axis_aligned_linear_pos` and
+    `apex:y_value` with the mod's fields, and carry renames them (213 in 75 lists).
   - **Waterlogging.** Repurposed's `waterlogging_when_replacing_water_processor` (the bottom
-    pillars of its villages and outposts, 16 lists) is `horizon:waterlog_in_world_water`: a
+    pillars of its villages and outposts, 16 lists) is `apex:waterlog_in_world_water`: a
     block that can be waterlogged is where the world holds water, dry where it does not, and
     one placed in water gets a block tick. Its dropped processors go from 370 to 253 (with
     the structure voids carried); around the ocean village at chunk (12, 10), seed 1234, 6
@@ -678,35 +678,35 @@ Two cases the oracle fills in:
     Arise main pieces and two Nullscape pieces. They used to load as empty templates, so their
     structures never started.
   - **Additions to other sets and pools** (#832 in the game, #833 in carry). A set or pool file
-    holding `horizon:add_to` appends its entries to the sets or pools it names (docs/mods.md).
+    holding `apex:add_to` appends its entries to the sets or pools it names (docs/mods.md).
     Carry writes these from lithostitched's `add_structure_set_entries` and
     `add_template_pool_elements` modifiers whose load conditions hold for the mods ported
     along, and from CTOV's Java registration: its 21 village types and 11 outposts join
     vanilla's `villages` and `pillager_outposts` with the mod's default weights.
   - **YUNG's API** (#839, #846 in the game; #840, #847 in carry). `yungsapi:yung_jigsaw` and its
     elements become vanilla's jigsaw and single element, with their rules under
-    `horizon:yungsapi`. The game assembles them as YUNG's `JigsawManager` does: priority
+    `apex:yungsapi`. The game assembles them as YUNG's `JigsawManager` does: priority
     pieces, caps by name, depth ranges, `ignore_bounds` and the conditions tree, with
     `piece_in_range`. Dead-end pools swap a piece that got no child for one of its dead-end
     pool, and once the layout is done each piece's modifiers can turn it into another template
     (`transform`) or place it last (`delay_generation`). Better Fortresses' bridges need all
     three: over seed 1234's Nether chunks -64..63 it goes from 3,765 to 4,106 pieces. YUNG's
-    placements become `horizon:` keys on a random spread: `horizon:exclusion_zone` for the
-    enhanced exclusion zone, `horizon:avoid_biomes` for the temples' ocean and river search,
-    `horizon:ring_sections` for Better Strongholds' rings. `horizon:disables` on a YUNG
+    placements become `apex:` keys on a random spread: `apex:exclusion_zone` for the
+    enhanced exclusion zone, `apex:avoid_biomes` for the temples' ocean and river search,
+    `apex:ring_sections` for Better Strongholds' rings. `apex:disables` on a YUNG
     structure turns off the vanilla type its mod's mixin turns off. It is written only when
     the game can start the replacement, so vanilla mineshafts stay while Better Mineshafts (a
     Java type) can't.
   - **Repurposed Structures' and Moog's own assembler** (#850 in the game, #851 in carry). Both
     lay out their jigsaws with `PieceLimitedJigsawManager`, not vanilla's. Their structures, the
-    Nether variants too, get `horizon:piece_limited`: `y_allowance`, burying, the pools whose
+    Nether variants too, get `apex:piece_limited`: `y_allowance`, burying, the pools whose
     fallbacks ignore the bounds, liquid, the Nether land search and ledge, and each
     structure's piece caps and required pieces from the mod's `*_pieces_spawn_counts` files.
     The game assembles them the mods' way and runs their post-layout steps (centring,
     burying, the Nether land search).
   - **Enhanced terrain adaptation.** YUNG's API and MoogsStructureLib add a kernel of their
     own to the Beardifier: its own size and falloff, carving or burying above and below each
-    piece's floor. Carry writes it as `horizon:enhanced_terrain_adaptation` on the structure
+    piece's floor. Carry writes it as `apex:enhanced_terrain_adaptation` on the structure
     and on pool elements with their own (docs/mods.md), and the game sums it after vanilla's
     terrain density. In seed 1234's terrain before structures are placed, Better Fortresses'
     pieces held 39 to 41 % netherrack and now 3 to 7 %, the mod's open bridges; Moog's mega
@@ -736,15 +736,15 @@ Two cases the oracle fills in:
     template per start at a height found in the noise columns under its corners and centre: on
     the surface, on water or lava, or in a cave (on its floor, under its ceiling, buried in
     stone, on a lava lake). Carry writes its `formations:simple` as the game's
-    `horizon:formations` (`horizon-world`'s `structure/formations.rs`, which reads the blocks
+    `apex:formations` (`apex-world`'s `structure/formations.rs`, which reads the blocks
     of ChunkGenerator.getBaseColumn through the structure context) and its pool element as
-    vanilla's with its `ground_level` under `horizon:ground_level`. In chunks -64..63 that adds
+    vanilla's with its `ground_level` under `apex:ground_level`. In chunks -64..63 that adds
     39 Overworld and 672 Nether starts at seed 1234 (51 and 643 at seed 2), and leaves every
     other start as it was. Its processors (biome replacements, aged blocks, bed colours,
     plants) are still dropped, so its structures keep their templates' blocks.
     Its one PiecedStructure, the fountain, starts the same way and then lays out the element's
-    jigsaw children with vanilla's jigsaw: carry writes it as `horizon:formations` with
-    `horizon:pieced` (`max_depth`, `max_distance_from_center`), and the game's assembler takes
+    jigsaw children with vanilla's jigsaw: carry writes it as `apex:formations` with
+    `apex:pieced` (`max_depth`, `max_distance_from_center`), and the game's assembler takes
     the placed start piece (`jigsaw::add_children`), the children kept within that distance of
     the start's centre, one block above the height found. It shares Formations' "uncommon"
     structure set, so where the set now picks it, it takes the place of a statue or a house:
@@ -760,7 +760,7 @@ Two cases the oracle fills in:
 
   Repurposed's Nether city, Nether shipwrecks and End stronghold are its generic jigsaw with
   one more start check each, carried as `minecraft:jigsaw` with the check named in
-  `horizon:start_checks.repurposed`: open air from sea level + 20 to + 45 around the city's
+  `apex:start_checks.repurposed`: open air from sea level + 20 to + 45 around the city's
   chunk, no solid block in a 33×30×33 grid over a shipwreck, and land 45 blocks up at nine
   points 35 and 70 blocks apart for the stronghold. Over chunks -320..319 in the Nether there
   are 2 cities and 45 shipwrecks (30 and 865 without the checks); the End stronghold keeps
@@ -778,8 +778,8 @@ budget allows:
 - **Input:** the inventory record, the carried-over data, the oracle's exports and traces, the
   harness, [native-mods.md](native-mods.md), the ports of its dependencies, and the mod's public
   documentation. Never its code: the agent doesn't decompile, read or quote it.
-- **Output:** a native mod, a horizon-mixins bundle started from
-  [horizon-native-mod-template](https://github.com/horizon-rust/horizon-native-mod-template), and its `.hnmod`.
+- **Output:** a native mod, a apex-mixins bundle started from
+  [apex-native-mod-template](https://github.com/apex-rust/apex-native-mod-template), and its `.hnmod`.
 - **Loop:** write → build → run the harness → read the differences → fix, until the harness
   passes or the agent reports what blocks it. Usually that is a place in the game's code the
   mixins can't reach yet, which becomes an issue ("needs a scheduled-tick hook point"), the way version ports
@@ -812,12 +812,12 @@ through the step-4 upgrader and compares only the mod's own ids and effects.
 
 ```
 python3 tools/neoforge_oracle.py export --jars <mods> --deps <their libraries> --out <work>/oracle/facts.json
-cargo run -p horizon-port-pack -- carry <work> --resources .local/horizon-client/26.3
+cargo run -p apex-port-pack -- carry <work> --resources .local/apex-client/26.3
 python3 tools/mod_port_harness.py --work <work>      # or --jars/--deps to export first
 ```
 
 - `tools/neoforge_oracle.py` installs a NeoForge server (21.1.259, ATM10's) under
-  `.local/neoforge-oracle/`, builds the exporter mod in `mods/horizon/src/neoforge-oracle/` (our code, dev
+  `.local/neoforge-oracle/`, builds the exporter mod in `mods/apex/src/neoforge-oracle/` (our code, dev
   only), starts the server headless with the jars and writes, for every block of the mods'
   namespaces and every vanilla block: the class chain, states, per-state hardness, light, tool
   need, map colour, sounds, outline and collision shapes; drops for hand, diamond tools, shears
@@ -826,7 +826,7 @@ python3 tools/mod_port_harness.py --work <work>      # or --jars/--deps to expor
   modifiers, enchantability and repair items; armour's slot, defense, toughness, knockback resistance,
   equip sound and texture layers), recipes (type, result, count, resolved ingredients) and tags. One run
   with the seven mods below takes about 30 s.
-- `crates/horizon-client/examples/mod_port_probe.rs` builds the content root from the carried
+- `crates/apex-client/examples/mod_port_probe.rs` builds the content root from the carried
   mods and dumps what Apex's loaders make of the same blocks, drops, recipes and tags.
 - `tools/mod_port_harness.py` compares them per mod (blocks, properties, sounds, shapes, drops,
   placement against the template's in the oracle, vanilla tags, recipes, items) and writes
@@ -871,7 +871,7 @@ the self-drop tables it registers in code (step 4).
 Plus the licence summary (how many ports could be published) and, for a pack, "playable?":
 whether every required content mod is ported or partial with its blocks and items present.
 
-`horizon-port-pack report <work>` writes the per-mod rows and the class, tier and licence totals from the inventory, each mod's `carry-report.json`
+`apex-port-pack report <work>` writes the per-mod rows and the class, tier and licence totals from the inventory, each mod's `carry-report.json`
 and its harness result. A data-tier mod is **ported** when its harness is green and nothing was
 left out (blocks with a class of their own are counted and named, since facts cannot show
 their extra code); **partial** with the failing checks, the blocks left out and what the
@@ -908,7 +908,7 @@ mods on the same machine, world and camera path ([benchmark.md](benchmark.md)). 
 `--game neoforge --mod-jars <dir> --deps <dir>` it runs the mods on their own loader (NeoForge
 21.1.259 for ATM10, installed under `.local/neoforge-oracle`, `-Xmx2G` like the launcher),
 driven by the same steps through a dev-only NeoForge port of the bench mod
-(`mods/horizon/src/neoforge-bench`). `--game horizon --port-work <work>` loads a work folder's
+(`mods/apex/src/neoforge-bench`). `--game apex --port-work <work>` loads a work folder's
 carried-over mods into Apex. A whole pack (`--pack`, its recommended JVM arguments) is next.
 
 | Metric | How | Apex side |
@@ -916,7 +916,7 @@ carried-over mods into Apex. A whole pack (`--pack`, its recommended JVM argumen
 | **Load time** | start → title screen; start → in a fresh world, every chunk around the spawn drawn | the same with the ported pack's `.hmod`s enabled |
 | **RAM** | peak and steady RSS of the process, sampled 4 times a second from outside (the whole JVM for Java) | the whole process |
 | **FPS** | the four flight scenes: mean, 1 % and 0.1 % lows, p99 frame time | same |
-| **TPS / MSPT** | a fixed server-load world: N loaded chunks with the pack's machines and mobs placed by the harness fixtures; mean and p99 milliseconds per tick over 60 s (NeoForge: `/neoforge tps` and spark; Apex: the integrated server's tick times, which today feed only the debug chart, exposed through `horizon-ctl`) | same fixture, the ported content |
+| **TPS / MSPT** | a fixed server-load world: N loaded chunks with the pack's machines and mobs placed by the harness fixtures; mean and p99 milliseconds per tick over 60 s (NeoForge: `/neoforge tps` and spark; Apex: the integrated server's tick times, which today feed only the debug chart, exposed through `apex-ctl`) | same fixture, the ported content |
 | **World generation** | chunks per second pregenerating a fixed square (Chunky on NeoForge; Apex gets a pregeneration command for this) with the pack's worldgen | same |
 | **Disk and download** | install size of the pack against its `.hmod`s | |
 
@@ -979,7 +979,7 @@ So the six mods cost about 0.5 GB of footprint, not 1.1-1.4 GB. ATM10's 42 mods 
 states) take the game to 7.7 GB RSS but 3.9 GB footprint. The rest is startup garbage the
 allocator keeps.
 
-`crates/horizon-client/examples/resource_memory.rs` breaks it down per loader: the live heap
+`crates/apex-client/examples/resource_memory.rs` breaks it down per loader: the live heap
 (a counting allocator), each step's peak, RSS and the footprint. Live heap after every loader,
 vanilla against ATM10's 42 mods:
 
@@ -1050,7 +1050,7 @@ In scope (each is a PR or a small stack):
    and lang, in single player. Proven by a harness: a test mod's block placed, rendered, broken
    with the right time and tool, dropping its loot, crafted from its recipe; every per-state
    fact equal to its template's with the overrides applied. Parity unchanged with no mods.
-3. **`horizon-port-pack`**: import (`.mrpack`, CurseForge zip and instance, Prism), inventory,
+3. **`apex-port-pack`**: import (`.mrpack`, CurseForge zip and instance, Prism), inventory,
    classify, licence record, dependency order, data carry-over for data-tier mods and their
    `.hmod`s, coverage report. Run on ATM10's real list (coverage report published in the PR,
    metadata only) and on a small real pack end to end.
@@ -1120,11 +1120,11 @@ What is missing, ranked by how much a player notices:
 
 ### Three packs through the mod browser, measured
 
-2026-10-22, Mac mini M4 Pro (offscreen, a debug launcher, release-profile `horizon-port-pack` and game), while
+2026-10-22, Mac mini M4 Pro (offscreen, a debug launcher, release-profile `apex-port-pack` and game), while
 other sessions kept the CPU at 85 to 93 %, so times are upper bounds. The two Modrinth packs were imported with
-`horizon-launcher mods install <slug>` (the browser's Import), ATM10 from its CurseForge zip with `modpack import`
+`apex-launcher mods install <slug>` (the browser's Import), ATM10 from its CurseForge zip with `modpack import`
 (CurseForge support is coming soon), then each ported with `--resources` for 26.3 and opened as a survival
-world with every ported mod on (horizon-ctl `launch --dev-mod ...`, from a scratch script).
+world with every ported mod on (apex-ctl `launch --dev-mod ...`, from a scratch script).
 
 | Pack | Files | Import | Port | Ported mods | Coverage | Declared | World load (resources) | Crashes |
 |---|---|---|---|---|---|---|---|---|

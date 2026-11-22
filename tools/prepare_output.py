@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""The prepared output's version: what keeps `OUTPUT_VERSION` (crates/horizon-prepare/src/lib.rs) honest.
+"""The prepared output's version: what keeps `OUTPUT_VERSION` (crates/apex-prepare/src/lib.rs) honest.
 
-The launcher copies a prepared version's resources (`.local/horizon-client/<version>`) to a newly installed
+The launcher copies a prepared version's resources (`.local/apex-client/<version>`) to a newly installed
 one when both pin the same Minecraft jars and their preparers declare the same `OUTPUT_VERSION`, so a release
 that changes the preparer's code without changing what it makes asks nobody to prepare again. The number is
 bumped by hand; this tool catches a change to the output without a bump.
 
-crates/horizon-prepare/output-versions.txt lists every `OUTPUT_VERSION` with the digest of what it prepares.
+crates/apex-prepare/output-versions.txt lists every `OUTPUT_VERSION` with the digest of what it prepares.
 It only grows: the last line is the current version, and a change to the output appends a line.
 
     python3 tools/prepare_output.py digest [RESOURCES]          the digest of a preparation
     python3 tools/prepare_output.py check [--base SHA] [--cache] [RESOURCES]
-        fails when RESOURCES (default: this checkout's .local/horizon-client/<version>, as CI prepares it) is
+        fails when RESOURCES (default: this checkout's .local/apex-client/<version>, as CI prepares it) is
         not what the last line says, or when the file changed other than by appending since SHA. --cache keeps
         the digest beside RESOURCES (CI: a preparation never changes once made; it takes ~30 s to compute)
 
@@ -19,7 +19,7 @@ The digest covers every file of the preparation, canonicalised where the prepare
 runs (verified across the CI runners): JSON is compared as data (key order, the order of each `tags` list of
 creative-inventory.json, and the addresses in `$$Lambda/0x...` class names don't count); logs, compiled classes,
 the sounds (copied from the player's launcher by another step), the stamp naming the OUTPUT_VERSION
-(horizon-prepare.json), the lock file (.horizon-prepare.lock) and the manifest's file hashes (raw bytes) don't count. The manifest's own scalar fields (schema, data version, jar hashes, file count) do.
+(apex-prepare.json), the lock file (.apex-prepare.lock) and the manifest's file hashes (raw bytes) don't count. The manifest's own scalar fields (schema, data version, jar hashes, file count) do.
 """
 
 from __future__ import annotations
@@ -34,13 +34,13 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSIONS = 'crates/horizon-prepare/output-versions.txt'
-LIB = 'crates/horizon-prepare/src/lib.rs'
-MANIFEST = 'horizon-resources.json'
-# The OUTPUT_VERSION that made the preparation (crates/horizon-prepare/src/check.rs), for --check.
-STAMP = 'horizon-prepare.json'
-# The empty file a preparation locks while it writes (crates/horizon-prepare/src/lib.rs, LOCK).
-LOCK = '.horizon-prepare.lock'
+VERSIONS = 'crates/apex-prepare/output-versions.txt'
+LIB = 'crates/apex-prepare/src/lib.rs'
+MANIFEST = 'apex-resources.json'
+# The OUTPUT_VERSION that made the preparation (crates/apex-prepare/src/check.rs), for --check.
+STAMP = 'apex-prepare.json'
+# The empty file a preparation locks while it writes (crates/apex-prepare/src/lib.rs, LOCK).
+LOCK = '.apex-prepare.lock'
 LAMBDA = re.compile(r'\$\$Lambda/0x[0-9a-fA-F]+')
 CONSTANT = re.compile(r'^pub const OUTPUT_VERSION: u32 = (\d+);', re.M)
 
@@ -124,7 +124,7 @@ def problems(versions: list[tuple[int, str]], constant: int | None) -> list[str]
 
 def default_resources() -> Path:
     lock = json.loads((ROOT / 'research-lock.json').read_text())
-    return ROOT / '.local/horizon-client' / lock['minecraft']['version']
+    return ROOT / '.local/apex-client' / lock['minecraft']['version']
 
 
 def main() -> int:

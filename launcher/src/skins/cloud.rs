@@ -212,7 +212,7 @@ fn upload_skin_at(
     image
         .write_to(&mut png, image::ImageFormat::Png)
         .map_err(|_| "Could not encode skin.")?;
-    let boundary = "horizon-skin-upload-v1";
+    let boundary = "apex-skin-upload-v1";
     let mut body=format!("--{boundary}\r\nContent-Disposition: form-data; name=\"variant\"\r\n\r\n{}\r\n--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"skin.png\"\r\nContent-Type: image/png\r\n\r\n",model.name()).into_bytes();
     body.extend_from_slice(png.get_ref());
     body.extend_from_slice(format!("\r\n--{boundary}--\r\n").as_bytes());

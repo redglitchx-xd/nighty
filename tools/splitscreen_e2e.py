@@ -6,11 +6,11 @@
     python3 tools/splitscreen_e2e.py -v --only join  # -v: every command and its reply
 
 How it works
-- `Game(players)` launches P1's game through horizon-ctl (`target/fast/horizon-ctl`, built with
-  `cargo build --profile fast -p horizon-client`) with `HORIZON_SPLIT=players`: the game adds the
+- `Game(players)` launches P1's game through apex-ctl (`target/fast/apex-ctl`, built with
+  `cargo build --profile fast -p apex-client`) with `APEX_SPLIT=players`: the game adds the
   others itself, as P2, P3...
 - Every player has its own control socket (`c.sock`, `c.sock2`...). `g.ctl(n, words...)` sends one
-  horizon-ctl command to player n (docs/horizon-ctl-commands.md).
+  apex-ctl command to player n (docs/apex-ctl-commands.md).
 - Checks look from outside: each player's view size (`g.size(n)`, from `status`) and its `state`.
   `check(name, got, want)` records a failure and goes on; a `RuntimeError` (a `wait` that timed
   out) ends that scenario as failed.
@@ -43,8 +43,8 @@ except ImportError:
     import lab
 
 ROOT = Path(__file__).resolve().parents[1]
-CTL = lab.cargo_target() / ('fast/horizon-ctl' + ('.exe' if os.name == 'nt' else ''))
-RESOURCES = ROOT / '.local/horizon-client/26.3'
+CTL = lab.cargo_target() / ('fast/apex-ctl' + ('.exe' if os.name == 'nt' else ''))
+RESOURCES = ROOT / '.local/apex-client/26.3'
 # Logical; the views are checked as fractions of what P1 gets alone, so any scale works.
 WIDTH, HEIGHT = 1000, 600
 VERBOSE = False
@@ -60,12 +60,12 @@ def check(name, got, want):
 
 
 class Game:
-    """One splitscreen session: P1 launched with `players` (HORIZON_SPLIT), each on its socket."""
+    """One splitscreen session: P1 launched with `players` (APEX_SPLIT), each on its socket."""
 
     def __init__(self, players, **env):
-        self.home = Path(tempfile.mkdtemp(prefix='horizon-split-e2e-'))
+        self.home = Path(tempfile.mkdtemp(prefix='apex-split-e2e-'))
         self.sockets = Path(tempfile.mkdtemp(prefix='hzse-'))  # short: Unix socket paths
-        self.env = lab.game_env(HORIZON_HOME=self.home, HORIZON_SPLIT=str(players), **env)
+        self.env = lab.game_env(APEX_HOME=self.home, APEX_SPLIT=str(players), **env)
         try:
             self.ctl(1, 'launch', '--wait', '--world', 'Split', '--creative',
                      '--resources', str(RESOURCES), '--width', str(WIDTH), '--height', str(HEIGHT),
@@ -178,7 +178,7 @@ def scenario_alone():
 
 def scenario_windows():
     print('windows: P3 in a window of its own, then it leaves and the window closes')
-    g = Game(3, HORIZON_SPLIT_WINDOWS='1,1,2')
+    g = Game(3, APEX_SPLIT_WINDOWS='1,1,2')
     try:
         halves = g.sizes([1, 2])
         check('P1 and P2 share Window 1 in halves', halves[0] == halves[1], True)
@@ -208,7 +208,7 @@ def main():
     VERBOSE = args.verbose
     sys.stdout.reconfigure(line_buffering=True)
     if not CTL.exists():
-        sys.exit(f'{CTL} is missing: cargo build --profile fast -p horizon-client')
+        sys.exit(f'{CTL} is missing: cargo build --profile fast -p apex-client')
     if not (RESOURCES / 'assets').exists():
         sys.exit(f'no prepared resources in {RESOURCES}')
     for name in args.only or list(SCENARIOS):

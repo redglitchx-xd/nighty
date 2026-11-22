@@ -6,9 +6,9 @@ block entity, sets its animation fields, runs the real BlockEntityRenderer's
 extractRenderState and submit, and captures what it submits: model vertices
 after setupAnim and the pose stack (sprite-local UVs, tint, normal, light),
 text calls and items. `examples/probe/block_entity_render_fixture` replays the case
-through Horizon's BlockEntityRenderer. Quads are matched by texture and
+through Apex's BlockEntityRenderer. Quads are matched by texture and
 position; colours compare vanilla's tint times the entity shader's
-`minecraft_mix_light` for the vanilla normal with Horizon's baked colour.
+`minecraft_mix_light` for the vanilla normal with Apex's baked colour.
 
   test_block_entity_render_parity.py [--filter SUBSTRING] [--detail N] [--tolerance EPS]
 """
@@ -26,11 +26,11 @@ try:
 except ImportError:
     import lab, test_rust_parity as base, test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
+PARITY = lab.ROOT / 'mods/apex/src/test/java/dev/apexlab/parity'
 DYES = ['white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan', 'purple',
         'blue', 'brown', 'green', 'red', 'black']
-HORIZONTAL = ['north', 'south', 'west', 'east']
-ALL = HORIZONTAL + ['up', 'down']
+APEXTAL = ['north', 'south', 'west', 'east']
+ALL = APEXTAL + ['up', 'down']
 NO_OVERLAY = 10 << 16
 
 
@@ -47,18 +47,18 @@ def cases():
 
     for block in ['chest', 'trapped_chest', 'copper_chest', 'exposed_copper_chest', 'weathered_copper_chest',
                   'oxidized_copper_chest', 'waxed_copper_chest', 'waxed_oxidized_copper_chest']:
-        for facing in HORIZONTAL:
+        for facing in APEXTAL:
             for kind in ['single', 'left', 'right']:
                 add(f'minecraft:{block}[facing={facing},type={kind}]', open=rng.choice([0.0, 0.25, 0.7, 1.0]))
-    for facing in HORIZONTAL:
+    for facing in APEXTAL:
         add(f'minecraft:ender_chest[facing={facing}]', open=rng.choice([0.0, 0.5, 1.0]))
     texts = [['Hello', '', 'World', ''], ['A much longer line that cannot fit', 'mid', 'iii', 'WWWWWWWWWWWWWWW'],
              ['', '', '', ''], ['x', 'Sign text', '#1 (test)', '!']]
     for wood in ['oak', 'spruce', 'cherry', 'crimson', 'bamboo', 'pale_oak']:
         signs = [f'minecraft:{wood}_sign[rotation={r}]' for r in (0, 3, 8, 13)] + \
-                [f'minecraft:{wood}_wall_sign[facing={f}]' for f in HORIZONTAL] + \
+                [f'minecraft:{wood}_wall_sign[facing={f}]' for f in APEXTAL] + \
                 [f'minecraft:{wood}_hanging_sign[rotation={r},attached={a}]' for r, a in ((0, 'false'), (6, 'true'), (11, 'false'))] + \
-                [f'minecraft:{wood}_wall_hanging_sign[facing={f}]' for f in HORIZONTAL]
+                [f'minecraft:{wood}_wall_hanging_sign[facing={f}]' for f in APEXTAL]
         for block in signs:
             side = lambda: {'lines': rng.choice(texts), 'color': rng.choice(DYES), 'glowing': rng.random() < 0.4}
             add(block, sign={'front': side(), 'back': side(), 'near': rng.random() < 0.5})
@@ -68,7 +68,7 @@ def cases():
         for r in (0, 5, 12):
             add(f'minecraft:{color}_banner[rotation={r}]',
                 patterns=[[rng.choice(patterns), rng.choice(DYES)] for _ in range(rng.randint(0, 3))])
-        for f in HORIZONTAL:
+        for f in APEXTAL:
             add(f'minecraft:{color}_wall_banner[facing={f}]',
                 patterns=[[rng.choice(patterns), rng.choice(DYES)] for _ in range(rng.randint(0, 2))])
     add('minecraft:blue_banner[rotation=2]', patterns=[[rng.choice(patterns), rng.choice(DYES)] for _ in range(17)])
@@ -82,7 +82,7 @@ def cases():
         wall = skull.replace('_skull', '_wall_skull').replace('_head', '_wall_head')
         for r in (0, 4, 9):
             add(f'minecraft:{skull}[rotation={r}]', skullAnimation=[rng.random() < 0.5, rng.randint(0, 80)])
-        for f in HORIZONTAL:
+        for f in APEXTAL:
             add(f'minecraft:{wall}[facing={f}]', skullAnimation=[rng.random() < 0.5, rng.randint(0, 80)])
     for color in [None, 'white', 'light_gray', 'purple', 'black']:
         name = 'shulker_box' if color is None else f'{color}_shulker_box'
@@ -90,15 +90,15 @@ def cases():
             p = rng.choice([0.0, 0.0, 0.3, 1.0])
             add(f'minecraft:{name}[facing={f}]', progress=p, progressOld=max(0.0, p - 0.1))
     for attach in ['floor', 'ceiling', 'single_wall', 'double_wall']:
-        for f in HORIZONTAL:
-            shake = rng.choice([None] + HORIZONTAL)
+        for f in APEXTAL:
+            shake = rng.choice([None] + APEXTAL)
             extra = {'bellTicks': rng.randint(0, 50)}
             if shake:
                 extra['shake'] = shake
             add(f'minecraft:bell[attachment={attach},facing={f}]', **extra)
     sherds = ['', 'minecraft:brick', 'minecraft:angler_pottery_sherd', 'minecraft:skull_pottery_sherd',
               'minecraft:heart_pottery_sherd', 'minecraft:flow_pottery_sherd']
-    for f in HORIZONTAL:
+    for f in APEXTAL:
         for wobble in [None, ['POSITIVE', 0.3], ['NEGATIVE', 0.6], ['POSITIVE', 1.2]]:
             extra = {'sherds': [rng.choice(sherds) for _ in range(4)]}
             if wobble:
@@ -114,12 +114,12 @@ def cases():
         add('minecraft:enchanting_table', book={'time': rng.randint(0, 2000), 'flip': rng.uniform(-3, 3),
                                                'oFlip': rng.uniform(-3, 3), 'open': o, 'oOpen': max(0.0, o - 0.1),
                                                'rot': rng.uniform(-3.1, 3.1), 'oRot': rng.uniform(-3.1, 3.1)})
-    for f in HORIZONTAL:
+    for f in APEXTAL:
         add(f'minecraft:lectern[facing={f},has_book=true]')
         add(f'minecraft:lectern[facing={f},has_book=false]')
     for prefix in ['', 'exposed_', 'weathered_', 'oxidized_', 'waxed_']:
         for pose in ['standing', 'running', 'sitting', 'star']:
-            add(f'minecraft:{prefix}copper_golem_statue[facing={rng.choice(HORIZONTAL)},copper_golem_pose={pose}]')
+            add(f'minecraft:{prefix}copper_golem_statue[facing={rng.choice(APEXTAL)},copper_golem_pose={pose}]')
     for _ in range(8):
         add('minecraft:beacon', gameTime=rng.randint(0, 10 ** 6),
             camera=[rng.uniform(-300, 300), 70.0, rng.uniform(-300, 300)],
@@ -141,7 +141,7 @@ def cases():
 
 
 def light_coords(light):
-    """Horizon light (sky*16 low byte, block*16 next) as vanilla light coords."""
+    """Apex light (sky*16 low byte, block*16 next) as vanilla light coords."""
     return ((light & 0xFF) << 16) | ((light >> 8) & 0xFF)
 
 
@@ -230,10 +230,10 @@ def compare_case(v, r, tol):
     rq = r.get('quads', [])
     if len(vq) != len(rq):
         tex = lambda qs: sorted({q['texture'] for q in qs})
-        problems.append(f'{len(vq)} vanilla quads {tex(vq)} vs {len(rq)} Horizon quads {tex(rq)}')
+        problems.append(f'{len(vq)} vanilla quads {tex(vq)} vs {len(rq)} Apex quads {tex(rq)}')
     pairs, extra = pair(vq, rq)
     for b in extra[:1]:
-        problems.append(f'extra Horizon quad {b["texture"]} {b["v"]}')
+        problems.append(f'extra Apex quad {b["texture"]} {b["v"]}')
     for a, b in pairs:
         if b is None:
             problems.append(f'missing {a["texture"]} quad {a["v"]}')
@@ -243,7 +243,7 @@ def compare_case(v, r, tol):
             problems.append(f'{a["texture"]} vertices {a["v"]} != {b["v"]}')
             break
         if a['custom']:
-            # Horizon packs the beam sprite's v range into the light bytes (its shader wraps v).
+            # Apex packs the beam sprite's v range into the light bytes (its shader wraps v).
             got = b['color']
             if [got & 255, (got >> 8) & 255, (got >> 16) & 255, got >> 24] != a['rgb'] + [a['alpha']]:
                 problems.append(f'{a["texture"]} colour {a["rgb"]}/{a["alpha"]} != {got:#x}')
@@ -253,7 +253,7 @@ def compare_case(v, r, tol):
             problems.append(f'overlay {a["overlay"]}')
         got = b['color']
         rgb = [got & 255, (got >> 8) & 255, (got >> 16) & 255]
-        # A zero-area quad shows nothing: vanilla shades it by its face normal, Horizon cannot derive one.
+        # A zero-area quad shows nothing: vanilla shades it by its face normal, Apex cannot derive one.
         if area(a['v']) > 1e-9 and (any(abs(x - y) > 1 for x, y in zip(a['rgb'], rgb)) or (got >> 24) != a['alpha']):
             problems.append(f'{a["texture"]} colour {a["rgb"]}/{a["alpha"]} != {rgb}/{got >> 24} at {a["v"]}')
             break
@@ -263,7 +263,7 @@ def compare_case(v, r, tol):
     vt = [s for s in v['submits'] if s['type'] == 'submitText' and s['text']]
     rt = r.get('texts', [])
     if len(vt) != len(rt):
-        problems.append(f'{len(vt)} vanilla texts {[t["text"] for t in vt]} vs {len(rt)} Horizon texts {[t["text"] for t in rt]}')
+        problems.append(f'{len(vt)} vanilla texts {[t["text"] for t in vt]} vs {len(rt)} Apex texts {[t["text"] for t in rt]}')
     for a, b in zip(vt, rt):
         for k in ('text', 'x', 'y', 'color', 'outline', 'light'):
             av, bv = a[k], b[k]
@@ -298,12 +298,12 @@ def main():
             print((build / (name + '.log')).read_text()[-4000:]); sys.exit(f'{name} failed')
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-nowarn', '-cp', dependencies, '-d', classes,
          *(PARITY / f'{n}.java' for n in ('ParityData', 'ParityFont', 'VanillaBlockEntityRenderOracle'))], 'compile-java')
-    run(['java', '-Xmx2G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaBlockEntityRenderOracle',
+    run(['java', '-Xmx2G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.apexlab.parity.VanillaBlockEntityRenderOracle',
          inputs, build / 'vanilla.jsonl'], 'vanilla')
     vanilla = [json.loads(l) for l in (build / 'vanilla.jsonl').read_text().splitlines()]
     textures = sorted({s['texture'] for v in vanilla for s in v.get('submits', []) if 'texture' in s})
     (build / 'textures.txt').write_text(''.join(t + '\n' for t in textures))
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'apex-client', '--example', 'client_probe', '--',
          'block_entity_render_fixture', resources, inputs, build / 'textures.txt', build / 'rust.jsonl'], 'rust')
     rust = [json.loads(l) for l in (build / 'rust.jsonl').read_text().splitlines()]
     assert len(vanilla) == len(rust), (len(vanilla), len(rust))
@@ -324,7 +324,7 @@ def main():
         else:
             passed += 1
     for reason, blocks in sorted(skipped.items()):
-        print(f'NOT RENDERED by Horizon ({reason}): {", ".join(sorted(blocks))}')
+        print(f'NOT RENDERED by Apex ({reason}): {", ".join(sorted(blocks))}')
     for block, error in sorted(errors.items()):
         print(f'ORACLE ERROR {block}: {error}')
     for block, items in sorted(groups.items()):

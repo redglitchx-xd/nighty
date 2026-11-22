@@ -7,7 +7,7 @@ screen (the same screen as vanilla's) or in game, and every loader reloads from 
 ## How it works
 
 `packs.rs` finds the packs (`FolderRepositorySource`: folders and zips, plus the built-in Programmer Art and High
-Contrast, which only the asset index holds: preparation copies them, `horizon-prepare packs` repairs older resources),
+Contrast, which only the asset index holds: preparation copies them, `apex-prepare packs` repairs older resources),
 reads `pack.mcmeta` (format range, overlays, filters) and builds one overlay directory that layers the
 selected packs over the prepared vanilla resources, later packs winning. Files vanilla reads as a resource *stack*
 (language files, `sounds.json`, font definitions, atlas definitions) are merged layer by layer as vanilla merges them.
@@ -31,7 +31,7 @@ harness named checks that loader against vanilla).
 | --- | --- | --- | --- |
 | Pack metadata: description, icon, `min_format`/`max_format`, old `supported_formats`, compatibility warning | `pack.mcmeta`, `pack.png` | works | `test_pack_screen_parity`, `test_pack_selection_parity` |
 | Overlays per format | `pack.mcmeta` `overlays` | works | `test_resource_pack_parity` (an overlay for 26.3 applied, an older one not) |
-| Filters | `pack.mcmeta` `filter` | works | `test_resource_pack_parity` (`horizon-client-core/src/pattern.rs` regex subset) |
+| Filters | `pack.mcmeta` `filter` | works | `test_resource_pack_parity` (`apex-client-core/src/pattern.rs` regex subset) |
 | Folder and zip packs, order, built-in packs | `resourcepacks/` | works | `test_resource_pack_parity`, `test_pack_selection_parity` |
 | Server resource packs: the prompt, the server list's Server Resource Packs setting, download (250 MiB, SHA-1, `downloads/` keeps 20), download toasts, a progress screen while the packs reload, applied on top of the player's packs, removed on leaving | the server's `resource_pack_push`/`_pop` | works | `tools/server_pack_e2e.py` (against vanilla's server and Apex's), unit tests in `server_packs.rs`; `test_server_resource_pack_parity` for Apex's server |
 | Other namespaces | `assets/<namespace>/` | works | `test_resource_pack_parity` |
@@ -72,7 +72,7 @@ harness named checks that loader against vanilla).
 | Paintings, mob effect icons | `atlases/paintings.json`, `textures/mob_effect/` | works | loaded from the overlay |
 | Locator bar styles | `waypoint_style/` | **no** | the locator bar isn't drawn yet |
 | Post effects (spectating a creeper, spider or enderman; glowing outlines) | `post_effect/`, `shaders/post/` | **no** | Apex's effects are WGSL; a pack's GLSL post chain isn't run |
-| Core shaders | `shaders/core/`, `shaders/include/` | partly | `core/text` draws the GUI's text (HUDs moved by its vertex shader, text effects), translated by naga (`horizon-shaders` `core_shader.rs`, `hud/pack_text.rs`); the other core shaders aren't run |
+| Core shaders | `shaders/core/`, `shaders/include/` | partly | `core/text` draws the GUI's text (HUDs moved by its vertex shader, text effects), translated by naga (`apex-shaders` `core_shader.rs`, `hud/pack_text.rs`); the other core shaders aren't run |
 | GPU warn list, regional compliance | `gpu_warnlist.json`, `regional_compliancies.json` | n/a | OpenGL driver warnings and play-time notices for some regions; not used |
 
 Summary: 45 rows; 32 work, 4 partly, 7 don't (interpolated animation, TrueType fonts, credits and end poem,
@@ -85,12 +85,12 @@ shaders, the missing pieces are missing vanilla features too, and each vanilla p
 | --- | --- | --- |
 | Animation `interpolate` | small | fix PR (`gfx.rs` `animate_sprites`) |
 | GUI scaling `width`/`height`, `stretch_inner`, `tile`, `stretch` | small | next fix PR (`ui.rs`) |
-| Villager hats | small | [#334](https://github.com/horizon-rust/horizon/issues/334) |
-| `blur`/`clamp` from packs | small | [#335](https://github.com/horizon-rust/horizon/issues/335) |
-| Text component fonts, TrueType fonts | medium | [#336](https://github.com/horizon-rust/horizon/issues/336) |
-| Trims on worn armour (paletted textures) | medium | [#337](https://github.com/horizon-rust/horizon/issues/337) |
-| Credits and end poem screen | medium | [#338](https://github.com/horizon-rust/horizon/issues/338) |
-| Locator bar | medium | [#339](https://github.com/horizon-rust/horizon/issues/339) |
+| Villager hats | small | [#334](https://github.com/apex-rust/apex/issues/334) |
+| `blur`/`clamp` from packs | small | [#335](https://github.com/apex-rust/apex/issues/335) |
+| Text component fonts, TrueType fonts | medium | [#336](https://github.com/apex-rust/apex/issues/336) |
+| Trims on worn armour (paletted textures) | medium | [#337](https://github.com/apex-rust/apex/issues/337) |
+| Credits and end poem screen | medium | [#338](https://github.com/apex-rust/apex/issues/338) |
+| Locator bar | medium | [#339](https://github.com/apex-rust/apex/issues/339) |
 | Post effects, core shaders but GUI text | large | none yet |
 
 ## Testing a pack

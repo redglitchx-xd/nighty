@@ -42,9 +42,9 @@ def corpus(facts, placement):
     for legacy,seed,fail,reject in itertools.product([False,True],[0,-1],[-1,0,5,12],[0,3]):
         placed={'feature':magma(placement_radius_around_floor=1,placement_probability_per_valid_position=0.5),'placement':[{'type':'count','count':2}]}
         yield case(placed,mode='placed',legacy=legacy,seed=seed,fail=fail,reject=reject)
-        yield case({'type':'overlay','features':[placed,{'feature':'horizon:moss','placement':[]}]},legacy=legacy,seed=seed,fail=fail,reject=reject)
+        yield case({'type':'overlay','features':[placed,{'feature':'apex:moss','placement':[]}]},legacy=legacy,seed=seed,fail=fail,reject=reject)
 
 
 if __name__=='__main__':
     harness.run(corpus,'rust-underwater-magma-parity',__file__,
-        'Native UnderwaterMagmaFeature codecs and Column.scan floor selection. Initial water identity, upward scan before downward scan, repeated boundary reads, all scan endpoints, every state at origin/floor/below and each horizontal neighbor, exact full-face occlusion, cubic traversal, per-position float draws before block tests, flags 2, rejected writes and partial failures are compared. Both random modes include the complete radius-64 cube with probability zero (2146689 draws), wrapped radius-zero columns and nested placement. Rust allows the entire valid codec radius domain and bounds pathological overflow iteration at 2^23 visits. Actual chunk update callbacks, magma gameplay and full world generation remain pending.')
+        'Native UnderwaterMagmaFeature codecs and Column.scan floor selection. Initial water identity, upward scan before downward scan, repeated boundary reads, all scan endpoints, every state at origin/floor/below and each apextal neighbor, exact full-face occlusion, cubic traversal, per-position float draws before block tests, flags 2, rejected writes and partial failures are compared. Both random modes include the complete radius-64 cube with probability zero (2146689 draws), wrapped radius-zero columns and nested placement. Rust allows the entire valid codec radius domain and bounds pathological overflow iteration at 2^23 visits. Actual chunk update callbacks, magma gameplay and full world generation remain pending.')

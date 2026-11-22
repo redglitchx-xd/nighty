@@ -11,7 +11,7 @@ import subprocess
 import time
 import uuid
 
-PKG = "dev.horizon.android.regression076"
+PKG = "dev.apex.android.regression076"
 ADB = "C:/Users/vasia/AppData/Local/Android/Sdk/platform-tools/adb.exe"
 DEVICES = {
     "tablet": ("192.168.88.234:5555", "751097", "GPUSeed4240118709374351666", (380, 1430), (1280, 740), (1050, 370), (770, 1350), (1280, 1086)),
@@ -69,9 +69,9 @@ def main():
     parser.add_argument("--prepare-route", action="store_true", help="Discover an unapproved real-biome route")
     parser.add_argument("--preview-only", action="store_true", help="Save scene checks/screenshots without a benchmark result")
     args = parser.parse_args()
-    fixture_directory = os.environ.get("HORIZON_BENCH_FIXTURES")
+    fixture_directory = os.environ.get("APEX_BENCH_FIXTURES")
     if not fixture_directory:
-        parser.error("Set HORIZON_BENCH_FIXTURES to the private fixture directory")
+        parser.error("Set APEX_BENCH_FIXTURES to the private fixture directory")
     P = pathlib.Path(fixture_directory).resolve()
     serial, source_profile, source_world, play, single, row, open_world, leave = DEVICES[args.device]
     scenario = args.scenario
@@ -273,9 +273,9 @@ def main():
                     raise RuntimeError("Tablet remains thermally constrained; aborting rather than comparing hot runs")
                 time.sleep(10)
             thermal_wait_seconds = time.monotonic() - cooling_started
-            apk = P / (f"Horizon-{version}-benchmark.apk" if version in ("0.7.3", "0.7.7") else f"cpu-{version}.apk")
+            apk = P / (f"Apex-{version}-benchmark.apk" if version in ("0.7.3", "0.7.7") else f"cpu-{version}.apk")
             apk_hash = hashlib.sha256(apk.read_bytes()).hexdigest()
-            manifest_path = os.environ.get("HORIZON_BENCH_MANIFEST")
+            manifest_path = os.environ.get("APEX_BENCH_MANIFEST")
             if manifest_path and json.loads(pathlib.Path(manifest_path).read_text())[apk.name] != apk_hash:
                 raise RuntimeError("APK changed during benchmark; refusing to mix builds")
             phase("installing")
@@ -297,7 +297,7 @@ def main():
                     commands = LAB[scenario]
                 put(base+"/data/cpu_probe/function/spawn.mcfunction",("\n".join(command.lstrip("/") for command in commands)+"\n").encode())
             put(home+"/options.txt",options)
-            put(home+"/horizon-graphics.txt",f"lodDistance:{lod}\n".encode())
+            put(home+"/apex-graphics.txt",f"lodDistance:{lod}\n".encode())
             cfg=json.loads(originals[launcher_path])
             renderer_mode = {"compatibility":"vulkan-compatibility", "batching":"vulkan", "opengl":"open-gl"}[args.renderer]
             cfg.update(profile=profile,record_performance=True,gpu_profile=True,performance_hints=False,
@@ -466,7 +466,7 @@ def main():
             publish("effective-state.json", effective)
             (run/"run.json").write_text(json.dumps({
                 "device":serial, "scenario":scenario, "version":version,
-                "session":os.environ.get("HORIZON_BENCH_SESSION"),
+                "session":os.environ.get("APEX_BENCH_SESSION"),
                 "apk_sha256":apk_hash,
                 "distance":distance, "lod":lod, "render_scale":args.render_scale,
                 "filtering":"none", "renderer":renderer_mode,
@@ -536,7 +536,7 @@ def main():
                 try: (run/filename).write_bytes(sh(*command))
                 except Exception: pass
             try:
-                (run/"failure-logcat.txt").write_bytes(adb("logcat","-d","-t","400","-v","threadtime","-s","AndroidRuntime","libc","DEBUG","Horizon"))
+                (run/"failure-logcat.txt").write_bytes(adb("logcat","-d","-t","400","-v","threadtime","-s","AndroidRuntime","libc","DEBUG","Apex"))
             except Exception: pass
         raise
     finally:

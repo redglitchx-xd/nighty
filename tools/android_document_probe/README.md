@@ -5,10 +5,10 @@ JNI registration, system-picker code, document reader and archive validator by
 path; it does not link the game or touch player data.
 
 Build this Cargo manifest for `aarch64-linux-android` with the NDK linker and a
-throwaway target directory. Package the resulting `libhorizon_document_probe.so`
-with the original `packaging/android/java/dev/horizon/android/HorizonActivity.java`
-compiled to DEX. Use a separate application ID, e.g. `dev.horizon.documentprobe`,
-that activity as its launcher, and `android.app.lib_name=horizon_document_probe`.
+throwaway target directory. Package the resulting `libapex_document_probe.so`
+with the original `packaging/android/java/dev/apex/android/ApexActivity.java`
+compiled to DEX. Use a separate application ID, e.g. `dev.apex.documentprobe`,
+that activity as its launcher, and `android.app.lib_name=apex_document_probe`.
 Do not replace the installed game. Keep generated classes, DEX and APKs in `.local/`.
 
 On startup the probe invokes both native-method signatures through Java dispatch,
@@ -25,7 +25,7 @@ PASS cancel callback
 
 The synthetic success callback uses an unavailable provider URI; its read should
 fail without terminating the process. It is separate from the selected-file test.
-Logs use the `HorizonDocumentProbe` tag. Neither `System.loadLibrary` nor exported
+Logs use the `ApexDocumentProbe` tag. Neither `System.loadLibrary` nor exported
 JNI symbol lookup is used: production explicitly registers the callback on the
 Activity class because NativeActivity's `dlopen` is outside Java's library lookup.
 

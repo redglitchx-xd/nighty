@@ -23,8 +23,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 """, encoding='utf-8')
     (harness / 'src/lib.rs').write_text("""#![allow(dead_code)]
-#[path = "../../../../crates/horizon-client/src/android/game_launch.rs"] mod game_launch;
-#[path = "../../../../crates/horizon-client/src/android/device_preferences.rs"] mod device_preferences;
+#[path = "../../../../crates/apex-client/src/android/game_launch.rs"] mod game_launch;
+#[path = "../../../../crates/apex-client/src/android/device_preferences.rs"] mod device_preferences;
 """, encoding='utf-8')
     command = ['cargo', 'test', '--manifest-path', str(harness / 'Cargo.toml')]
     if args.offline:

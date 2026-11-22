@@ -30,10 +30,10 @@ Device observations recorded before that integration must be repeated on the res
 
 ## Files and profiles
 
-Normal installed package: `dev.horizon.android`.
-The physical internal directory is normally `/data/user/0/dev.horizon.android/files`.
+Normal installed package: `dev.apex.android`.
+The physical internal directory is normally `/data/user/0/dev.apex.android/files`.
 Profile 0 uses this directory; additional profiles use `profiles/profile-<id>` beneath it.
-The game keeps `saves`, `horizon-mods`, `resourcepacks`, `shaderpacks` and settings in that profile.
+The game keeps `saves`, `apex-mods`, `resourcepacks`, `shaderpacks` and settings in that profile.
 Prepared engine resources and cache are application-managed; do not move them by hand.
 
 Use **Settings > Game files** or **Android Files > Apex Android** for supported document access.

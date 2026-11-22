@@ -1,6 +1,6 @@
 # Survival multiplayer (SMP): the official server's mod
 
-The official Apex server (play.playhorizon.dev) wants an organised survival game: a currency players earn in
+The official Apex server (play.playapex.dev) wants an organised survival game: a currency players earn in
 game, a server market, safe player-to-player trades, small games of chance with that currency, and spawn, homes,
 teleport requests, warps, land claims and rules.
 
@@ -29,9 +29,9 @@ on what the stock client renders, never on a client mod.
 
 | Part | Where | What |
 |---|---|---|
-| Server hook points | this repository, `crates/horizon-client/src/game/native_hooks.rs` ([native-mods.md](native-mods.md)) | stable, versioned (`NATIVE_HOOKS_API`), empty when no mod hooks them |
-| The `smp` mod | [horizon-rust/horizon-mods](https://github.com/horizon-rust/horizon-mods), `native/smp/` | a horizon-mixins bundle: `smp_store.rs`, `smp_economy.rs`, `smp_market.rs`... hold the rules and data (also the mod's own crate, with its tests, no game types), `glue.rs` and small helpers hook the points |
-| The official server's engine | built from a Apex release's commit with the bundle applied | `horizon-server`'s `[engine] path` points at it; the rest of the server is unchanged |
+| Server hook points | this repository, `crates/apex-client/src/game/native_hooks.rs` ([native-mods.md](native-mods.md)) | stable, versioned (`NATIVE_HOOKS_API`), empty when no mod hooks them |
+| The `smp` mod | [apex-rust/apex-mods](https://github.com/apex-rust/apex-mods), `native/smp/` | a apex-mixins bundle: `smp_store.rs`, `smp_economy.rs`, `smp_market.rs`... hold the rules and data (also the mod's own crate, with its tests, no game types), `glue.rs` and small helpers hook the points |
+| The official server's engine | built from a Apex release's commit with the bundle applied | `apex-server`'s `[engine] path` points at it; the rest of the server is unchanged |
 
 Why a native mod: it is the mod system Apex has now, it runs on the server
 that simulates the world, and it keeps the SMP out of everyone else's game. Why hook points rather than reaching into
@@ -115,7 +115,7 @@ claim from outside.
 
 ## Configuration and data
 
-Everything is in the world's folder, `world/horizon-smp/`, so a backup of the world carries it, and a world without
+Everything is in the world's folder, `world/apex-smp/`, so a backup of the world carries it, and a world without
 that folder is untouched: the mod creates it the first time it runs.
 
 | File | Holds |
@@ -152,8 +152,8 @@ with. The coin is a fresh random key from the system, never the world's random.
 ## Building the official server's engine
 
 A native mod is built into the game it runs in ([native-mods.md](native-mods.md)). For the server: the source of the
-release the server runs, `horizon-mixins apply` with the `smp` bundle, then the server build
-(`cargo build --release --no-default-features -p horizon-client`), and `horizon-server`'s `[engine] path` set to
+release the server runs, `apex-mixins apply` with the `smp` bundle, then the server build
+(`cargo build --release --no-default-features -p apex-client`), and `apex-server`'s `[engine] path` set to
 the result. When to deploy it on the official server is the owners' decision; the mod's README holds the exact
 commands.
 
@@ -166,8 +166,8 @@ made only when a player acts on a block. Each phase measures a server tick with 
 ## Phases
 
 Each is pull requests under ~500 lines, each tested: the hook points here (unit tests, a game test that hooks
-them), the mod in horizon-mods (its crate's tests, and a proof: a dedicated server built with the bundle and real
-clients driven by `horizon-ctl`, in fresh folders).
+them), the mod in apex-mods (its crate's tests, and a proof: a dedicated server built with the bundle and real
+clients driven by `apex-ctl`, in fresh folders).
 
 1. **Economy**: command and player hook points; the mod's ledger, data files and audit log, `/balance`, `/pay`,
    `/baltop`, `/eco`; then the items helpers and the market (`/sell`, `/buy`, `/worth`).

@@ -16,7 +16,7 @@ version = "0.0.0"
 edition = "2024"
 [workspace]
 [dependencies]
-horizon-mods = { path = "../../../crates/horizon-mods", default-features = false }
+apex-mods = { path = "../../../crates/apex-mods", default-features = false }
 serde_json = "1"
 sha2 = "0.10"
 ureq = { version = "2", default-features = false, features = ["tls"] }
@@ -37,17 +37,17 @@ mod android_runtime {
     pub fn configure_gpu(batching: bool) { GPU_BATCHING.store(batching, Ordering::Relaxed); }
     pub fn gpu_batching() -> bool { GPU_BATCHING.load(Ordering::Relaxed) }
 }
-#[path = "../../../../crates/horizon-client/src/ime_edit.rs"] mod ime_edit;
-#[path = "../../../../crates/horizon-client/src/content_files.rs"] mod content_files;
-#[path = "../../../../crates/horizon-client/src/official_install_cache.rs"] mod official_install_cache;
+#[path = "../../../../crates/apex-client/src/ime_edit.rs"] mod ime_edit;
+#[path = "../../../../crates/apex-client/src/content_files.rs"] mod content_files;
+#[path = "../../../../crates/apex-client/src/official_install_cache.rs"] mod official_install_cache;
 #[path = "../../../../third_party/winit/src/platform_impl/android/mouse_state.rs"] mod mouse_state;
-#[path = "../../../../crates/horizon-client-render/src/gfx/upload_budget.rs"] mod upload_budget;
-#[path = "../../../../crates/horizon-client-render/src/zip.rs"] mod archive_reader;
-#[path = "../../../../crates/horizon-client/src/android/search_queue.rs"] mod search_queue;
-#[path = "../../../../crates/horizon-client/src/android/document_store.rs"] mod document_store;
-#[path = "../../../../crates/horizon-client-render/src/graphics_startup.rs"] mod graphics_startup;
-#[path = "../../../../crates/horizon-client/src/android_resources.rs"] mod android_resources;
-#[path = "../../../../crates/horizon-client/src/ui_text.rs"] mod ui_text;
+#[path = "../../../../crates/apex-client-render/src/gfx/upload_budget.rs"] mod upload_budget;
+#[path = "../../../../crates/apex-client-render/src/zip.rs"] mod archive_reader;
+#[path = "../../../../crates/apex-client/src/android/search_queue.rs"] mod search_queue;
+#[path = "../../../../crates/apex-client/src/android/document_store.rs"] mod document_store;
+#[path = "../../../../crates/apex-client-render/src/graphics_startup.rs"] mod graphics_startup;
+#[path = "../../../../crates/apex-client/src/android_resources.rs"] mod android_resources;
+#[path = "../../../../crates/apex-client/src/ui_text.rs"] mod ui_text;
 ''', encoding='utf-8')
     subprocess.run(['cargo', 'test', '--manifest-path', str(root / 'Cargo.toml')],
                    cwd=ROOT, check=True)

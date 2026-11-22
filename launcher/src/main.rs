@@ -1,4 +1,4 @@
-//! Horizon launcher: installs Horizon builds, prepares them from the player's own Minecraft,
+//! Apex launcher: installs Apex builds, prepares them from the player's own Minecraft,
 //! and starts the client or a dedicated server.
 
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
@@ -62,13 +62,13 @@ use gpui::{
     KeyBinding, KeyDownEvent, Menu, MenuItem, MouseDownEvent, PathPromptOptions, Pixels, Point,
     SharedString, Stateful, Subscription, Window, WindowBounds, WindowOptions,
 };
-use horizon_launcher::account::{self, Accounts, SignIn, SignInState};
-use horizon_launcher::backend::{self, Job, Msg, Release, Running, Settings, Updates};
-use horizon_launcher::i18n::{self, tr, trf};
-use horizon_launcher::instances;
-use horizon_launcher::native_mods;
-use horizon_launcher::native_status;
-use horizon_launcher::telemetry;
+use apex_launcher::account::{self, Accounts, SignIn, SignInState};
+use apex_launcher::backend::{self, Job, Msg, Release, Running, Settings, Updates};
+use apex_launcher::i18n::{self, tr, trf};
+use apex_launcher::instances;
+use apex_launcher::native_mods;
+use apex_launcher::native_status;
+use apex_launcher::telemetry;
 use scrollbar::Scrollbar;
 use std::borrow::Cow;
 use std::collections::{HashMap, VecDeque};
@@ -90,7 +90,7 @@ enum Page {
 }
 
 impl Page {
-    /// `HORIZON_LAUNCHER_PAGE=mods` (or `modpacks`, `resourcepacks`, `shaders`, `servers`, `versions`, `notes`,
+    /// `APEX_LAUNCHER_PAGE=mods` (or `modpacks`, `resourcepacks`, `shaders`, `servers`, `versions`, `notes`,
     /// `settings`) opens on that page, for screenshots; Home otherwise (`getting-ready`: Home
     /// preparing, `home::getting_ready_preview`; `sign-in`: the owner gate's sheet with a
     /// made-up code, `owner_page::sign_in_preview`; `new-instance`: Home with the New instance
@@ -139,9 +139,9 @@ struct Crash {
 
 /// The opening: the wordmark holds at least `OPENING_HOLD` (until the release
 /// list is in, at most `OPENING_MAX`), then the launcher appears over `OPENING_REVEAL`.
-const OPENING_HOLD: Duration = horizon_theme::OPENING_HOLD;
-const OPENING_MAX: Duration = horizon_theme::OPENING_MAX;
-const OPENING_REVEAL: Duration = horizon_theme::OPENING_REVEAL;
+const OPENING_HOLD: Duration = apex_theme::OPENING_HOLD;
+const OPENING_MAX: Duration = apex_theme::OPENING_MAX;
+const OPENING_REVEAL: Duration = apex_theme::OPENING_REVEAL;
 
 /// The phase of the opening at one moment: how far the reveal has gone, 0 to 1.
 struct Opening {
@@ -152,7 +152,7 @@ struct Opening {
 }
 
 fn ease_out_cubic(x: f32) -> f32 {
-    horizon_theme::ease_out_cubic(x)
+    apex_theme::ease_out_cubic(x)
 }
 
 enum Load<T> {
@@ -176,7 +176,7 @@ struct Launcher {
     checked: Option<Instant>,
     update_error: Option<String>,
     self_update: SelfUpdate,
-    /// The Horizon version being installed as an update, and whether it becomes the selected one.
+    /// The Apex version being installed as an update, and whether it becomes the selected one.
     update_install: Option<(String, bool)>,
     /// The install bar's previous and current fraction, so it moves rather than jumps.
     bar: (f32, f32),
@@ -204,14 +204,14 @@ struct Launcher {
     native_confirm: Option<Result<Vec<native_mods::Bundle>, String>>,
     /// The instance (id) the build under way, or the last one's error, is for.
     native_for: Option<String>,
-    /// The newer Horizon the open warning's build moves to (Update), else None: a build stays
-    /// on the Horizon the instance plays.
+    /// The newer Apex the open warning's build moves to (Update), else None: a build stays
+    /// on the Apex the instance plays.
     native_update: Option<String>,
     /// What each installed native build was made from, by version. A build's version names its
     /// contents, so an entry never goes stale.
     native_builds:
         std::cell::RefCell<std::collections::HashMap<String, Option<native_status::Build>>>,
-    /// The mods of a build made for other Horizon versions (`native_mods::MISMATCH`): the build
+    /// The mods of a build made for other Apex versions (`native_mods::MISMATCH`): the build
     /// waits for "Build anyway".
     native_mismatch: Option<String>,
     confirm_remove: Option<String>,
@@ -290,7 +290,7 @@ struct Launcher {
     /// The instance the running game plays and when it started: its play time grows on exit.
     client_run: Option<(String, Instant)>,
     /// The running game's instance variables, for its post-exit command.
-    client_vars: horizon_launcher::launch::Vars,
+    client_vars: apex_launcher::launch::Vars,
     /// Settings' Game arguments field: the line, whether it has focus, and its focus handle.
     args_input: line_edit::LineEdit,
     args_focused: bool,
@@ -303,7 +303,7 @@ struct Launcher {
     collection: collection::Collection,
     /// Settings' "Connect an AI agent" (`agents_page`).
     agents: agents_page::AgentsUi,
-    /// How many play Horizon now, while the server answers ("N playing now" on the Play page).
+    /// How many play Apex now, while the server answers ("N playing now" on the Play page).
     playing: Option<u64>,
     /// How many play on the official server now, while it answers ("M on the official SMP").
     official_players: Option<u64>,
@@ -325,16 +325,16 @@ struct Launcher {
     /// Modrinth projects' icon URLs (`instance_mods.rs`).
     project_icons: instance_mods::ProjectIcons,
     play_pressed: Option<Instant>,
-    /// `horizon-launcher benchmark` started this window to measure it.
+    /// `apex-launcher benchmark` started this window to measure it.
     bench: Option<perf::Bench>,
     /// The Modpacks page: the imported packs (read when the page first opens), the one shown,
     /// the report's filter, and the pipeline step running now with its log.
-    packs: Vec<horizon_launcher::modpacks::Imported>,
-    /// Modpacks installed from Horizon's registry, each its own profile.
-    registry_packs: Vec<horizon_launcher::browser::horizon::pack::Installed>,
+    packs: Vec<apex_launcher::modpacks::Imported>,
+    /// Modpacks installed from Apex's registry, each its own profile.
+    registry_packs: Vec<apex_launcher::browser::apex::pack::Installed>,
     packs_loaded: Option<Instant>,
     pack_open: Option<String>,
-    pack_filter: Option<horizon_port_pack::report::Status>,
+    pack_filter: Option<apex_port_pack::report::Status>,
     pack_busy: bool,
     pack_log: VecDeque<String>,
     pack_error: Option<String>,
@@ -359,10 +359,10 @@ struct Launcher {
     aside: while_playing::Aside,
     /// The selected instance's desktop shortcut (`shortcut_page.rs`).
     shortcuts: shortcut_page::Shortcuts,
-    /// The name the game made up for an offline player (`horizon-player.txt`), for the top bar.
+    /// The name the game made up for an offline player (`apex-player.txt`), for the top bar.
     offline_name: Option<String>,
     /// The player's servers, for the sidebar until the Servers page has read them.
-    side_servers: Vec<horizon_launcher::servers::Entry>,
+    side_servers: Vec<apex_launcher::servers::Entry>,
     /// The pixel art made for this window (`art.rs`), and pictures downloaded by URL.
     sky: sky::Sky,
     /// When the sky next asks for a frame, and the timer that will draw it.
@@ -418,14 +418,14 @@ impl Launcher {
         }
         // Release builds on Linux put their entry back in the applications menu when there is
         // none or it starts a program that is gone (a moved or deleted binary), never over one
-        // that works; `HORIZON_LAUNCHER_DESKTOP_ENTRY=1` does it in a development build.
+        // that works; `APEX_LAUNCHER_DESKTOP_ENTRY=1` does it in a development build.
         if cfg!(target_os = "linux")
             && settings.desktop_entry()
             && (!cfg!(debug_assertions)
                 || std::env::var_os("APEX_LAUNCHER_DESKTOP_ENTRY").is_some())
         {
             std::thread::spawn(|| {
-                let _ = horizon_launcher::desktop::repair(backend::exe_path());
+                let _ = apex_launcher::desktop::repair(backend::exe_path());
             });
         }
         let installed = backend::installed();
@@ -573,7 +573,7 @@ impl Launcher {
             aside: while_playing::Aside::new(window.window_handle()),
             shortcuts: Default::default(),
             offline_name: offline_name(),
-            side_servers: horizon_launcher::servers::list(),
+            side_servers: apex_launcher::servers::list(),
             sky: sky::Sky::default(),
             sky_wake: None,
             scale: window.scale_factor(),
@@ -605,7 +605,7 @@ impl Launcher {
             this.preparing = true;
             this.play_when_prepared = this.selected().cloned();
         }
-        // `HORIZON_LAUNCHER_PAGE=new-instance`: the dialog open on Modded, for screenshots.
+        // `APEX_LAUNCHER_PAGE=new-instance`: the dialog open on Modded, for screenshots.
         if std::env::var("APEX_LAUNCHER_PAGE").as_deref() == Ok("new-instance") {
             this.open_instance_dialog(None);
             this.pick_kind(new_instance::NewKind::Modded, cx);
@@ -681,10 +681,10 @@ impl Launcher {
         });
     }
 
-    /// Installs the Horizon version the last check found, keeping the player's choice of
+    /// Installs the Apex version the last check found, keeping the player's choice of
     /// version unless they were on the newest one.
     fn install_update(&mut self) {
-        let Some(release) = self.updates.horizon.clone() else {
+        let Some(release) = self.updates.apex.clone() else {
             return;
         };
         if self.installing.is_some() || self.removing.contains(&release.tag) {
@@ -719,9 +719,9 @@ impl Launcher {
     }
 
     /// Builds the selected instance's native mods, once the player accepted the warning. The
-    /// build stays on the Horizon the instance plays (`native_mods::base_for`), unless the
-    /// warning was Update's: then it moves to that newer Horizon.
-    /// `anyway`: the player agreed to build mods made for other Horizon versions together.
+    /// build stays on the Apex the instance plays (`native_mods::base_for`), unless the
+    /// warning was Update's: then it moves to that newer Apex.
+    /// `anyway`: the player agreed to build mods made for other Apex versions together.
     fn build_native(&mut self, anyway: bool) {
         if self.native_step.is_some() {
             return;
@@ -937,7 +937,7 @@ impl Launcher {
                                     .find(|i| i.work == work)
                                     .map(|i| i.id);
                                 let applied =
-                                    horizon_launcher::modpacks::apply_profile(&mut cmd, &work);
+                                    apex_launcher::modpacks::apply_profile(&mut cmd, &work);
                                 (applied, id)
                             }
                             None => {
@@ -969,7 +969,7 @@ impl Launcher {
                             .unwrap_or_default();
                         cmd.envs(self.client_vars.iter().map(|(k, v)| (k, v)));
                         let launch = instance.map(|i| i.launch).unwrap_or_default();
-                        let cmd = horizon_launcher::launch::wrap(cmd, &launch);
+                        let cmd = apex_launcher::launch::wrap(cmd, &launch);
                         self.client_home = cmd.get_current_dir().map(|d| d.to_path_buf());
                         match backend::spawn(Job::Client, cmd, self.tx.clone()) {
                             Ok(r) => {
@@ -1000,8 +1000,8 @@ impl Launcher {
                     }
                     match result {
                         Ok(()) => {
-                            if self.updates.horizon.as_ref().is_some_and(|r| r.tag == tag) {
-                                self.updates.horizon = None;
+                            if self.updates.apex.as_ref().is_some_and(|r| r.tag == tag) {
+                                self.updates.apex = None;
                             }
                             if as_update.is_none_or(|(_, select)| select) {
                                 self.settings.selected = Some(tag);
@@ -1141,7 +1141,7 @@ impl Launcher {
                                 }
                                 if let Some(i) = instances::list().into_iter().find(|i| i.id == id)
                                 {
-                                    horizon_launcher::launch::run_after_exit(
+                                    apex_launcher::launch::run_after_exit(
                                         &i.launch, &i.home, &vars,
                                     );
                                 }
@@ -1155,7 +1155,7 @@ impl Launcher {
                                 .and_then(|since| backend::crash_report_since(&home, since));
                             if error.is_some() && report.is_none() && self.switched_to_dx12() {
                                 self.client_error = Some(
-                                    "Horizon's Vulkan renderer crashed while starting on this \
+                                    "Apex's Vulkan renderer crashed while starting on this \
                                      graphics card, so the game now uses DirectX 12. Press Play \
                                      to start it again. Video Settings > Graphics API switches \
                                      back."
@@ -1304,12 +1304,12 @@ impl Launcher {
         let Some(tag) = self.selected().cloned() else {
             return;
         };
-        horizon_launcher::mojang::CANCEL.store(false, Ordering::Relaxed);
+        apex_launcher::mojang::CANCEL.store(false, Ordering::Relaxed);
         let minecraft = self
             .settings
             .minecraft_dir
             .clone()
-            .unwrap_or_else(|| horizon_prepare::artifacts::minecraft_dir(None));
+            .unwrap_or_else(|| apex_prepare::artifacts::minecraft_dir(None));
         self.prepare_log.clear();
         self.prepare_error = None;
         self.prepare_log
@@ -1356,8 +1356,8 @@ impl Launcher {
             .filter(|i| i.java.is_some())
             .cloned();
         if let Some(instance) = java {
-            // Mojang's game: no Horizon version or preparation, only no game already running.
-            // It joins a server; a friend's code and opening a world are Horizon's.
+            // Mojang's game: no Apex version or preparation, only no game already running.
+            // It joins a server; a friend's code and opening a world are Apex's.
             self.joining = None;
             let server = self
                 .quick_play
@@ -1399,7 +1399,7 @@ impl Launcher {
             let cmd = backend::java_game(&instance, server.as_deref(), &log).map(|mut cmd| {
                 let vars = instance.vars(cmd.get_program());
                 cmd.envs(vars.iter().map(|(k, v)| (k, v)));
-                (horizon_launcher::launch::wrap(cmd, &instance.launch), vars)
+                (apex_launcher::launch::wrap(cmd, &instance.launch), vars)
             });
             let _ = tx.send(Msg::JavaGame(instance.id, instance.home, cmd));
         });
@@ -1413,7 +1413,7 @@ impl Launcher {
     }
 
     /// Whether the selected instance's version can start now, from a shortcut (a server's Join,
-    /// a world's Play, a friend's code): Horizon's only, never a Java instance.
+    /// a world's Play, a friend's code): Apex's only, never a Java instance.
     pub(crate) fn can_start_selected(&self) -> bool {
         self.selected_instance().is_none_or(|i| i.java.is_none())
             && self.selected().is_some_and(|tag| self.can_start(tag))
@@ -1685,12 +1685,12 @@ fn version_tag(tag: &str) -> Div {
         .line_height(px(28.))
         .font_weight(FontWeight::MEDIUM)
         .child(
-            horizon_launcher::nightly::label(tag)
+            apex_launcher::nightly::label(tag)
                 .unwrap_or_else(|| tag.trim_start_matches('v').to_string()),
         )
 }
 
-/// Horizon's mark: two stems, their reflection below, and the horizon across in the accent.
+/// Apex's mark: two stems, their reflection below, and the apex across in the accent.
 fn mark(size: f32, t: &Theme) -> Div {
     let u = size / 16.;
     let stem = |x: f32, y: f32, color: Hsla| {
@@ -1807,10 +1807,10 @@ fn button(
     keyboard(track_hover(base, id), &t).active(|s| s.opacity(theme::PRESSED).top(px(1.)))
 }
 
-/// Copies to the clipboard, or into `HORIZON_LAUNCHER_CLIPBOARD` when a test run sets it
-/// (`horizon_launcher::desktop_seams`).
+/// Copies to the clipboard, or into `APEX_LAUNCHER_CLIPBOARD` when a test run sets it
+/// (`apex_launcher::desktop_seams`).
 fn copy_to_clipboard(cx: &mut App, item: gpui::ClipboardItem) {
-    if let Some(file) = horizon_launcher::desktop_seams::clipboard_file() {
+    if let Some(file) = apex_launcher::desktop_seams::clipboard_file() {
         let bytes = match item.entries().first() {
             Some(gpui::ClipboardEntry::Image(image)) => image.bytes.clone(),
             _ => item.text().unwrap_or_default().into_bytes(),
@@ -2182,10 +2182,10 @@ fn centered(text_: &str, t: &Theme) -> Div {
 
 /// The name the game made up for a player without an account, once it has run.
 fn offline_name() -> Option<String> {
-    player_name(&std::fs::read_to_string(backend::game_home().join("horizon-player.txt")).ok()?)
+    player_name(&std::fs::read_to_string(backend::game_home().join("apex-player.txt")).ok()?)
 }
 
-/// The name in `horizon-player.txt`: the game writes `name:Player12345` (horizon-client's
+/// The name in `apex-player.txt`: the game writes `name:Player12345` (apex-client's
 /// offline_name.rs).
 fn player_name(text: &str) -> Option<String> {
     text.lines()
@@ -2342,7 +2342,7 @@ impl Launcher {
             )
     }
 
-    /// The sidebar, from the top of the window: the wordmark, Horizon and the imported modpacks,
+    /// The sidebar, from the top of the window: the wordmark, Apex and the imported modpacks,
     /// the player's servers, then the launcher's own update, the community links and its version.
     fn sidebar(&mut self, window: &Window, cx: &mut Context<Self>) -> Stateful<Div> {
         let t = self.theme;
@@ -2586,7 +2586,7 @@ impl Launcher {
         // "Nightly · ba6344a", a release's tag: the menu lists the full tags.
         let label = self.selected().map_or_else(
             || tr("No version").into(),
-            |tag| horizon_launcher::nightly::label(tag).unwrap_or_else(|| tag.clone()),
+            |tag| apex_launcher::nightly::label(tag).unwrap_or_else(|| tag.clone()),
         );
         // As tall as Play: "Version" over the tag, and a chevron.
         let n = t.night;
@@ -2710,7 +2710,7 @@ impl Launcher {
 
     fn play_page(&mut self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
-        // A Java instance plays Mojang's game: no Horizon version, nothing of Horizon's to prepare.
+        // A Java instance plays Mojang's game: no Apex version, nothing of Apex's to prepare.
         let java = self.selected_instance().and_then(|i| i.java.clone());
         let Some(tag) = self
             .selected()
@@ -2744,7 +2744,7 @@ impl Launcher {
             .as_ref()
             .map_or_else(|| backend::game_version(&tag), |j| j.minecraft.clone());
         let hero = match &java {
-            // Its own game: the Minecraft version and the loader, never Horizon's.
+            // Its own game: the Minecraft version and the loader, never Apex's.
             Some(j) => {
                 let game = match &j.loader {
                     Some(l) => format!("{version} · {} {}", l.kind.name(), l.version),
@@ -2758,7 +2758,7 @@ impl Launcher {
         let left = self.download_left();
         let steps = self.preparing.then(|| self.steps(&version, left));
 
-        // Not prepared: an owner can have Horizon download Minecraft from Mojang; without an
+        // Not prepared: an owner can have Apex download Minecraft from Mojang; without an
         // owner there is nothing to play, so signing in comes first.
         let first = (!prepared && !self.preparing)
             .then_some(self.owner_shown())
@@ -3005,7 +3005,7 @@ impl Launcher {
                             // after pressing it, not below the fold (#666).
                             .children(steps),
                     )
-                    // Notes and friends are Horizon's.
+                    // Notes and friends are Apex's.
                     .children(java.is_none().then(|| self.home_card(&tag, cx))),
             );
         let mut page = div().flex().flex_col().gap(px(32.)).child(banner);
@@ -3022,7 +3022,7 @@ impl Launcher {
         page
     }
 
-    /// "Horizon crashed": the report and the logs, and where to report it.
+    /// "Apex crashed": the report and the logs, and where to report it.
     fn crash_notice(&self, crash: Crash, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let mut actions = div().flex().flex_wrap().gap(px(8.)).mt(px(8.));
@@ -3161,29 +3161,29 @@ impl Launcher {
                 cx.notify();
             },
         ));
-        // Linux: the launcher's entry in the applications menu (`horizon_launcher::desktop`).
+        // Linux: the launcher's entry in the applications menu (`apex_launcher::desktop`).
         let menu_entry = switch("desktop-entry", self.settings.desktop_entry(), &t).on_click(
             cx.listener(|this, _: &ClickEvent, _, cx| {
                 let on = !this.settings.desktop_entry();
                 this.settings.desktop_entry = Some(on);
                 this.settings.save();
                 let _ = if on {
-                    horizon_launcher::desktop::install(backend::exe_path()).map(|_| ())
+                    apex_launcher::desktop::install(backend::exe_path()).map(|_| ())
                 } else {
-                    horizon_launcher::desktop::remove()
+                    apex_launcher::desktop::remove()
                 };
                 cx.notify();
             }),
         );
-        let horizon = match (&self.updates.horizon, &self.update_error) {
+        let apex = match (&self.updates.apex, &self.update_error) {
             (Some(r), _) => trf("{version} available", &[("version", update_name(r))]),
             (None, Some(e)) => e.clone(),
             (None, None) if self.checked.is_some() => tr("Up to date").to_string(),
             _ => tr("Checking…").to_string(),
         };
-        let horizon_action = self
+        let apex_action = self
             .updates
-            .horizon
+            .apex
             .as_ref()
             .filter(|_| self.installing.is_none())
             .map(|_| {
@@ -3344,7 +3344,7 @@ impl Launcher {
                     .child(group("AI", "terminal"))
                     .child(self.no_ai_row(n + 6, cx))
                     .child(group("About", "info-box"))
-                    .child(index_row(n + 7, "Apex", Some(plain(&horizon)), horizon_action, &t))
+                    .child(index_row(n + 7, "Apex", Some(plain(&apex)), apex_action, &t))
                     .child(index_row(
                         n + 8,
                         tr("Launcher"),
@@ -3427,7 +3427,7 @@ impl Launcher {
             .children(self.native_update.as_ref().map(|newer| {
                 div().text_color(t.warn).child(trf(
                     "This moves the instance to Apex {version}. It compiles the game from scratch, so it takes longer than a normal rebuild: up to 30 minutes.",
-                    &[("version", &native_status::horizon_label(newer))],
+                    &[("version", &native_status::apex_label(newer))],
                 ))
             }));
         let mut buttons = div().flex().gap(px(8.)).mt(px(4.));
@@ -3456,7 +3456,7 @@ impl Launcher {
         ))
     }
 
-    /// Mods made for other Horizon versions: which, and the version the build uses. They often
+    /// Mods made for other Apex versions: which, and the version the build uses. They often
     /// still work, so the player may build anyway.
     fn native_mismatch_panel(&self, list: &str, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
@@ -3599,7 +3599,7 @@ impl Launcher {
         // A half-typed address is no reason to complain; one left behind is.
         let detail = match (
             focused,
-            horizon_launcher::proxy::refuse(self.proxy_input.text()),
+            apex_launcher::proxy::refuse(self.proxy_input.text()),
         ) {
             (false, Some(why)) => div().text_color(t.danger).child(why).into_any_element(),
             _ => div()
@@ -3620,12 +3620,12 @@ impl Launcher {
     }
 
     /// Keeps the Proxy field in `settings.json`, and tells the parts that build their own agents
-    /// (`horizon-port-pack`) which proxy to use.
+    /// (`apex-port-pack`) which proxy to use.
     fn save_proxy(&mut self) {
         let value = self.proxy_input.text().trim().to_owned();
         self.settings.proxy = (!value.is_empty()).then_some(value);
         self.settings.save();
-        horizon_launcher::proxy::announce(self.settings.proxy.clone());
+        apex_launcher::proxy::announce(self.settings.proxy.clone());
     }
 
     /// Settings' Microsoft accounts: who is signed in and plays, the sign-in with its code. The
@@ -3897,7 +3897,7 @@ impl Launcher {
     /// Join a friend: a code field and Join, which starts the game straight
     /// into the friend's world (errors show in the game).
     /// Plays the selected instance straight into a world (`--world`) or a server (`--server`):
-    /// flags every Horizon release takes.
+    /// flags every Apex release takes.
     pub(crate) fn quick_play(&mut self, flag: &'static str, value: String) {
         self.quick_play = Some((flag, value));
         self.play();
@@ -3907,7 +3907,7 @@ impl Launcher {
     }
 
     fn join_friend(&mut self) {
-        if horizon_friends::invite::parse(self.friend_code.text()).is_none() {
+        if apex_friends::invite::parse(self.friend_code.text()).is_none() {
             return;
         }
         self.joining = Some(self.friend_code.text().to_string());
@@ -4574,7 +4574,7 @@ impl Launcher {
         (reveal, held.as_secs_f32())
     }
 
-    /// `horizon-launcher benchmark`: scroll the page a little on every frame, back to the top at
+    /// `apex-launcher benchmark`: scroll the page a little on every frame, back to the top at
     /// the bottom, so the frame times measure scrolling.
     fn bench_scroll(&mut self, window: &mut Window) {
         let handle = &self.content_scroll.handle;
@@ -4610,7 +4610,7 @@ impl Launcher {
     }
 }
 
-actions!(horizon_launcher, [Quit, CloseWindow]);
+actions!(apex_launcher, [Quit, CloseWindow]);
 
 /// What closing the last window does: stop the servers this launcher started, send the telemetry,
 /// exit. A game that is running keeps running. Cmd+Q goes through here too.
@@ -4661,8 +4661,8 @@ fn main() {
     backend::remove_replaced_binaries();
     backend::cleanup_launcher_updates();
     // What the launcher downloads goes through the player's proxy, if they set one: the parts
-    // that build their own agents (`horizon-port-pack`) are told before anything starts.
-    horizon_launcher::proxy::announce(horizon_launcher::backend::Settings::load().proxy);
+    // that build their own agents (`apex-port-pack`) are told before anything starts.
+    apex_launcher::proxy::announce(apex_launcher::backend::Settings::load().proxy);
     if let Some(code) = cli::run() {
         std::process::exit(code);
     }
@@ -4671,12 +4671,12 @@ fn main() {
         .run(|cx: &mut App| {
             cx.text_system()
                 .add_fonts(vec![
-                    Cow::Borrowed(horizon_theme::fonts::GEIST_MONO),
-                    Cow::Borrowed(horizon_theme::fonts::BRICOLAGE_REGULAR),
-                    Cow::Borrowed(horizon_theme::fonts::BRICOLAGE_MEDIUM),
-                    Cow::Borrowed(horizon_theme::fonts::BRICOLAGE_SEMIBOLD),
-                    Cow::Borrowed(horizon_theme::fonts::BRICOLAGE_BOLD),
-                    Cow::Borrowed(horizon_theme::fonts::BRICOLAGE_DISPLAY_BOLD),
+                    Cow::Borrowed(apex_theme::fonts::GEIST_MONO),
+                    Cow::Borrowed(apex_theme::fonts::BRICOLAGE_REGULAR),
+                    Cow::Borrowed(apex_theme::fonts::BRICOLAGE_MEDIUM),
+                    Cow::Borrowed(apex_theme::fonts::BRICOLAGE_SEMIBOLD),
+                    Cow::Borrowed(apex_theme::fonts::BRICOLAGE_BOLD),
+                    Cow::Borrowed(apex_theme::fonts::BRICOLAGE_DISPLAY_BOLD),
                 ])
                 .expect("bundled fonts");
             cx.bind_keys(key_bindings());
@@ -4699,7 +4699,7 @@ fn main() {
                     titlebar: Some(titlebar::options()),
                     #[cfg(target_os = "linux")]
                     window_decorations: Some(gpui::WindowDecorations::Client),
-                    app_id: Some("horizon-launcher".into()),
+                    app_id: Some("apex-launcher".into()),
                     // GPUI draws a window without focus at most every 33 ms to save energy. A
                     // benchmark's window often starts without it (KDE keeps focus from windows
                     // a background process opens), and it measures drawing, not that limit.
@@ -4810,7 +4810,7 @@ mod tests {
     }
 
     /// A server's Join (and every other shortcut) waits like Play: not while the version's
-    /// first download and preparation run (#horizon-bugs, 0.2.23: a white window opened).
+    /// first download and preparation run (#apex-bugs, 0.2.23: a white window opened).
     #[test]
     fn shortcuts_start_only_when_play_would() {
         use super::starts_now;
@@ -4828,7 +4828,7 @@ mod tests {
     fn a_completed_sign_in_is_handled_once_across_ui_polls() {
         use super::{sign_in_change, SignInState};
         let mut shown = None;
-        let completed = SignInState::Done(Ok(horizon_launcher::account::Account {
+        let completed = SignInState::Done(Ok(apex_launcher::account::Account {
             provider: Default::default(),
             uuid: "11111111111111111111111111111111".into(),
             name: "TestAccount".into(),

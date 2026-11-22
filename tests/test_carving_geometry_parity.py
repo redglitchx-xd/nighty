@@ -11,7 +11,7 @@ class CarvingGeometryCorpusTests(unittest.TestCase):
         self.assertEqual(len(shapes), 690)
         self.assertEqual({e['skip'] for e in shapes}, {0, 1, 2, 3})
         self.assertEqual({e['fail'] for e in shapes}, {-1, 0, 1, 63})
-        self.assertIn(geometry.bits(float('nan')), {e['horizontal'] for e in shapes})
+        self.assertIn(geometry.bits(float('nan')), {e['apextal'] for e in shapes})
         self.assertIn(geometry.bits(-0.), {e['vertical'] for e in shapes})
         reach = list(geometry.reach_corpus())
         self.assertEqual(reach, list(geometry.reach_corpus()))

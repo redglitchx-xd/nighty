@@ -20,7 +20,7 @@ def corpus():
     def bits(v):return struct.pack('>d',float(v)).hex()
     def single(v):return struct.pack('>f',float(v)).hex()
     def row(**kw):
-        f=dict(mode='air',input=[.4,0,.8],velocity=[.1,-.08,-.2],after_velocity=[.3,-.6,.9],fall=6,friction=.6,friction_modifier=1,drag_modifier=1,speed=.1,flying_speed=.02,yaw=37,ground=[True,True],climb=[False,False],scaffolding=False,suppress=False,player=False,horizontal=False,jumping=False,snow=False,after_horizontal=False,after_jumping=False,after_snow=False,powder_tag=False,boots=False,levitation=None,client=False,chunk=True,gravity=.08,y=64,min_y=-64,discard=False,omni=False,yaw_mutate=False,move_mutate=False,fail=-1)
+        f=dict(mode='air',input=[.4,0,.8],velocity=[.1,-.08,-.2],after_velocity=[.3,-.6,.9],fall=6,friction=.6,friction_modifier=1,drag_modifier=1,speed=.1,flying_speed=.02,yaw=37,ground=[True,True],climb=[False,False],scaffolding=False,suppress=False,player=False,apextal=False,jumping=False,snow=False,after_apextal=False,after_jumping=False,after_snow=False,powder_tag=False,boots=False,levitation=None,client=False,chunk=True,gravity=.08,y=64,min_y=-64,discard=False,omni=False,yaw_mutate=False,move_mutate=False,fail=-1)
         f.update(kw)
         for k in ['input','velocity','after_velocity']:f[k]=[bits(v) for v in f[k]]
         for k in ['fall','friction_modifier','drag_modifier','gravity','y']:f[k]=bits(f[k])
@@ -46,7 +46,7 @@ def corpus():
     for ground in [[False],[True],[True,False],[False,True]]:
         for climb in [[False],[True],[False,True],[True,False]]:
             for bits_mask in range(256):
-                flags={k:bool(bits_mask&(1<<i)) for i,k in enumerate(['player','scaffolding','suppress','after_horizontal','after_jumping','after_snow','powder_tag','boots'])}
+                flags={k:bool(bits_mask&(1<<i)) for i,k in enumerate(['player','scaffolding','suppress','after_apextal','after_jumping','after_snow','powder_tag','boots'])}
                 yield row(mode='relative',ground=ground,climb=climb,**flags)
     for levitation in [None,0,1,255,2147483647]:
         for client in [False,True]:
@@ -54,9 +54,9 @@ def corpus():
                 for y in [-float('inf'),-64,-63,0,float('inf'),float('nan')]:
                     for discard in [False,True]:
                         for omni in [False,True]:
-                            for fail in range(-1,24):yield row(levitation=levitation,client=client,chunk=chunk,y=y,discard=discard,omni=omni,fail=fail,move_mutate=True,yaw_mutate=True,climb=[True],after_horizontal=True,player=True,suppress=True)
+                            for fail in range(-1,24):yield row(levitation=levitation,client=client,chunk=chunk,y=y,discard=discard,omni=omni,fail=fail,move_mutate=True,yaw_mutate=True,climb=[True],after_apextal=True,player=True,suppress=True)
     rng=random.Random(0x414952)
-    flags=['player','scaffolding','suppress','horizontal','jumping','snow','after_horizontal','after_jumping','after_snow','powder_tag','boots','client','chunk','discard','omni','yaw_mutate','move_mutate']
+    flags=['player','scaffolding','suppress','apextal','jumping','snow','after_apextal','after_jumping','after_snow','powder_tag','boots','client','chunk','discard','omni','yaw_mutate','move_mutate']
     for _ in range(12000):
         f={k:bool(rng.randrange(2)) for k in flags}
         for k in ['friction','speed','flying_speed','friction_modifier','drag_modifier','gravity','yaw']:f[k]=rng.choice(vals) if rng.randrange(3)==0 else rng.uniform(-2,2)
@@ -69,19 +69,19 @@ def main():
     report_path=build/'report.json';report_path.unlink(missing_ok=True)
     if args.prepare:lab.prepare()
     lock,jars,libraries=base.verify_artifacts()
-    oracle=lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaLivingAirOracle.java'
-    sources=[oracle,Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/horizon-core/Cargo.toml',lab.ROOT/'crates/horizon-world/Cargo.toml',*sorted((lab.ROOT/'crates/horizon-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/horizon-world/src').rglob('*.rs')),lab.ROOT/'crates/horizon-world/examples/probe/living_air_fixture.rs']
+    oracle=lab.ROOT/'mods/apex/src/test/java/dev/apexlab/parity/VanillaLivingAirOracle.java'
+    sources=[oracle,Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/apex-core/Cargo.toml',lab.ROOT/'crates/apex-world/Cargo.toml',*sorted((lab.ROOT/'crates/apex-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/apex-world/src').rglob('*.rs')),lab.ROOT/'crates/apex-world/examples/probe/living_air_fixture.rs']
     tested_sources=base.source_hashes(sources)
     classes=build/'classes';classes.mkdir(exist_ok=True)
     def run(command,name):
         with (build/(name+'.log')).open('w',encoding='utf-8') as log:base.run(list(map(str,command)),stdout=log,stderr=subprocess.STDOUT)
     dependency_path=os.pathsep.join(map(str,libraries))
-    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle],'compile-java')
+    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/apex/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle],'compile-java')
     def java(side,mode,path):
-        run(['java','-Xmx512M','-cp',os.pathsep.join([str(classes),str(jars[side]),dependency_path]),'dev.horizonlab.parity.VanillaLivingAirOracle',mode,path],side+'-'+mode)
+        run(['java','-Xmx512M','-cp',os.pathsep.join([str(classes),str(jars[side]),dependency_path]),'dev.apexlab.parity.VanillaLivingAirOracle',mode,path],side+'-'+mode)
     fixtures=list(corpus());inputs=build/'inputs.txt';inputs.write_text(''.join(json.dumps(value,separators=(',',':'))+'\n' for value in fixtures),encoding='utf-8')
     fixture_paths=[inputs];tested_fixtures=base.source_hashes(fixture_paths)
-    run(['cargo','build','--release','-p','horizon-world','--example','world_probe'],'compile-rust')
+    run(['cargo','build','--release','-p','apex-world','--example','world_probe'],'compile-rust')
     metadata=json.loads(subprocess.check_output(['cargo','metadata','--no-deps','--format-version','1'],cwd=lab.ROOT,text=True))
     binary=Path(metadata['target_directory'])/'release/examples'/('world_probe.exe' if os.name=='nt' else 'world_probe')
     run([binary,'living_air_fixture',build],'rust');references=[]

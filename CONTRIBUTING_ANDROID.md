@@ -26,7 +26,7 @@ python -m unittest discover -s tests -p test_android_release_audit.py
 python tools/check_public_tree.py
 ```
 
-Touch preferences and the HUD editor live in `crates/horizon-client/src/touch*`;
+Touch preferences and the HUD editor live in `crates/apex-client/src/touch*`;
 standard options widgets in `options_ui.rs`; the Android entry point and launcher
 in `android_main.rs` and `android/`; game bindings in `game/pad.rs` and
 `game/android_input.rs`. Add focused regression tests for input/state changes.

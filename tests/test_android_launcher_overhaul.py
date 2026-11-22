@@ -22,63 +22,63 @@ def strip_rust_comments_and_literals(source: str) -> str:
 class LauncherOverhaulTests(unittest.TestCase):
     def test_rust_delimiter_and_syntax_sanity_across_modified_files(self) -> None:
         modified_files = [
-            "crates/horizon-client-render/src/touch/layout.rs",
-            "crates/horizon-client-render/src/touch.rs",
-            "crates/horizon-client-render/src/options_ui.rs",
-            "crates/horizon-client/src/touch_ui.rs",
-            "crates/horizon-client/src/ui_theme.rs",
-            "crates/horizon-client/src/game/android_input.rs",
-            "crates/horizon-client/src/game/startup_menu.rs",
-            "crates/horizon-client/src/game/options.rs",
-            "crates/horizon-client/src/game/pad.rs",
-            "crates/horizon-client/src/game/pad_menu.rs",
-            "crates/horizon-client/src/game.rs",
-            "crates/horizon-client/src/android/catalog.rs",
-            "crates/horizon-client/src/android/wardrobe.rs",
-            "crates/horizon-client/src/android/launcher_pages.rs",
-            "crates/horizon-client/src/android/launcher.rs",
-            "crates/horizon-client/src/android/chooser.rs",
-            "crates/horizon-client/src/android/login.rs",
-            "crates/horizon-client/src/android/native_ime.rs",
-            "crates/horizon-client/src/android/display.rs",
-            "crates/horizon-client-render/src/touch/editor.rs",
-            "crates/horizon-client-render/src/gfx.rs",
-            "crates/horizon-client-render/src/audio.rs",
-            "crates/horizon-client-render/src/mesher.rs",
-            "crates/horizon-client-render/src/mesher/sides.rs",
-            "crates/horizon-client-render/src/world.rs",
-            "crates/horizon-world/src/level/mod.rs",
-            "crates/horizon-world/src/level/update.rs",
-            "crates/horizon-world/src/level/tick.rs",
-            "crates/horizon-client-render/src/touch/custom.rs",
-            "crates/horizon-client-render/src/menu_blur.rs",
-            "crates/horizon-client-render/src/ui.rs",
-            "crates/horizon-client/src/android/document_store.rs",
-            "crates/horizon-client/src/android/documents.rs",
-            "crates/horizon-client/src/android/platform.rs",
-            "crates/horizon-client/src/game/perspective.rs",
-            "crates/horizon-client/src/game/recipe_book.rs",
-            "crates/horizon-client/src/game/screens.rs",
-            "crates/horizon-client/src/item_render.rs",
-            "crates/horizon-client/src/item_render/gui.rs",
+            "crates/apex-client-render/src/touch/layout.rs",
+            "crates/apex-client-render/src/touch.rs",
+            "crates/apex-client-render/src/options_ui.rs",
+            "crates/apex-client/src/touch_ui.rs",
+            "crates/apex-client/src/ui_theme.rs",
+            "crates/apex-client/src/game/android_input.rs",
+            "crates/apex-client/src/game/startup_menu.rs",
+            "crates/apex-client/src/game/options.rs",
+            "crates/apex-client/src/game/pad.rs",
+            "crates/apex-client/src/game/pad_menu.rs",
+            "crates/apex-client/src/game.rs",
+            "crates/apex-client/src/android/catalog.rs",
+            "crates/apex-client/src/android/wardrobe.rs",
+            "crates/apex-client/src/android/launcher_pages.rs",
+            "crates/apex-client/src/android/launcher.rs",
+            "crates/apex-client/src/android/chooser.rs",
+            "crates/apex-client/src/android/login.rs",
+            "crates/apex-client/src/android/native_ime.rs",
+            "crates/apex-client/src/android/display.rs",
+            "crates/apex-client-render/src/touch/editor.rs",
+            "crates/apex-client-render/src/gfx.rs",
+            "crates/apex-client-render/src/audio.rs",
+            "crates/apex-client-render/src/mesher.rs",
+            "crates/apex-client-render/src/mesher/sides.rs",
+            "crates/apex-client-render/src/world.rs",
+            "crates/apex-world/src/level/mod.rs",
+            "crates/apex-world/src/level/update.rs",
+            "crates/apex-world/src/level/tick.rs",
+            "crates/apex-client-render/src/touch/custom.rs",
+            "crates/apex-client-render/src/menu_blur.rs",
+            "crates/apex-client-render/src/ui.rs",
+            "crates/apex-client/src/android/document_store.rs",
+            "crates/apex-client/src/android/documents.rs",
+            "crates/apex-client/src/android/platform.rs",
+            "crates/apex-client/src/game/perspective.rs",
+            "crates/apex-client/src/game/recipe_book.rs",
+            "crates/apex-client/src/game/screens.rs",
+            "crates/apex-client/src/item_render.rs",
+            "crates/apex-client/src/item_render/gui.rs",
             "third_party/winit/src/platform_impl/android/keycodes.rs",
             "third_party/winit/src/platform_impl/android/mod.rs",
             "third_party/winit/src/platform_impl/android/mouse_state.rs",
             "launcher/src/skins/preview.rs",
-            "crates/horizon-client-render/src/gfx/pack_post.rs",
-            "crates/horizon-client-render/src/gfx/pack_atlas.rs",
-            "crates/horizon-client-render/src/gfx/pack_uniforms.rs",
-            "crates/horizon-client-render/src/gfx/arena.rs",
-            "crates/horizon-client-render/src/graphics.rs",
-            "crates/horizon-client/src/game/shader_packs.rs",
-            "crates/horizon-shaders/src/custom.rs",
-            "crates/horizon-shaders/src/translate/scan.rs",
-            "crates/horizon-shaders/src/translate/rewrite.rs",
-            "crates/horizon-client-render/src/gfx/pack_sky.rs",
-            "crates/horizon-client-render/src/gfx/pack_shadow.rs",
-            "crates/horizon-client-render/src/gfx/pack_images.rs",
-            "crates/horizon-client-render/src/gfx/flat.rs",
-            "crates/horizon-client/src/game/fov.rs",
+            "crates/apex-client-render/src/gfx/pack_post.rs",
+            "crates/apex-client-render/src/gfx/pack_atlas.rs",
+            "crates/apex-client-render/src/gfx/pack_uniforms.rs",
+            "crates/apex-client-render/src/gfx/arena.rs",
+            "crates/apex-client-render/src/graphics.rs",
+            "crates/apex-client/src/game/shader_packs.rs",
+            "crates/apex-shaders/src/custom.rs",
+            "crates/apex-shaders/src/translate/scan.rs",
+            "crates/apex-shaders/src/translate/rewrite.rs",
+            "crates/apex-client-render/src/gfx/pack_sky.rs",
+            "crates/apex-client-render/src/gfx/pack_shadow.rs",
+            "crates/apex-client-render/src/gfx/pack_images.rs",
+            "crates/apex-client-render/src/gfx/flat.rs",
+            "crates/apex-client/src/game/fov.rs",
         ]
         for rel in modified_files:
             path = ROOT / rel
@@ -102,12 +102,12 @@ class LauncherOverhaulTests(unittest.TestCase):
             )
 
     def test_virtual_mouse_windows11_pointer_and_authoritative_toggle(self) -> None:
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
-        layout = (ROOT / "crates/horizon-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
-        touch = (ROOT / "crates/horizon-client-render/src/touch.rs").read_text(encoding="utf-8")
-        options_ui = (ROOT / "crates/horizon-client-render/src/options_ui.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        layout = (ROOT / "crates/apex-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
+        touch = (ROOT / "crates/apex-client-render/src/touch.rs").read_text(encoding="utf-8")
+        options_ui = (ROOT / "crates/apex-client-render/src/options_ui.rs").read_text(encoding="utf-8")
         launcher_pages = (
-            ROOT / "crates/horizon-client/src/android/launcher_pages.rs"
+            ROOT / "crates/apex-client/src/android/launcher_pages.rs"
         ).read_text(encoding="utf-8")
 
         # 1. Faithful Windows 11 standard arrow pointer (aero_arrow) with exact (0,0) tip hotspot
@@ -129,14 +129,14 @@ class LauncherOverhaulTests(unittest.TestCase):
         self.assertNotIn("Virtual Mouse Pointer Speed", controls_cat_block)
 
     def test_floating_menu_settings_wired_and_scrollable(self) -> None:
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
         android_input = (
-            ROOT / "crates/horizon-client/src/game/android_input.rs"
+            ROOT / "crates/apex-client/src/game/android_input.rs"
         ).read_text(encoding="utf-8")
         startup_menu = (
-            ROOT / "crates/horizon-client/src/game/startup_menu.rs"
+            ROOT / "crates/apex-client/src/game/startup_menu.rs"
         ).read_text(encoding="utf-8")
-        pad = (ROOT / "crates/horizon-client/src/game/pad.rs").read_text(encoding="utf-8")
+        pad = (ROOT / "crates/apex-client/src/game/pad.rs").read_text(encoding="utf-8")
 
         # Scrollable Floating Menu content pane & Virtual Mouse speed control
         self.assertIn("pub hub_scroll: f32,", touch_ui)
@@ -164,7 +164,7 @@ class LauncherOverhaulTests(unittest.TestCase):
 
     def test_skin_3d_projection_and_drag_direction_math(self) -> None:
         preview = (ROOT / "launcher/src/skins/preview.rs").read_text(encoding="utf-8")
-        wardrobe = (ROOT / "crates/horizon-client/src/android/wardrobe.rs").read_text(encoding="utf-8")
+        wardrobe = (ROOT / "crates/apex-client/src/android/wardrobe.rs").read_text(encoding="utf-8")
         self.assertIn("pub fn drag(&mut self, dx: f32, dy: f32)", preview)
         self.assertIn("self.rotate(-dx * 0.7, -dy * 0.5);", preview)
         self.assertIn("self.camera.drag(point[0] - old[0], point[1] - old[1]);", wardrobe)
@@ -195,17 +195,17 @@ class LauncherOverhaulTests(unittest.TestCase):
         self.assertGreater(b_drag_down[1], b0[1])
 
     def test_theme_customization_and_controls_animation_exclusion(self) -> None:
-        ui_theme = (ROOT / "crates/horizon-client/src/ui_theme.rs").read_text(encoding="utf-8")
-        catalog = (ROOT / "crates/horizon-client/src/android/catalog.rs").read_text(encoding="utf-8")
+        ui_theme = (ROOT / "crates/apex-client/src/ui_theme.rs").read_text(encoding="utf-8")
+        catalog = (ROOT / "crates/apex-client/src/android/catalog.rs").read_text(encoding="utf-8")
         launcher_pages = (
-            ROOT / "crates/horizon-client/src/android/launcher_pages.rs"
+            ROOT / "crates/apex-client/src/android/launcher_pages.rs"
         ).read_text(encoding="utf-8")
 
         self.assertIn("pub struct LauncherThemeConfig", ui_theme)
         self.assertIn("pub enum ThemePreset", ui_theme)
         self.assertIn("pub enum GradientDirection", ui_theme)
         self.assertIn("pub fn draw_theme_background(", ui_theme)
-        self.assertIn("pub theme: horizon_client::ui_theme::LauncherThemeConfig", catalog)
+        self.assertIn("pub theme: apex_client::ui_theme::LauncherThemeConfig", catalog)
         self.assertIn("SettingsCategory::Theme =>", launcher_pages)
         self.assertIn("Action::ResetTheme", launcher_pages)
 
@@ -219,17 +219,17 @@ class LauncherOverhaulTests(unittest.TestCase):
 
 
     def test_stability_6s_freeze_burning_village_and_leaves_fps_optimizations(self) -> None:
-        gfx = (ROOT / "crates/horizon-client-render/src/gfx.rs").read_text(encoding="utf-8")
-        audio = (ROOT / "crates/horizon-client-render/src/audio.rs").read_text(encoding="utf-8")
-        mesher = (ROOT / "crates/horizon-client-render/src/mesher.rs").read_text(encoding="utf-8")
-        sides = (ROOT / "crates/horizon-client-render/src/mesher/sides.rs").read_text(encoding="utf-8")
-        terrain_wgsl = (ROOT / "crates/horizon-client-render/src/terrain.wgsl").read_text(
+        gfx = (ROOT / "crates/apex-client-render/src/gfx.rs").read_text(encoding="utf-8")
+        audio = (ROOT / "crates/apex-client-render/src/audio.rs").read_text(encoding="utf-8")
+        mesher = (ROOT / "crates/apex-client-render/src/mesher.rs").read_text(encoding="utf-8")
+        sides = (ROOT / "crates/apex-client-render/src/mesher/sides.rs").read_text(encoding="utf-8")
+        terrain_wgsl = (ROOT / "crates/apex-client-render/src/terrain.wgsl").read_text(
             encoding="utf-8"
         )
-        tick = (ROOT / "crates/horizon-world/src/level/tick.rs").read_text(encoding="utf-8")
-        world = (ROOT / "crates/horizon-client-render/src/world.rs").read_text(encoding="utf-8")
-        game = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
-        native_ime = (ROOT / "crates/horizon-client/src/android/native_ime.rs").read_text(encoding="utf-8")
+        tick = (ROOT / "crates/apex-world/src/level/tick.rs").read_text(encoding="utf-8")
+        world = (ROOT / "crates/apex-client-render/src/world.rs").read_text(encoding="utf-8")
+        game = (ROOT / "crates/apex-client/src/game.rs").read_text(encoding="utf-8")
+        native_ime = (ROOT / "crates/apex-client/src/android/native_ime.rs").read_text(encoding="utf-8")
 
         # 1. In-place Loading::set_ui texture update & surface_extent tracking
         self.assertIn("pub fn set_loading_ui(", gfx)
@@ -253,17 +253,17 @@ class LauncherOverhaulTests(unittest.TestCase):
         self.assertIn("crate::game::exit_app(event_loop);", game)
 
     def test_custom_input_dialogue_typing_back_confirm_launching_and_slider(self) -> None:
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
-        editor = (ROOT / "crates/horizon-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        editor = (ROOT / "crates/apex-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
         android_input = (
-            ROOT / "crates/horizon-client/src/game/android_input.rs"
+            ROOT / "crates/apex-client/src/game/android_input.rs"
         ).read_text(encoding="utf-8")
         startup_menu = (
-            ROOT / "crates/horizon-client/src/game/startup_menu.rs"
+            ROOT / "crates/apex-client/src/game/startup_menu.rs"
         ).read_text(encoding="utf-8")
-        launcher = (ROOT / "crates/horizon-client/src/android/launcher.rs").read_text(encoding="utf-8")
+        launcher = (ROOT / "crates/apex-client/src/android/launcher.rs").read_text(encoding="utf-8")
         launcher_pages = (
-            ROOT / "crates/horizon-client/src/android/launcher_pages.rs"
+            ROOT / "crates/apex-client/src/android/launcher_pages.rs"
         ).read_text(encoding="utf-8")
 
         # Send Custom Input modal & action
@@ -291,18 +291,18 @@ class LauncherOverhaulTests(unittest.TestCase):
 
 
     def test_next_development_pass_controls_kbm_file_manager_dpi_intro_and_ui_perf(self) -> None:
-        touch = (ROOT / "crates/horizon-client-render/src/touch.rs").read_text(encoding="utf-8")
-        layout = (ROOT / "crates/horizon-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
-        custom = (ROOT / "crates/horizon-client-render/src/touch/custom.rs").read_text(encoding="utf-8")
-        editor = (ROOT / "crates/horizon-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
-        ui_theme = (ROOT / "crates/horizon-client/src/ui_theme.rs").read_text(encoding="utf-8")
-        doc_store = (ROOT / "crates/horizon-client/src/android/document_store.rs").read_text(encoding="utf-8")
-        documents = (ROOT / "crates/horizon-client/src/android/documents.rs").read_text(encoding="utf-8")
-        catalog = (ROOT / "crates/horizon-client/src/android/catalog.rs").read_text(encoding="utf-8")
-        launcher = (ROOT / "crates/horizon-client/src/android/launcher.rs").read_text(encoding="utf-8")
+        touch = (ROOT / "crates/apex-client-render/src/touch.rs").read_text(encoding="utf-8")
+        layout = (ROOT / "crates/apex-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
+        custom = (ROOT / "crates/apex-client-render/src/touch/custom.rs").read_text(encoding="utf-8")
+        editor = (ROOT / "crates/apex-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        ui_theme = (ROOT / "crates/apex-client/src/ui_theme.rs").read_text(encoding="utf-8")
+        doc_store = (ROOT / "crates/apex-client/src/android/document_store.rs").read_text(encoding="utf-8")
+        documents = (ROOT / "crates/apex-client/src/android/documents.rs").read_text(encoding="utf-8")
+        catalog = (ROOT / "crates/apex-client/src/android/catalog.rs").read_text(encoding="utf-8")
+        launcher = (ROOT / "crates/apex-client/src/android/launcher.rs").read_text(encoding="utf-8")
         launcher_pages = (
-            ROOT / "crates/horizon-client/src/android/launcher_pages.rs"
+            ROOT / "crates/apex-client/src/android/launcher_pages.rs"
         ).read_text(encoding="utf-8")
         mouse_state = (
             ROOT / "third_party/winit/src/platform_impl/android/mouse_state.rs"
@@ -310,26 +310,26 @@ class LauncherOverhaulTests(unittest.TestCase):
         keycodes = (
             ROOT / "third_party/winit/src/platform_impl/android/keycodes.rs"
         ).read_text(encoding="utf-8")
-        native_ime = (ROOT / "crates/horizon-client/src/android/native_ime.rs").read_text(encoding="utf-8")
-        game = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
+        native_ime = (ROOT / "crates/apex-client/src/android/native_ime.rs").read_text(encoding="utf-8")
+        game = (ROOT / "crates/apex-client/src/game.rs").read_text(encoding="utf-8")
         android_input = (
-            ROOT / "crates/horizon-client/src/game/android_input.rs"
+            ROOT / "crates/apex-client/src/game/android_input.rs"
         ).read_text(encoding="utf-8")
         startup_menu = (
-            ROOT / "crates/horizon-client/src/game/startup_menu.rs"
+            ROOT / "crates/apex-client/src/game/startup_menu.rs"
         ).read_text(encoding="utf-8")
-        menu_blur = (ROOT / "crates/horizon-client-render/src/menu_blur.rs").read_text(encoding="utf-8")
+        menu_blur = (ROOT / "crates/apex-client-render/src/menu_blur.rs").read_text(encoding="utf-8")
         perspective = (
-            ROOT / "crates/horizon-client/src/game/perspective.rs"
+            ROOT / "crates/apex-client/src/game/perspective.rs"
         ).read_text(encoding="utf-8")
-        item_gui = (ROOT / "crates/horizon-client/src/item_render/gui.rs").read_text(encoding="utf-8")
-        item_render = (ROOT / "crates/horizon-client/src/item_render.rs").read_text(encoding="utf-8")
-        ui_render = (ROOT / "crates/horizon-client-render/src/ui.rs").read_text(encoding="utf-8")
-        screens = (ROOT / "crates/horizon-client/src/game/screens.rs").read_text(encoding="utf-8")
+        item_gui = (ROOT / "crates/apex-client/src/item_render/gui.rs").read_text(encoding="utf-8")
+        item_render = (ROOT / "crates/apex-client/src/item_render.rs").read_text(encoding="utf-8")
+        ui_render = (ROOT / "crates/apex-client-render/src/ui.rs").read_text(encoding="utf-8")
+        screens = (ROOT / "crates/apex-client/src/game/screens.rs").read_text(encoding="utf-8")
 
-        # 1. MCPE Floating Menu bubble appearance (Horizon H icon in MCPE, MenuEquals in GoyControl)
+        # 1. MCPE Floating Menu bubble appearance (Apex H icon in MCPE, MenuEquals in GoyControl)
         self.assertIn("if settings.control_style == ControlStyle::Mcpe {", touch_ui)
-        self.assertIn("Icon::HorizonLogo", touch_ui)
+        self.assertIn("Icon::ApexLogo", touch_ui)
         self.assertIn("Icon::MenuEquals", touch_ui)
 
         # 2. Dynamic joystick touch-origin behaviour
@@ -379,9 +379,9 @@ class LauncherOverhaulTests(unittest.TestCase):
         self.assertIn("pub fn hint_line(", ui_theme)
         self.assertIn("ui.hint_line(", touch_ui)
 
-        # 10. Animated Horizon intro screen
-        self.assertIn("pub fn draw_horizon_intro(", ui_theme)
-        self.assertIn("pub fn draw_animated_horizon_mark(", ui_theme)
+        # 10. Animated Apex intro screen
+        self.assertIn("pub fn draw_apex_intro(", ui_theme)
+        self.assertIn("pub fn draw_animated_apex_mark(", ui_theme)
         self.assertIn("pub intro_done: bool,", launcher_pages)
 
         # 11 & 12. MCPE Control Editor Add Control & single-binding exclusivity
@@ -392,7 +392,7 @@ class LauncherOverhaulTests(unittest.TestCase):
 
         # 13. Rust Edition in-game UI & menu performance
         self.assertIn("pub fn blit_cached(", menu_blur)
-        self.assertIn("pub menu_blur_cache: bool,", (ROOT / "crates/horizon-client-render/src/gfx.rs").read_text(encoding="utf-8"))
+        self.assertIn("pub menu_blur_cache: bool,", (ROOT / "crates/apex-client-render/src/gfx.rs").read_text(encoding="utf-8"))
         self.assertIn("struct GuiCachedItem", item_gui)
         self.assertIn("static CACHE: std::cell::RefCell<Vec<(crate::items::ItemStack, StackView)>>", item_render)
         self.assertIn("src[2] <= 2.0 || src[3] <= 2.0", ui_render)
@@ -403,36 +403,36 @@ class LauncherOverhaulTests(unittest.TestCase):
         )
 
         # 14. Vulkan Batch render chunk stabilization & mobile performance
-        gfx_code = (ROOT / "crates/horizon-client-render/src/gfx.rs").read_text(encoding="utf-8")
-        cull_code = (ROOT / "crates/horizon-client-render/src/gfx/cull.rs").read_text(encoding="utf-8")
-        flat_code = (ROOT / "crates/horizon-client-render/src/gfx/flat.rs").read_text(encoding="utf-8")
-        budget_code = (ROOT / "crates/horizon-client-render/src/gfx/upload_budget.rs").read_text(encoding="utf-8")
+        gfx_code = (ROOT / "crates/apex-client-render/src/gfx.rs").read_text(encoding="utf-8")
+        cull_code = (ROOT / "crates/apex-client-render/src/gfx/cull.rs").read_text(encoding="utf-8")
+        flat_code = (ROOT / "crates/apex-client-render/src/gfx/flat.rs").read_text(encoding="utf-8")
+        budget_code = (ROOT / "crates/apex-client-render/src/gfx/upload_budget.rs").read_text(encoding="utf-8")
         self.assertIn("let multi_draw = !cfg!(target_os = \"android\")", gfx_code)
         self.assertIn("if cfg!(target_os = \"android\") {", cull_code)
-        self.assertIn("std::env::var(\"HORIZON_FLAT_DRAWS\").as_deref() == Ok(\"1\")", flat_code)
+        self.assertIn("std::env::var(\"APEX_FLAT_DRAWS\").as_deref() == Ok(\"1\")", flat_code)
         self.assertIn("crate::android_runtime::gpu_batching()", budget_code)
 
 
 
     def test_anr_fix_z_order_keybind_dispatch_and_controls_overhaul(self) -> None:
         test_content = (ROOT / "tools/test_android_content.py").read_text(encoding="utf-8")
-        gfx = (ROOT / "crates/horizon-client-render/src/gfx.rs").read_text(encoding="utf-8")
-        game = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        gfx = (ROOT / "crates/apex-client-render/src/gfx.rs").read_text(encoding="utf-8")
+        game = (ROOT / "crates/apex-client/src/game.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
         android_input = (
-            ROOT / "crates/horizon-client/src/game/android_input.rs"
+            ROOT / "crates/apex-client/src/game/android_input.rs"
         ).read_text(encoding="utf-8")
         startup_menu = (
-            ROOT / "crates/horizon-client/src/game/startup_menu.rs"
+            ROOT / "crates/apex-client/src/game/startup_menu.rs"
         ).read_text(encoding="utf-8")
-        pad = (ROOT / "crates/horizon-client/src/game/pad.rs").read_text(encoding="utf-8")
-        custom = (ROOT / "crates/horizon-client-render/src/touch/custom.rs").read_text(encoding="utf-8")
-        editor = (ROOT / "crates/horizon-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
+        pad = (ROOT / "crates/apex-client/src/game/pad.rs").read_text(encoding="utf-8")
+        custom = (ROOT / "crates/apex-client-render/src/touch/custom.rs").read_text(encoding="utf-8")
+        editor = (ROOT / "crates/apex-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
         launcher_pages = (
-            ROOT / "crates/horizon-client/src/android/launcher_pages.rs"
+            ROOT / "crates/apex-client/src/android/launcher_pages.rs"
         ).read_text(encoding="utf-8")
-        options_ui = (ROOT / "crates/horizon-client-render/src/options_ui.rs").read_text(encoding="utf-8")
-        ui_theme = (ROOT / "crates/horizon-client/src/ui_theme.rs").read_text(encoding="utf-8")
+        options_ui = (ROOT / "crates/apex-client-render/src/options_ui.rs").read_text(encoding="utf-8")
+        ui_theme = (ROOT / "crates/apex-client/src/ui_theme.rs").read_text(encoding="utf-8")
 
         # 1. tools/test_android_content.py supplies mod android_runtime stub
         self.assertIn("mod android_runtime {", test_content)
@@ -445,12 +445,12 @@ class LauncherOverhaulTests(unittest.TestCase):
 
         # 3. Mouse cursor z-order strictly below touch controls & floating menu, hidden when floating_menu is open
         self.assertLess(
-            game.index("horizon_client::touch_ui::draw_pointer("),
+            game.index("apex_client::touch_ui::draw_pointer("),
             game.index("self.pad.touch.draw("),
         )
         self.assertLess(
-            startup_menu.index("horizon_client::touch_ui::draw_pointer("),
-            startup_menu.index("horizon_client::touch_ui::draw_goy_hud("),
+            startup_menu.index("apex_client::touch_ui::draw_pointer("),
+            startup_menu.index("apex_client::touch_ui::draw_goy_hud("),
         )
         self.assertIn("if self.floating_menu", touch_ui)
 
@@ -471,28 +471,28 @@ class LauncherOverhaulTests(unittest.TestCase):
 
     def test_mali_g52_shaders_startup_freeze_arena_pooling_and_m3_controls_overhaul(self) -> None:
         pack_post = (
-            ROOT / "crates/horizon-client-render/src/gfx/pack_post.rs"
+            ROOT / "crates/apex-client-render/src/gfx/pack_post.rs"
         ).read_text(encoding="utf-8")
         pack_atlas = (
-            ROOT / "crates/horizon-client-render/src/gfx/pack_atlas.rs"
+            ROOT / "crates/apex-client-render/src/gfx/pack_atlas.rs"
         ).read_text(encoding="utf-8")
         pack_uniforms = (
-            ROOT / "crates/horizon-client-render/src/gfx/pack_uniforms.rs"
+            ROOT / "crates/apex-client-render/src/gfx/pack_uniforms.rs"
         ).read_text(encoding="utf-8")
-        arena = (ROOT / "crates/horizon-client-render/src/gfx/arena.rs").read_text(encoding="utf-8")
-        graphics = (ROOT / "crates/horizon-client-render/src/graphics.rs").read_text(encoding="utf-8")
-        gfx = (ROOT / "crates/horizon-client-render/src/gfx.rs").read_text(encoding="utf-8")
+        arena = (ROOT / "crates/apex-client-render/src/gfx/arena.rs").read_text(encoding="utf-8")
+        graphics = (ROOT / "crates/apex-client-render/src/graphics.rs").read_text(encoding="utf-8")
+        gfx = (ROOT / "crates/apex-client-render/src/gfx.rs").read_text(encoding="utf-8")
         shader_packs = (
-            ROOT / "crates/horizon-client/src/game/shader_packs.rs"
+            ROOT / "crates/apex-client/src/game/shader_packs.rs"
         ).read_text(encoding="utf-8")
-        game = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
+        game = (ROOT / "crates/apex-client/src/game.rs").read_text(encoding="utf-8")
         startup_menu = (
-            ROOT / "crates/horizon-client/src/game/startup_menu.rs"
+            ROOT / "crates/apex-client/src/game/startup_menu.rs"
         ).read_text(encoding="utf-8")
         launcher_pages = (
-            ROOT / "crates/horizon-client/src/android/launcher_pages.rs"
+            ROOT / "crates/apex-client/src/android/launcher_pages.rs"
         ).read_text(encoding="utf-8")
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
 
         # 1. Shader pack compatibility on max_bind_groups=4 mobile GPUs & non-flat mc_Entity
         self.assertIn("fn remap_bind_group(", pack_post)
@@ -521,22 +521,22 @@ class LauncherOverhaulTests(unittest.TestCase):
 
 
     def test_studio_props_recommended_resolution_shaders_and_animations_revamp(self) -> None:
-        custom_rs = (ROOT / "crates/horizon-shaders/src/custom.rs").read_text(encoding="utf-8")
-        scan_rs = (ROOT / "crates/horizon-shaders/src/translate/scan.rs").read_text(encoding="utf-8")
-        rewrite_rs = (ROOT / "crates/horizon-shaders/src/translate/rewrite.rs").read_text(encoding="utf-8")
-        pack_sky = (ROOT / "crates/horizon-client-render/src/gfx/pack_sky.rs").read_text(encoding="utf-8")
-        pack_post = (ROOT / "crates/horizon-client-render/src/gfx/pack_post.rs").read_text(encoding="utf-8")
+        custom_rs = (ROOT / "crates/apex-shaders/src/custom.rs").read_text(encoding="utf-8")
+        scan_rs = (ROOT / "crates/apex-shaders/src/translate/scan.rs").read_text(encoding="utf-8")
+        rewrite_rs = (ROOT / "crates/apex-shaders/src/translate/rewrite.rs").read_text(encoding="utf-8")
+        pack_sky = (ROOT / "crates/apex-client-render/src/gfx/pack_sky.rs").read_text(encoding="utf-8")
+        pack_post = (ROOT / "crates/apex-client-render/src/gfx/pack_post.rs").read_text(encoding="utf-8")
         pack_uniforms = (
-            ROOT / "crates/horizon-client-render/src/gfx/pack_uniforms.rs"
+            ROOT / "crates/apex-client-render/src/gfx/pack_uniforms.rs"
         ).read_text(encoding="utf-8")
-        shader_packs = (ROOT / "crates/horizon-client/src/game/shader_packs.rs").read_text(encoding="utf-8")
-        menu_blur = (ROOT / "crates/horizon-client-render/src/menu_blur.rs").read_text(encoding="utf-8")
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
-        layout = (ROOT / "crates/horizon-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
+        shader_packs = (ROOT / "crates/apex-client/src/game/shader_packs.rs").read_text(encoding="utf-8")
+        menu_blur = (ROOT / "crates/apex-client-render/src/menu_blur.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        layout = (ROOT / "crates/apex-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
         launcher_pages = (
-            ROOT / "crates/horizon-client/src/android/launcher_pages.rs"
+            ROOT / "crates/apex-client/src/android/launcher_pages.rs"
         ).read_text(encoding="utf-8")
-        ui_theme = (ROOT / "crates/horizon-client/src/ui_theme.rs").read_text(encoding="utf-8")
+        ui_theme = (ROOT / "crates/apex-client/src/ui_theme.rs").read_text(encoding="utf-8")
 
         # 1. MakeUp & E-Lite gl_FogFragCoord + trailing semicolon shader fixes
         self.assertIn("gl_FogFragCoord", scan_rs)
@@ -560,7 +560,7 @@ class LauncherOverhaulTests(unittest.TestCase):
         self.assertIn("pub resolution_scale_percent: u32,", layout)
         self.assertIn("pub fn control_icon_from_id(", touch_ui)
         self.assertIn("fn draw_preview_brackets(", touch_ui)
-        self.assertIn("(Icon::HorizonLogo, \"Recommended\")", touch_ui)
+        self.assertIn("(Icon::ApexLogo, \"Recommended\")", touch_ui)
         self.assertIn("SetResolutionScale(u32),", touch_ui)
         self.assertIn("ToggleGameAnimations,", touch_ui)
 
@@ -575,22 +575,22 @@ class LauncherOverhaulTests(unittest.TestCase):
 
     def test_mali_mrt_shader_ground_complementary_passthrough_and_m3_sliders(self) -> None:
         adapter = (ROOT / "third_party/wgpu-hal/src/vulkan/adapter.rs").read_text(encoding="utf-8")
-        flat = (ROOT / "crates/horizon-client-render/src/gfx/flat.rs").read_text(encoding="utf-8")
-        mesher = (ROOT / "crates/horizon-client-render/src/mesher.rs").read_text(encoding="utf-8")
-        pack_atlas = (ROOT / "crates/horizon-client-render/src/gfx/pack_atlas.rs").read_text(encoding="utf-8")
-        pack_post = (ROOT / "crates/horizon-client-render/src/gfx/pack_post.rs").read_text(encoding="utf-8")
-        gfx = (ROOT / "crates/horizon-client-render/src/gfx.rs").read_text(encoding="utf-8")
-        game = (ROOT / "crates/horizon-client/src/game.rs").read_text(encoding="utf-8")
-        layout = (ROOT / "crates/horizon-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
-        touch = (ROOT / "crates/horizon-client-render/src/touch.rs").read_text(encoding="utf-8")
-        editor = (ROOT / "crates/horizon-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
-        launcher_pages = (ROOT / "crates/horizon-client/src/android/launcher_pages.rs").read_text(encoding="utf-8")
+        flat = (ROOT / "crates/apex-client-render/src/gfx/flat.rs").read_text(encoding="utf-8")
+        mesher = (ROOT / "crates/apex-client-render/src/mesher.rs").read_text(encoding="utf-8")
+        pack_atlas = (ROOT / "crates/apex-client-render/src/gfx/pack_atlas.rs").read_text(encoding="utf-8")
+        pack_post = (ROOT / "crates/apex-client-render/src/gfx/pack_post.rs").read_text(encoding="utf-8")
+        gfx = (ROOT / "crates/apex-client-render/src/gfx.rs").read_text(encoding="utf-8")
+        game = (ROOT / "crates/apex-client/src/game.rs").read_text(encoding="utf-8")
+        layout = (ROOT / "crates/apex-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
+        touch = (ROOT / "crates/apex-client-render/src/touch.rs").read_text(encoding="utf-8")
+        editor = (ROOT / "crates/apex-client-render/src/touch/editor.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        launcher_pages = (ROOT / "crates/apex-client/src/android/launcher_pages.rs").read_text(encoding="utf-8")
 
         # 1. ARM Mali (0x13b5) MRT limit fix & !flat terrain normal/tangent decoding
         self.assertIn("0x13b5", adapter)
         self.assertIn("0x5143", adapter)
-        self.assertIn('std::env::var("HORIZON_FLAT_DRAWS").as_deref() == Ok("1")', flat)
+        self.assertIn('std::env::var("APEX_FLAT_DRAWS").as_deref() == Ok("1")', flat)
         self.assertIn("((q.facing as u32) & 0x7) << 28", mesher)
         self.assertIn(
             "uint hz_face = min((uint(round(hz_v_color.a * 255.0)) >> 4u) & 7u, 5u);",
@@ -614,18 +614,18 @@ class LauncherOverhaulTests(unittest.TestCase):
 
 
     def test_final_polish_vertex_shaders_mods_2d_goy_skins_and_sliders(self):
-        manifest = (ROOT / "crates/horizon-shader-api/src/manifest.rs").read_text(encoding="utf-8")
-        stages = (ROOT / "crates/horizon-shader-api/src/stages.rs").read_text(encoding="utf-8")
-        pack_shadow = (ROOT / "crates/horizon-client-render/src/gfx/pack_shadow.rs").read_text(encoding="utf-8")
-        pack_uniforms = (ROOT / "crates/horizon-client-render/src/gfx/pack_uniforms.rs").read_text(encoding="utf-8")
-        perspective = (ROOT / "crates/horizon-client/src/game/perspective.rs").read_text(encoding="utf-8")
-        shader_packs = (ROOT / "crates/horizon-client/src/game/shader_packs.rs").read_text(encoding="utf-8")
-        rewrite = (ROOT / "crates/horizon-shaders/src/translate/rewrite.rs").read_text(encoding="utf-8")
-        catalog = (ROOT / "crates/horizon-client/src/android/catalog.rs").read_text(encoding="utf-8")
-        wardrobe = (ROOT / "crates/horizon-client/src/android/wardrobe.rs").read_text(encoding="utf-8")
-        layout = (ROOT / "crates/horizon-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
-        touch_ui = (ROOT / "crates/horizon-client/src/touch_ui.rs").read_text(encoding="utf-8")
-        launcher_pages = (ROOT / "crates/horizon-client/src/android/launcher_pages.rs").read_text(encoding="utf-8")
+        manifest = (ROOT / "crates/apex-shader-api/src/manifest.rs").read_text(encoding="utf-8")
+        stages = (ROOT / "crates/apex-shader-api/src/stages.rs").read_text(encoding="utf-8")
+        pack_shadow = (ROOT / "crates/apex-client-render/src/gfx/pack_shadow.rs").read_text(encoding="utf-8")
+        pack_uniforms = (ROOT / "crates/apex-client-render/src/gfx/pack_uniforms.rs").read_text(encoding="utf-8")
+        perspective = (ROOT / "crates/apex-client/src/game/perspective.rs").read_text(encoding="utf-8")
+        shader_packs = (ROOT / "crates/apex-client/src/game/shader_packs.rs").read_text(encoding="utf-8")
+        rewrite = (ROOT / "crates/apex-shaders/src/translate/rewrite.rs").read_text(encoding="utf-8")
+        catalog = (ROOT / "crates/apex-client/src/android/catalog.rs").read_text(encoding="utf-8")
+        wardrobe = (ROOT / "crates/apex-client/src/android/wardrobe.rs").read_text(encoding="utf-8")
+        layout = (ROOT / "crates/apex-client-render/src/touch/layout.rs").read_text(encoding="utf-8")
+        touch_ui = (ROOT / "crates/apex-client/src/touch_ui.rs").read_text(encoding="utf-8")
+        launcher_pages = (ROOT / "crates/apex-client/src/android/launcher_pages.rs").read_text(encoding="utf-8")
 
         self.assertIn("pub vertex: Option<Stage>,", manifest)
         self.assertIn("StageKind::Vertex", stages)
@@ -636,7 +636,7 @@ class LauncherOverhaulTests(unittest.TestCase):
         self.assertIn("pub fn pending_shader_pack_status()", shader_packs)
         self.assertIn("hz_dot", rewrite)
         self.assertIn("float hz_dot(vec3 a, vec3 b) { return dot(a, b); }", rewrite)
-        inputs_rs = (ROOT / "crates/horizon-shader-api/src/inputs.rs").read_text(encoding="utf-8")
+        inputs_rs = (ROOT / "crates/apex-shader-api/src/inputs.rs").read_text(encoding="utf-8")
         self.assertIn("colored_light:", inputs_rs)
         self.assertIn("displaced:", inputs_rs)
         self.assertIn("pub const SURFACE_DATA: Struct", inputs_rs)

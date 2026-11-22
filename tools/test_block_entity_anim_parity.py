@@ -10,8 +10,8 @@ on a stand-in client level, then per scripted step applies the block event
 extractRenderState, printing the fields, the level calls the tick made
 (neighbour updates, entity pushes/queries, sounds, particles) and the render
 state. `examples/probe/block_entity_anim_fixture` replays the steps through
-`horizon_client::block_entity_anim` and derives the render state from the
-`BlockAnim` Horizon's renderer reads. Lines must match exactly (floats as bits).
+`apex_client::block_entity_anim` and derives the render state from the
+`BlockAnim` Apex's renderer reads. Lines must match exactly (floats as bits).
 
   test_block_entity_anim_parity.py [--filter SUBSTRING] [--detail N]
 """
@@ -27,9 +27,9 @@ try:
 except ImportError:
     import lab, test_rust_parity as base, test_model_baking_parity as baking
 
-PARITY = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity'
-HORIZONTAL = ['north', 'south', 'west', 'east']
-ALL = ['down', 'up'] + HORIZONTAL
+PARITY = lab.ROOT / 'mods/apex/src/test/java/dev/apexlab/parity'
+APEXTAL = ['north', 'south', 'west', 'east']
+ALL = ['down', 'up'] + APEXTAL
 FRAME = ['minecraft:prismarine', 'minecraft:prismarine_bricks', 'minecraft:sea_lantern', 'minecraft:dark_prismarine']
 WATERY = ['minecraft:water', 'minecraft:water[level=3]', 'minecraft:bubble_column', 'minecraft:seagrass',
           'minecraft:kelp_plant', 'minecraft:oak_slab[waterlogged=true]', 'minecraft:oak_stairs[waterlogged=true]']
@@ -93,7 +93,7 @@ def cases():
     # Bells: rings from any side (and odd data values), raiders and other mobs nearby.
     for i in range(40):
         attach = rng.choice(['floor', 'ceiling', 'single_wall', 'double_wall'])
-        block = f'minecraft:bell[attachment={attach},facing={rng.choice(HORIZONTAL)}]'
+        block = f'minecraft:bell[attachment={attach},facing={rng.choice(APEXTAL)}]'
         p = pos()
         entities = []
         for _ in range(rng.choice([0, 1, 2, 5, 12, 25])):
@@ -142,7 +142,7 @@ def cases():
     for i in range(24):
         head = rng.choice(['dragon', 'piglin'])
         wall = rng.random() < 0.5
-        prop = f'facing={rng.choice(HORIZONTAL)}' if wall else f'rotation={rng.randint(0, 15)}'
+        prop = f'facing={rng.choice(APEXTAL)}' if wall else f'rotation={rng.randint(0, 15)}'
         name = f'minecraft:{head}_wall_head' if wall else f'minecraft:{head}_head'
         powered = rng.random() < 0.5
         steps = []
@@ -161,7 +161,7 @@ def cases():
             if rng.random() < 0.15:
                 step['event'] = [rng.choice([1, 1, 1, 2]), rng.choice([0, 1, 0, 1, 2, -1])]
             steps.append(step)
-        add('pot', f'minecraft:decorated_pot[facing={rng.choice(HORIZONTAL)}]', steps)
+        add('pot', f'minecraft:decorated_pot[facing={rng.choice(APEXTAL)}]', steps)
     # End gateways: the server copy's portalTick (triggerCooldown every 2400
     # ticks, entities entering) sends block event 1 to the client copy, whose
     # beamAnimationTick and TheEndGatewayRenderer draw the beam; saved ages
@@ -181,7 +181,7 @@ def cases():
     # a double chest), other events ignored; the neighbour a double half
     # connects to may be its other half or not (wrong block, type, facing).
     for i in range(48):
-        facing = rng.choice(HORIZONTAL)
+        facing = rng.choice(APEXTAL)
         partner = None
         world = {}
         if rng.random() < 0.2:
@@ -197,7 +197,7 @@ def cases():
                 if r < 0.1:
                     other_kind = kind
                 elif r < 0.2:
-                    other_facing = rng.choice([d for d in HORIZONTAL if d != facing])
+                    other_facing = rng.choice([d for d in APEXTAL if d != facing])
                 elif r < 0.3:
                     other_name = rng.choice([c for c in CHESTS if c != name])
                 elif r < 0.35:
@@ -277,9 +277,9 @@ def main():
             sys.exit(f'{name} failed')
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-nowarn', '-cp', dependencies, '-d', classes,
          *(PARITY / f'{n}.java' for n in ('ParityData', 'VanillaBlockEntityAnimOracle'))], 'compile-java')
-    run(['java', '-Xmx2G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.horizonlab.parity.VanillaBlockEntityAnimOracle',
+    run(['java', '-Xmx2G', '-cp', str(classes) + os.pathsep + dependencies, 'dev.apexlab.parity.VanillaBlockEntityAnimOracle',
          inputs, build / 'vanilla.txt'], 'vanilla')
-    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'horizon-client', '--example', 'client_probe', '--',
+    run(['cargo', 'run', '--quiet', '--profile', 'fast', '-p', 'apex-client', '--example', 'client_probe', '--',
          'block_entity_anim_fixture', resources, inputs, build / 'rust.txt'], 'rust')
 
     def split(path):
@@ -317,7 +317,7 @@ def main():
         for case, step, a, b in items[:args.detail]:
             print(f'    {case["name"]} {case["block"]} step {step}: {json.dumps(case["steps"][step] if step < len(case["steps"]) else None)}')
             print(f'      vanilla: {(a or "")[:500]}')
-            print(f'      horizon: {(b or "")[:500]}')
+            print(f'      apex: {(b or "")[:500]}')
     for kind, (ok, n) in sorted(kinds.items()):
         print(f'{kind}: {ok}/{n} cases match')
     passed = sum(ok for ok, _ in kinds.values())

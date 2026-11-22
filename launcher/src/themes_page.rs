@@ -1,10 +1,10 @@
-//! Settings' accent colour and Home background rows (`horizon_launcher::themes`).
+//! Settings' accent colour and Home background rows (`apex_launcher::themes`).
 use super::*;
 use gpui::{
     canvas, fill, point, size, Bounds, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent,
     Pixels, Point,
 };
-use horizon_launcher::themes::{self, Accent};
+use apex_launcher::themes::{self, Accent};
 use std::path::PathBuf;
 
 /// Each accent's swatch, in points.

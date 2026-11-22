@@ -1,8 +1,8 @@
 //! Data collection in the window: the question asked once (and again when what is collected
-//! changes), and its section in Settings. Everything goes through `horizon_launcher::telemetry`.
+//! changes), and its section in Settings. Everything goes through `apex_launcher::telemetry`.
 use super::*;
-use horizon_launcher::telemetry;
-use horizon_telemetry::{Choices, Consent, Kind as DataKind};
+use apex_launcher::telemetry;
+use apex_telemetry::{Choices, Consent, Kind as DataKind};
 
 /// What the window keeps about data collection.
 pub(crate) struct Collection {
@@ -302,7 +302,7 @@ impl Launcher {
             Some(always_on(&t).into_any_element()),
             &t,
         ));
-        let waiting = horizon_telemetry::outbox::pending(&telemetry::home()).len();
+        let waiting = apex_telemetry::outbox::pending(&telemetry::home()).len();
         let id = match consent.install_id.as_str() {
             "" => tr("No install ID: nothing has been collected").to_string(),
             id => trf(
@@ -310,7 +310,7 @@ impl Launcher {
                 &[("prefix", &id[..4]), ("suffix", &id[id.len() - 4..])],
             ),
         };
-        let server = if horizon_telemetry::endpoint().is_some() {
+        let server = if apex_telemetry::endpoint().is_some() {
             trf(
                 "{count} waiting to be sent",
                 &[("count", &waiting.to_string())],
@@ -388,7 +388,7 @@ impl Launcher {
                     .max_w(px(600.))
                     .text_color(t.muted)
                     .child(tr(
-                        "Each switch is off unless you turn it on. What it sends is below it; the privacy page on playhorizon.dev says how long it is kept.",
+                        "Each switch is off unless you turn it on. What it sends is below it; the privacy page on playapex.dev says how long it is kept.",
                     )),
             )
             .child(list)

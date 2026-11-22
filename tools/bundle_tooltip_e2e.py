@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render regression: bundle component tooltips in anvil and brewing screens.
 
-Requires prepared 26.3 resources, a built horizon-client/horizon-ctl and Pillow.
+Requires prepared 26.3 resources, a built apex-client/apex-ctl and Pillow.
 Runs an isolated offscreen game; never opens existing player data. A name-only
 bundle tooltip is narrower than the component's 96 GUI-pixel minimum, so its
 purple frame cannot pass the image assertion. Screenshots are kept as evidence.
@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def longest_tooltip_border(image):
-    """Longest horizontal purple tooltip-frame run (physical pixels)."""
+    """Longest apextal purple tooltip-frame run (physical pixels)."""
     rgb = image.convert("RGB")
     longest = 0
     pixels = rgb.load()
@@ -38,9 +38,9 @@ def longest_tooltip_border(image):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--game", type=Path, default=ROOT / "target/fast/horizon-client")
-    parser.add_argument("--ctl", type=Path, default=ROOT / "target/fast/horizon-ctl")
-    parser.add_argument("--resources", type=Path, default=ROOT / ".local/horizon-client/26.3")
+    parser.add_argument("--game", type=Path, default=ROOT / "target/fast/apex-client")
+    parser.add_argument("--ctl", type=Path, default=ROOT / "target/fast/apex-ctl")
+    parser.add_argument("--resources", type=Path, default=ROOT / ".local/apex-client/26.3")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--in-frame", action="store_true", help="DEPRECATED, never use: unsupported, will be removed soon")
     args = parser.parse_args()
@@ -48,7 +48,7 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     output = output.resolve()
     homes = {}
-    for key in ("HORIZON_HOME", "HORIZON_LAUNCHER_HOME", "XDG_DATA_HOME", "XDG_CONFIG_HOME"):
+    for key in ("APEX_HOME", "APEX_LAUNCHER_HOME", "XDG_DATA_HOME", "XDG_CONFIG_HOME"):
         directory = output / key
         directory.mkdir(exist_ok=True)
         homes[key] = directory

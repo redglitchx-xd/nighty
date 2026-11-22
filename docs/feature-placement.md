@@ -163,7 +163,7 @@ rejected writes, failures, update flags, random state, final raw sections and
 packed heightmaps.
 
 The region corpus also runs a composed sequence of configured fill layers over
-the same live chunks: water, horizontal logs, air and an out-of-height layer.
+the same live chunks: water, apextal logs, air and an out-of-height layer.
 This connects block-state decoding, nested feature execution, shared placement
 and chunk heightmap updates; the standalone fill-layer suite below covers
 integer-property parsing and per-column query ordering in more detail.

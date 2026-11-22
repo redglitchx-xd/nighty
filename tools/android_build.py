@@ -53,7 +53,7 @@ def generated_engine_file(name):
             'attributes.json', 'block-behaviours.json', 'cached-collision.nbt',
             'command-registries.json', 'commands.json', 'creative-inventory.json',
             'damage-catalog.json', 'entity-models.json', 'entity-types.json',
-            'facts.json', 'gameplay-facts.json', 'horizon-resources.json', 'items.json',
+            'facts.json', 'gameplay-facts.json', 'apex-resources.json', 'items.json',
             'landing-definitions.json', 'mob-data.json', 'model-states.json',
             'movement-properties.nbt', 'occlusion.nbt', 'player-float-ids.json',
             'registries.json', 'render-definitions.json'}
@@ -69,8 +69,8 @@ def generated_engine_file(name):
 
 def engine_data(public=False):
     version = json.loads((ROOT / 'research-lock.json').read_text())['minecraft']['version']
-    resources = ROOT / '.local/horizon-client' / version
-    if not (resources / 'horizon-resources.json').is_file():
+    resources = ROOT / '.local/apex-client' / version
+    if not (resources / 'apex-resources.json').is_file():
         raise FileNotFoundError('Developer build needs prepared engine tables; run tools/android_prepare.py once')
     if public and not (resources / 'worldgen/blocks/structure-blocks.json').is_file():
         raise FileNotFoundError('Public build needs generated structure transforms; run tools/android_prepare.py again')
@@ -143,7 +143,7 @@ def main():
     legacy = args.abi in ('armeabi-v7a', 'x86')
     min_sdk = 27 if legacy else 28
     features = ['--no-default-features', '--features', 'audio'] if legacy else []
-    manifests = [(['-p', 'horizon-android'], features)]
+    manifests = [(['-p', 'apex-android'], features)]
     environment = dict(os.environ)
     environment['PATH'] = os.pathsep.join([str(ndk / 'bin'), str(args.java_home / 'bin'), environment['PATH']])
     environment['JAVA_HOME'] = str(args.java_home)
@@ -156,20 +156,20 @@ def main():
     environment[f'AR_{triple}'] = str(ndk / 'bin' / ('llvm-ar' + suffix))
     environment[f'CARGO_TARGET_{triple.upper()}_LINKER'] = str(clang)
     environment['CARGO_PROFILE_DEV_DEBUG'] = '0'
-    environment['HORIZON_ANDROID_PUBLIC'] = '1' if args.public else '0'
+    environment['APEX_ANDROID_PUBLIC'] = '1' if args.public else '0'
     try:
-        environment['HORIZON_ANDROID_BUILD_COMMIT'] = subprocess.check_output(
+        environment['APEX_ANDROID_BUILD_COMMIT'] = subprocess.check_output(
             ['git', 'rev-parse', '--short=12', 'HEAD'], cwd=ROOT,
             stderr=subprocess.DEVNULL, text=True).strip()
-        environment['HORIZON_ANDROID_BUILD_DIRTY'] = str(bool(subprocess.check_output(
+        environment['APEX_ANDROID_BUILD_DIRTY'] = str(bool(subprocess.check_output(
             ['git', 'status', '--porcelain', '--untracked-files=no'], cwd=ROOT,
             stderr=subprocess.DEVNULL, text=True).strip())).lower()
     except (OSError, subprocess.CalledProcessError):
-        environment['HORIZON_ANDROID_BUILD_COMMIT'] = 'source-export'
-        environment['HORIZON_ANDROID_BUILD_DIRTY'] = 'unknown'
+        environment['APEX_ANDROID_BUILD_COMMIT'] = 'source-export'
+        environment['APEX_ANDROID_BUILD_DIRTY'] = 'unknown'
     if args.release_candidate:
         flags = environment.get('CARGO_ENCODED_RUSTFLAGS', '').split('\x1f') if environment.get('CARGO_ENCODED_RUSTFLAGS') else environment.get('RUSTFLAGS', '').split()
-        for original, replacement in [(Path.home(), '/build'), (ROOT, '/horizon')]:
+        for original, replacement in [(Path.home(), '/build'), (ROOT, '/apex')]:
             for prefix in dict.fromkeys([str(original), original.as_posix()]):
                 flags.append(f'--remap-path-prefix={prefix}={replacement}')
         environment['CARGO_ENCODED_RUSTFLAGS'] = '\x1f'.join(flags)
@@ -189,8 +189,8 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     staging = ROOT / '.local/android/gradle-jni' / args.abi
     staging.mkdir(parents=True, exist_ok=True)
-    (staging / 'libhorizon_android_native.so').unlink(missing_ok=True)
-    for name in ('libhorizon_android.so',):
+    (staging / 'libapex_android_native.so').unlink(missing_ok=True)
+    for name in ('libapex_android.so',):
         library = target_dir / target / ('debug' if args.profile == 'dev' else args.profile) / name
         if not library.is_file():
             raise FileNotFoundError(library)
@@ -199,7 +199,7 @@ def main():
         if args.profile == 'release':
             save_crash_symbols(library, staging / name, args.abi,
                                ndk / 'bin' / ('llvm-objcopy' + suffix),
-                               environment.get('HORIZON_ANDROID_BUILD_COMMIT', 'unknown'))
+                               environment.get('APEX_ANDROID_BUILD_COMMIT', 'unknown'))
     assets = ROOT / '.local/android/gradle-assets'
     assets.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / 'LICENSE', assets / 'LICENSE.txt')
@@ -215,7 +215,7 @@ def main():
         shutil.copyfile(controls, assets / 'bedrock-controls.zip')
     key = ROOT / '.local/android/debug.keystore'
     if not key.exists():
-        run([args.java_home / 'bin' / ('keytool' + suffix), '-genkeypair', '-keystore', key, '-storepass', 'android', '-keypass', 'android', '-alias', 'androiddebugkey', '-keyalg', 'RSA', '-validity', '3650', '-dname', 'CN=Horizon Android Development'])
+        run([args.java_home / 'bin' / ('keytool' + suffix), '-genkeypair', '-keystore', key, '-storepass', 'android', '-keypass', 'android', '-alias', 'androiddebugkey', '-keyalg', 'RSA', '-validity', '3650', '-dname', 'CN=Apex Android Development'])
     gradle = args.gradle
     if gradle is None:
         candidates = list((Path.home() / '.gradle/wrapper/dists/gradle-8.14-all').glob('*/gradle-8.14/bin/gradle' + ('.bat' if os.name == 'nt' else '')))
@@ -224,17 +224,17 @@ def main():
         gradle = candidates[0]
     environment['ANDROID_HOME'] = str(args.sdk)
     variant = 'release' if args.release_candidate else 'debug'
-    dev_properties = (['-PappId=dev.horizon.android.dev', '-PdevBuild=' + args.dev_build,
+    dev_properties = (['-PappId=dev.apex.android.dev', '-PdevBuild=' + args.dev_build,
                        '-PdevVersionCode=' + str(args.dev_version_code)] if args.dev_build else [])
     run([gradle, '--no-daemon', '-p', ROOT / 'packaging/android', '-Pabi=' + args.abi, '-PminSdk=' + str(min_sdk), *dev_properties, 'assemble' + variant.title()], cwd=ROOT, env=environment)
-    apk = output / ('horizon-android-public.apk' if args.public else 'horizon-android-release.apk' if args.release_candidate else 'horizon-android.apk')
-    shutil.copyfile(ROOT / f'.local/android/gradle-build/outputs/apk/{variant}/HorizonAndroid-{variant}.apk', apk)
+    apk = output / ('apex-android-public.apk' if args.public else 'apex-android-release.apk' if args.release_candidate else 'apex-android.apk')
+    shutil.copyfile(ROOT / f'.local/android/gradle-build/outputs/apk/{variant}/ApexAndroid-{variant}.apk', apk)
     # Invoke the signing JAR directly so Windows does not need a batch-file shell.
     signer = [args.java_home / 'bin' / ('java' + suffix), '-jar', tools / 'lib/apksigner.jar']
     run([*signer, 'verify', '--verbose', apk])
     if args.release_candidate:
         import sys
-        run([sys.executable, ROOT / 'tools/check_android_release.py', apk, '--aapt2', tools / ('aapt2' + suffix), *(['--public'] if args.public else []), *(['--app-id', 'dev.horizon.android.dev'] if args.dev_build else [])], cwd=ROOT)
+        run([sys.executable, ROOT / 'tools/check_android_release.py', apk, '--aapt2', tools / ('aapt2' + suffix), *(['--public'] if args.public else []), *(['--app-id', 'dev.apex.android.dev'] if args.dev_build else [])], cwd=ROOT)
     print(f'APK: {apk}', flush=True)
 
 

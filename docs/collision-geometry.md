@@ -4,14 +4,14 @@ The version target is Minecraft Java Edition **26.3**. Geometry is a simulation
 foundation; Apex has a native client for inspecting a controlled block scene.
 Live gameplay and entity simulation remain unfinished.
 
-`horizon-core::geometry` provides `Vec3`, `Aabb`, `Axis`, `Direction`, `BlockHit`,
+`apex-core::geometry` provides `Vec3`, `Aabb`, `Axis`, `Direction`, `BlockHit`,
 and immutable `VoxelShape` values. Coordinates are doubles. Arithmetic keeps
 vanilla's operation order, signed zero, NaN comparisons, normalization threshold,
 and collision epsilon. It does not enable approximate or fused simulation math.
 
 Implemented vector operations include addition/subtraction, vector-to, component
 products, scaling, normalization, dot/cross products, interpolation, projection,
-distance/length, horizontal vectors and finite/equality checks. Rotations, look
+distance/length, apextal vectors and finite/equality checks. Rotations, look
 directions, alignment, axis replacement, direction offsets, and pitch/yaw extraction
 are also implemented. The full Vec3 API and entity integration remain absent.
 
@@ -54,12 +54,12 @@ when an operation returns an existing shape. The cache importer shares equal
 grid storage while retaining the distinct vanilla shape identities.
 
 `resolve_shape_movement` ports vanilla's movement resolver over a supplied shape
-list: Y first, then horizontal axes in movement-magnitude order, translating the
+list: Y first, then apextal axes in movement-magnitude order, translating the
 box by resolved motion before each axis query. `candidate_step_heights` preserves
 float narrowing, duplicate identity, current-Y exclusion, and sorted candidate
 heights. `resolve_step_movement` adds the initial collision and step-up decision,
 including landing-height adjustment, a second collider query, and the first
-candidate improving horizontal movement. `entity_collision_bounds` preserves
+candidate improving apextal movement. `entity_collision_bounds` preserves
 the initial entity query bounds. These helpers take caller-selected colliders;
 they do not choose world/entity shapes, set grounding, change velocity, or apply
 inside-block effects.
@@ -95,7 +95,7 @@ budget counts ray steps and iterator candidates, including suppressed duplicates
 Earlier callbacks are not rolled back on an error. Block effects still need
 their own implementations and integration with entity movement.
 
-`horizon-world::collision::CachedCollisionRegistry` imports a private local export
+`apex-world::collision::CachedCollisionRegistry` imports a private local export
 of vanilla cache data. The export includes DataVersion, all state descriptors,
 deduplicated shapes, coordinate-kind metadata, discrete extrema, and a per-state
 cache index. Import verifies every state ID
@@ -262,7 +262,7 @@ preserve branching reads and early exits. Piston heads validate base type, facin
 and extension. Mangrove propagules, speleothems, pitcher crops, bells and shelf
 mushrooms use their version-specific attachment rules. Multiface blocks, vines,
 hanging moss, snow layers and sea pickles preserve support/collision query order.
-Fire uses imported ignition odds and waterlogging; cactus checks horizontal solids
+Fire uses imported ignition odds and waterlogging; cactus checks apextal solids
 and lava before its support and upper liquid state. Paths recognize fence gates,
 and mushrooms preserve the light-override tag and solid-render requirement.
 
@@ -523,7 +523,7 @@ remain separate work.
 
 `restitute_movement` now implements the pinned post-collision velocity calculation
 with lazy entity/block bounce queries, gravity thresholds, nonliving float
-scaling and air-drag interpolation. It preserves horizontal/vertical collision
+scaling and air-drag interpolation. It preserves apextal/vertical collision
 branches, callback ordering, the position-sync field write and final velocity
 assignment. Errors retain already performed effects instead of rolling back the
 world or returning a fabricated successful velocity.
@@ -541,7 +541,7 @@ guards, fall damage, grounding and full player simulation remain pending.
 
 `find_supporting_block` now selects the nearest colliding block center using the
 native distance arithmetic and wrapping Y/Z/X position tie-break. `GroundState`
-implements the thin foot query, previous-horizontal-footprint fallback and both
+implements the thin foot query, previous-apextal-footprint fallback and both
 ground/collision flag updates. Null movement preserves the prior support in the
 native branch where no fallback query can run; query failures retain preceding
 flag writes.
@@ -978,7 +978,7 @@ bounded by injected callback failures rather than allowed to traverse billions
 of cells.
 
 
-`fluid_flow` computes water/lava current vectors from ordered horizontal and
+`fluid_flow` computes water/lava current vectors from ordered apextal and
 lower neighbors, preserving f32 height subtraction before f64 accumulation.
 Falling fluids apply the native wall deflection, including the same-family,
 upward-face and IceBlock guards, then normalize the resulting vector.
@@ -1470,7 +1470,7 @@ calculation, component codecs, item durability, sounds and full blocking
 integration remain pending.
 
 
-`view_direction` implements native float-table pitch/yaw vectors and horizontal
+`view_direction` implements native float-table pitch/yaw vectors and apextal
 blocking angles, using the pinned pure-Rust `libm` 0.2.16 inverse cosine. A local
 203,072-input probe found 7,908 differences with the platform `acos`, versus none
 with this pinned implementation, so platform math is not used for this path.
@@ -1479,7 +1479,7 @@ with this pinned implementation, so platform math is not used for this path.
 and Java Math.acos, plus the native view/subtract/normalize/dot/acos composition
 used by blocking. The [view-direction report](../benchmarks/rust-view-direction-2026-10-07/scoped-parity.json)
 records **226,459 matching lines per JAR**, including random doubles, inverse-
-cosine boundaries, arbitrary float rotations, degenerate horizontal vectors and
+cosine boundaries, arbitrary float rotations, degenerate apextal vectors and
 the widened float-PI fallback. Targeted Clippy passes. Full item-blocking dispatch
 and validation against JVMs on other platforms remain pending. This does not
 resolve the separately tracked Math.cos/Gaussian portability differences.
@@ -1574,7 +1574,7 @@ startUsingItem and its private equipment packet construction. The
 records **84,873 matching lines per JAR**, including captured stack/level/hand
 arguments, empty stacks, callback mutation/failure ordering, flag writes, native
 UseEffects/KineticWeapon presence and clearing a populated kinetic-enemy map.
-Targeted Clippy passes; all 20 existing horizon-world library tests pass with
+Targeted Clippy passes; all 20 existing apex-world library tests pass with
 these changes. Synchronized flag storage, packet encoding/delivery, kinetic
 combat and complete inventory/game-tick integration remain pending.
 
@@ -1745,7 +1745,7 @@ The native regressions retain **144,736 lifecycle**, **84,873 start-use** and
 [lifecycle](../benchmarks/rust-shared-item-use-2026-10-07/item-use-lifecycle.json),
 [start](../benchmarks/rust-shared-item-use-2026-10-07/item-use-start.json),
 [eligibility](../benchmarks/rust-shared-item-use-2026-10-07/item-use.json).
-Targeted Clippy and all 20 horizon-world library tests pass. Hand queries and
+Targeted Clippy and all 20 apex-world library tests pass. Hand queries and
 flags remain controlled in these fixtures; composing them with actual player
 inventory, synchronized flags and full item effects remains pending.
 

@@ -1,7 +1,7 @@
 # Compiled density evaluation
 
 Apex targets the repository-pinned Minecraft Java Edition **26.3**. The
-`horizon_core::density` module implements selected compiled samplers and an initial
+`apex_core::density` module implements selected compiled samplers and an initial
 integrated graph compiler. Complete graph coverage and terrain generation remain pending.
 
 Implemented samplers:
@@ -15,8 +15,8 @@ Implemented samplers:
 - Euclidean, squared Euclidean, Manhattan and Chebyshev distance metrics and
   distance-to-point evaluation.
 - X/Y/Z coordinate slices and the combined XZ bulk specialization.
-- Coarse-grid interpolation with positive horizontal and vertical cell sizes.
-- Surface-height searches and their compiled horizontal slice.
+- Coarse-grid interpolation with positive apextal and vertical cell sizes.
+- Surface-height searches and their compiled apextal slice.
 - Nested cubic splines, lazy coordinate evaluation and spline range analysis.
 - Absolute value, negation, square, cube, square root, logarithm, reciprocal, sign, squeeze
   and leaky ReLU.
@@ -135,7 +135,7 @@ regardless of the world noise algorithm. It discards 17,292 random draws before
 constructing simplex noise with skipped offsets. The island search retains
 vanilla's strict noise threshold, float arithmetic, integer wrapping and division
 toward zero for negative coordinates. Its declared range is `[-0.84375, 0.5625]`,
-and its dependency mask is X/Z. Bulk sampling computes each horizontal column
+and its dependency mask is X/Z. Bulk sampling computes each apextal column
 once, repeats the result over Y and preserves the output tail. The center island
 is supplied by the surrounding terrain graph; this source supplies outer islands.
 
@@ -302,7 +302,7 @@ the aligned upper height is at or below the lower bound, it returns immediately
 without sampling density, including at the equal-height boundary.
 
 `compile_surface_search` adds the Y=0 slice used by vanilla's function compiler.
-This forces the upper bound to be evaluated at Y=0 and repeats horizontal results
+This forces the upper bound to be evaluated at Y=0 and repeats apextal results
 through the requested volume. The raw sampler accepts only one Y layer for bulk
 requests. It first samples all upper bounds into the output, then searches columns
 in Z/X order, replacing each successful result. A later child failure preserves
@@ -395,7 +395,7 @@ The offset-noise compilers preserve the pinned version's evaluation paths. Shift
 and shift-A use a noise sampler with quarter-scale coordinates followed by a
 separate multiplication by four. Shift-A sets the vertical scale to zero.
 Shift-B samples `(z / 4, x / 4, 0)` in scalar calls. Its bulk path constructs a
-transposed horizontal plane, accumulates noise into that plane with amplitude
+transposed apextal plane, accumulates noise into that plane with amplitude
 four, then repeats each result through its Y column. It leaves the output tail
 untouched. These paths are checked with Perlin, simplex, smeared and modern
 normal-noise stacks, from both random streams.

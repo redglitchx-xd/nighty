@@ -2,12 +2,12 @@
 
 Thanks for helping. Apex is Minecraft: Java Edition 26.3 rewritten in Rust, and the one rule that shapes
 everything is that **it plays exactly like vanilla**. This page is the short version of how we work; questions are
-welcome on [Discord](https://discord.gg/playhorizon).
+welcome on [Discord](https://discord.gg/playapex).
 
 This repository holds the game and the launcher, plus the tools, tests and docs that build, check and release them.
-The website (playhorizon.dev) is built in a separate repository from this one's README, `docs/api/` and roadmap. Anything else (videos, Discord and other community material) lives elsewhere.
+The website (playapex.dev) is built in a separate repository from this one's README, `docs/api/` and roadmap. Anything else (videos, Discord and other community material) lives elsewhere.
 
-**Where to start: [playhorizon.dev/hub](https://playhorizon.dev/hub).** It shows what is being done now and next
+**Where to start: [playapex.dev/hub](https://playapex.dev/hub).** It shows what is being done now and next
 ([ROADMAP.md](ROADMAP.md) in the repository), the work board, good first tasks, and the forms to report a bug or
 suggest something. A pull request for a roadmap item carries its `roadmap:<id>` label; ideas go to the suggestion
 queue (the hub, or `/suggest` on Discord) rather than to issues, which are for bugs.
@@ -19,8 +19,8 @@ Apex never downloads the game: it prepares its resources from your own copy of M
 [Build from source](README.md#build-from-source).
 
 ```sh
-cargo run --release -p horizon-prepare -- --prepare --server-jar ~/Downloads/server.jar
-cargo run --release -p horizon-client
+cargo run --release -p apex-prepare -- --prepare --server-jar ~/Downloads/server.jar
+cargo run --release -p apex-client
 ```
 
 The launcher is its own Cargo workspace in `launcher/` (`cd launcher && cargo run`; on NixOS, `nix-shell` first).
@@ -140,5 +140,5 @@ new pushes, we add it again.
 
 ## Talk to us
 
-[Discord](https://discord.gg/playhorizon) for questions and ideas, [issues](https://github.com/horizon-rust/horizon/issues)
+[Discord](https://discord.gg/playapex) for questions and ideas, [issues](https://github.com/apex-rust/apex/issues)
 for bugs. To take something on, `/claim` its issue ([above](#claim-before-you-start)).

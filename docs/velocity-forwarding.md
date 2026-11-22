@@ -1,6 +1,6 @@
 # Velocity player information forwarding
 
-How `horizon-server` joins a network behind a Velocity proxy (`crates/horizon-client/src/lan/forwarding.rs`,
+How `apex-server` joins a network behind a Velocity proxy (`crates/apex-client/src/lan/forwarding.rs`,
 the owner's steps in [hosting.md](hosting.md#behind-a-velocity-proxy)). Apex-only: vanilla has no such
 thing, so there is no vanilla reference and no parity harness.
 

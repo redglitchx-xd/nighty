@@ -990,7 +990,7 @@ struct ScrollAxis {
 #[derive(Debug, Copy, Clone)]
 enum ScrollOrientation {
     Vertical,
-    Horizontal,
+    Apextal,
 }
 
 impl Device {
@@ -1007,7 +1007,7 @@ impl Device {
                     scroll_axes.push((info.number, ScrollAxis {
                         increment: info.increment,
                         orientation: match info.scroll_type {
-                            ffi::XIScrollTypeHorizontal => ScrollOrientation::Horizontal,
+                            ffi::XIScrollTypeApextal => ScrollOrientation::Apextal,
                             ffi::XIScrollTypeVertical => ScrollOrientation::Vertical,
                             _ => unreachable!(),
                         },

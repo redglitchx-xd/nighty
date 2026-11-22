@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "apex_bench",
+  "version": "1.0.0",
+  "name": "Apex benchmark driver",
+  "description": "Dev-only: flies the vanilla client along tools/perf_bench.py's paths and records frame times. Never shipped.",
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.apexlab.bench.VanillaBench"
+    ]
+  },
+  "mixins": [
+    "apex_bench.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.3"
+  }
+}

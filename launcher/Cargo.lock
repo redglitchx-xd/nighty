@@ -2636,23 +2636,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-bench"
+name = "apex-bench"
 version = "0.1.0"
 dependencies = [
- "horizon-telemetry",
+ "apex-telemetry",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "horizon-core"
+name = "apex-core"
 version = "0.1.0"
 dependencies = [
  "libm",
 ]
 
 [[package]]
-name = "horizon-friends"
+name = "apex-friends"
 version = "0.1.0"
 dependencies = [
  "chacha20poly1305",
@@ -2667,7 +2667,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-launcher"
+name = "apex-launcher"
 version = "0.2.0"
 dependencies = [
  "base64",
@@ -2680,17 +2680,17 @@ dependencies = [
  "getrandom 0.3.4",
  "gpui-fast",
  "gpui-fast-platform",
- "horizon-bench",
- "horizon-core",
- "horizon-friends",
- "horizon-mods",
- "horizon-port-pack",
- "horizon-prepare",
- "horizon-protocol",
- "horizon-release-sign",
- "horizon-telemetry",
- "horizon-theme",
- "horizon-world",
+ "apex-bench",
+ "apex-core",
+ "apex-friends",
+ "apex-mods",
+ "apex-port-pack",
+ "apex-prepare",
+ "apex-protocol",
+ "apex-release-sign",
+ "apex-telemetry",
+ "apex-theme",
+ "apex-world",
  "image",
  "keyring",
  "libc",
@@ -2716,10 +2716,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-mods"
+name = "apex-mods"
 version = "0.1.0"
 dependencies = [
- "horizon-shader-api",
+ "apex-shader-api",
  "log",
  "minisign-verify",
  "serde",
@@ -2731,10 +2731,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-port-pack"
+name = "apex-port-pack"
 version = "0.1.0"
 dependencies = [
- "horizon-mods",
+ "apex-mods",
  "serde",
  "serde_json",
  "sha1",
@@ -2744,7 +2744,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-prepare"
+name = "apex-prepare"
 version = "0.1.0"
 dependencies = [
  "crc32fast",
@@ -2756,13 +2756,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-protocol"
+name = "apex-protocol"
 version = "0.1.0"
 dependencies = [
  "flate2",
  "getrandom 0.3.4",
- "horizon-core",
- "horizon-world",
+ "apex-core",
+ "apex-world",
  "ipconfig",
  "serde_json",
  "sha1",
@@ -2770,7 +2770,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-release-sign"
+name = "apex-release-sign"
 version = "0.1.0"
 dependencies = [
  "base64",
@@ -2778,7 +2778,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-shader-api"
+name = "apex-shader-api"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
@@ -2792,7 +2792,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-telemetry"
+name = "apex-telemetry"
 version = "0.1.0"
 dependencies = [
  "getrandom 0.3.4",
@@ -2803,15 +2803,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-theme"
+name = "apex-theme"
 version = "0.1.0"
 
 [[package]]
-name = "horizon-world"
+name = "apex-world"
 version = "0.1.0"
 dependencies = [
  "flate2",
- "horizon-core",
+ "apex-core",
  "libm",
  "lz4_flex",
  "postcard",

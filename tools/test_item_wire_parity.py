@@ -7,9 +7,9 @@ default component value of every vanilla item, the SNBT fixtures below
 (direct holders, tags and lists, optional fields, every consume effect,
 block predicates with component matchers, the mob variants) and patches
 built in Java (components without a persistent codec, removals). The Rust
-probe decodes each with horizon_protocol::item::Slot and must consume every
+probe decodes each with apex_protocol::item::Slot and must consume every
 byte and find the same component ids in the same order; a stack whose
-components Horizon only reads past must also encode back to the same bytes.
+components Apex only reads past must also encode back to the same bytes.
 Every id in DataComponents must be covered."""
 import argparse
 import json
@@ -84,7 +84,7 @@ FIXTURES = [
     ('equippable full', '{equippable:{slot:"head",equip_sound:"minecraft:item.armor.equip_gold",asset_id:"minecraft:gold",camera_overlay:"minecraft:misc/pumpkinblur",allowed_entities:"#minecraft:skeletons",dispensable:0b,swappable:0b,damage_on_hurt:0b,equip_on_interact:1b,can_be_sheared:1b,shearing_sound:{sound_id:"minecraft:y"}}}'),
     ('equippable bare', '{equippable:{slot:"chest"}}'),
     ('tool rules', '{tool:{rules:[{blocks:"#minecraft:mineable/pickaxe",speed:4f,correct_for_drops:1b},{blocks:["minecraft:stone"]}],default_mining_speed:2f,damage_per_block:2,can_destroy_blocks_in_creative:0b}}'),
-    ('blocks_attacks full', '{blocks_attacks:{block_delay_seconds:0.5f,disable_cooldown_scale:2f,damage_reductions:[{horizontal_blocking_angle:45f,type:"#minecraft:is_fire",base:1f,factor:0.5f},{base:0f,factor:1f}],item_damage:{threshold:3f,base:1f,factor:2f},bypassed_by:"#minecraft:bypasses_shield",block_sound:"minecraft:item.shield.block",disable_sound:{sound_id:"minecraft:z"}}}'),
+    ('blocks_attacks full', '{blocks_attacks:{block_delay_seconds:0.5f,disable_cooldown_scale:2f,damage_reductions:[{apextal_blocking_angle:45f,type:"#minecraft:is_fire",base:1f,factor:0.5f},{base:0f,factor:1f}],item_damage:{threshold:3f,base:1f,factor:2f},bypassed_by:"#minecraft:bypasses_shield",block_sound:"minecraft:item.shield.block",disable_sound:{sound_id:"minecraft:z"}}}'),
     ('damage_resistant', '{damage_resistant:{types:"#minecraft:is_fire"}}'),
     ('repairable list', '{repairable:{items:["minecraft:diamond","minecraft:emerald"]}}'),
     ('use_cooldown group', '{use_cooldown:{seconds:1.5f,cooldown_group:"minecraft:x"}}'),
@@ -141,7 +141,7 @@ def main():
     if args.prepare:
         lab.prepare()
     lock, jars, libraries = base.verify_artifacts()
-    oracle = lab.ROOT / 'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaItemWireOracle.java'
+    oracle = lab.ROOT / 'mods/apex/src/test/java/dev/apexlab/parity/VanillaItemWireOracle.java'
     classes = build / 'classes'
     classes.mkdir(exist_ok=True)
 
@@ -150,15 +150,15 @@ def main():
             base.run(list(map(str, command)), stdout=log, stderr=subprocess.STDOUT)
     dependency_path = os.pathsep.join(map(str, libraries))
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-sourcepath',
-         lab.ROOT / 'mods/horizon/src/test/java', '-cp', str(jars['server']) + os.pathsep + dependency_path,
+         lab.ROOT / 'mods/apex/src/test/java', '-cp', str(jars['server']) + os.pathsep + dependency_path,
          '-d', classes, oracle], 'compile-java')
     fixtures = build / 'fixtures.tsv'
     fixtures.write_text(''.join(f'{label}\t{{id:"minecraft:{ITEMS.get(label, "stick")}",count:1,components:{snbt}}}\n'
                                 for label, snbt in FIXTURES), encoding='utf-8')
     vanilla_path, rust_path = build / 'vanilla.jsonl', build / 'rust.jsonl'
     run(['java', '-Xmx1G', '-cp', os.pathsep.join([str(classes), str(jars['server']), dependency_path]),
-         'dev.horizonlab.parity.VanillaItemWireOracle', fixtures, vanilla_path], 'oracle')
-    run(['cargo', 'build', '--release', '-p', 'horizon-protocol', '--example', 'item_wire_probe'], 'compile-rust')
+         'dev.apexlab.parity.VanillaItemWireOracle', fixtures, vanilla_path], 'oracle')
+    run(['cargo', 'build', '--release', '-p', 'apex-protocol', '--example', 'item_wire_probe'], 'compile-rust')
     binary = lab.cargo_target() / 'release/examples' / ('item_wire_probe.exe' if os.name == 'nt' else 'item_wire_probe')
     run([binary, vanilla_path, rust_path], 'rust')
     read = lambda path: [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]

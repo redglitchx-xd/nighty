@@ -1,11 +1,11 @@
 //! What an instance's icon shows (plan R8): its own picture (one the player chose, or its
 //! modpack's icon) first; else the block or colour chosen in its dialog; else its mark: the loader
-//! it plays with, the grass block for plain Minecraft, Horizon's own for Horizon. The letter tile
+//! it plays with, the grass block for plain Minecraft, Apex's own for Apex. The letter tile
 //! is the last resort. Each is decoded once per size and kept in `Instances::icons`.
 use super::*;
 use gpui::RenderImage;
-use horizon_launcher::browser::images;
-use horizon_launcher::instances::{self, Instance, Kind as InstanceKind};
+use apex_launcher::browser::images;
+use apex_launcher::instances::{self, Instance, Kind as InstanceKind};
 use std::sync::Arc;
 
 /// Quilt's mini icon (CC0) and NeoForge's (CC BY 4.0), from their own art repositories: see
@@ -59,8 +59,8 @@ impl Launcher {
                 std::fs::read(grass).ok()
             });
         }
-        let horizon = || Some(horizon_theme::ICON_PNG.to_vec());
-        self.icon_image("mark:horizon".into(), size, false, horizon)
+        let apex = || Some(apex_theme::ICON_PNG.to_vec());
+        self.icon_image("mark:apex".into(), size, false, apex)
     }
 
     /// A mod loader's logo by its id (`fabric`, `quilt`, `forge`, `neoforge`): None while a

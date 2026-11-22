@@ -38,7 +38,7 @@ credential storage. `skins/{library,cloud,preview}.rs` provide the frontend-neut
 wardrobe, provider operations and textured 3D preview. Android's `wardrobe.rs` is a
 view over these APIs. No UI object is passed into the game.
 
-At launch, the frontend writes `horizon-appearance.json` into the explicit game
+At launch, the frontend writes `apex-appearance.json` into the explicit game
 directory. This is a public, versioned contract; another frontend language can
 write the same file:
 
@@ -106,7 +106,7 @@ handoff load the signed-in account's current public textures.
 
 The full desktop `pr_ready --quick --base android` is not green: Python discovery
 collides on the existing `test_basic_feature_parity` module, and strict workspace
-Clippy reports existing findings in `horizon-world`. Android checks above are
+Clippy reports existing findings in `apex-world`. Android checks above are
 separate; these desktop failures must not be represented as passing.
 
 A final APK retest also produced one native fault in the emulator's

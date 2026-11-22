@@ -28,7 +28,7 @@ when no SDL row matched. No second windowing or event stack: gilrs is polled
 once per loop iteration next to winit's events.
 
 - The pure logic (mapping table, deadzones and curves, button edges, the
-  settings file, glyph choice) lives in `crates/horizon-client-input/src/gamepad.rs`
+  settings file, glyph choice) lives in `crates/apex-client-input/src/gamepad.rs`
   and is unit-tested. The game owns a thin gilrs backend and applies actions.
 - Controller actions go through the same path a keyboard key takes after
   rebinding: an action names a vanilla key mapping (`key.jump`, `key.attack`,
@@ -44,7 +44,7 @@ once per loop iteration next to winit's events.
   speed, as the server only hears the keys: an anticheat predicting from them
   pulls back a player moving at the stick's own angle and speed.
 - The pad last touched is the active one. Several pads are not merged.
-- `horizon-ctl pad ...` injects a virtual pad (buttons, sticks, triggers) into
+- `apex-ctl pad ...` injects a virtual pad (buttons, sticks, triggers) into
   a running game, for tests without hardware.
 
 ## Default mapping
@@ -282,7 +282,7 @@ hints, "Press X to dismount") only while the pad is the last-used input.
 Controller settings are Apex's own: **Options → Controls → Controller
 Settings...** (or **Options → Apex Settings... → Controller Settings...**),
 a vanilla options list with **Controller Binds...** at the top. They live in
-`horizon-controller.txt` next to `options.txt`, like `horizon-graphics.txt`: `options.txt` stays
+`apex-controller.txt` next to `options.txt`, like `apex-graphics.txt`: `options.txt` stays
 exactly vanilla's, so a vanilla client can share the game folder.
 
 ```
@@ -326,7 +326,7 @@ is silently skipped there.
 ## DualSense output
 
 Gilrs only reads the pads. A DualSense (054c:0ce6, the Edge 054c:0df2) is also
-written to directly, over HID: the `horizon-dualsense` crate builds its output
+written to directly, over HID: the `apex-dualsense` crate builds its output
 report and [hidapi](https://crates.io/crates/hidapi) (MIT, bundling the C
 hidapi under its BSD option) sends it: hidraw on Linux, IOKit on macOS (opened
 shared, so gilrs keeps reading the same pad), the HID API on Windows.
@@ -381,14 +381,14 @@ shared, so gilrs keeps reading the same pad), the HID API on Windows.
   install it):
 
   ```
-  # /etc/udev/rules.d/70-horizon-dualsense.rules
+  # /etc/udev/rules.d/70-apex-dualsense.rules
   KERNEL=="hidraw*", ATTRS{idVendor}=="054c", ATTRS{idProduct}=="0ce6|0df2", TAG+="uaccess"
   KERNEL=="hidraw*", KERNELS=="*054C:0CE6*|*054C:0DF2*", TAG+="uaccess"
   ```
 
   The kernel's own `hid-playstation` driver keeps working alongside: its
   reports set only the parts their flags name.
-- **Trying it without the game:** `cargo run -p horizon-dualsense --example
+- **Trying it without the game:** `cargo run -p apex-dualsense --example
   dualsense -- all` plays each output on a connected pad and reads back what
   the pad reports: the triggers' active effect, and the accelerometer's
   shake while the motors run (`watch` logs the shake while the game drives

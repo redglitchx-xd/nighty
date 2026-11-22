@@ -1,7 +1,7 @@
 use super::*;
 
 fn scratch(name: &str) -> PathBuf {
-    let root = std::env::temp_dir().join(format!("horizon-shortcut-{name}-{}", std::process::id()));
+    let root = std::env::temp_dir().join(format!("apex-shortcut-{name}-{}", std::process::id()));
     let _ = fs::remove_dir_all(&root);
     fs::create_dir_all(&root).unwrap();
     root
@@ -24,15 +24,15 @@ fn names_fit_every_system() {
 #[test]
 fn a_linux_entry_plays_its_instance() {
     let entry = desktop_entry(
-        Path::new("/opt/My Horizon/horizon-launcher"),
+        Path::new("/opt/My Apex/apex-launcher"),
         "port:atm",
         "ATM",
     );
     assert!(entry.starts_with("[Desktop Entry]\nType=Application\nName=ATM\n"));
     assert!(entry
-        .contains("\nExec=\"/opt/My Horizon/horizon-launcher\" play --instance \"port:atm\"\n"));
-    assert!(entry.contains("\nTryExec=/opt/My Horizon/horizon-launcher\n"));
-    assert!(entry.ends_with("\nX-Horizon-Instance=port:atm\n"));
+        .contains("\nExec=\"/opt/My Apex/apex-launcher\" play --instance \"port:atm\"\n"));
+    assert!(entry.contains("\nTryExec=/opt/My Apex/apex-launcher\n"));
+    assert!(entry.ends_with("\nX-Apex-Instance=port:atm\n"));
     let odd = desktop_entry(Path::new("/x"), "a", "Two\nlines");
     assert!(odd.contains("Name=Two lines\n"));
 }
@@ -40,19 +40,19 @@ fn a_linux_entry_plays_its_instance() {
 #[test]
 fn a_mac_app_runs_a_script_that_plays_its_instance() {
     let files = mac_app(
-        Path::new("/Applications/Horizon Launcher.app/Contents/MacOS/horizon-launcher"),
+        Path::new("/Applications/Apex Launcher.app/Contents/MacOS/apex-launcher"),
         "it's",
         "Tom & Jerry",
     );
     let (_, plist, _) = &files[0];
     let plist = String::from_utf8(plist.clone()).unwrap();
     assert!(plist.contains("<string>Tom &amp; Jerry</string>"));
-    assert!(plist.contains("<string>dev.horizon.instance.it-s</string>"));
+    assert!(plist.contains("<string>dev.apex.instance.it-s</string>"));
     assert!(plist.contains("<key>LSUIElement</key>\n\t<true/>"));
     let (path, script, program) = &files[1];
     assert_eq!((*path, *program), ("Contents/MacOS/play", true));
     assert!(String::from_utf8(script.clone()).unwrap().ends_with(
-        "exec '/Applications/Horizon Launcher.app/Contents/MacOS/horizon-launcher' play \
+        "exec '/Applications/Apex Launcher.app/Contents/MacOS/apex-launcher' play \
          --instance 'it'\\''s'\n"
     ));
     assert_eq!(files[2].1, MAC_ICON);
@@ -108,20 +108,20 @@ fn read_lnk(b: &[u8]) -> (u32, String, String, Vec<String>) {
 
 #[test]
 fn a_windows_shortcut_is_a_shell_link_to_the_launcher() {
-    let exe = r"C:\Users\Zoé\AppData\Local\Horizon\horizon-launcher.exe";
+    let exe = r"C:\Users\Zoé\AppData\Local\Apex\apex-launcher.exe";
     let b = lnk(exe, &windows_args("port:atm"), "Play ATM in Apex");
     let (flags, ansi, wide, strings) = read_lnk(&b);
     assert_eq!(flags, 0x02 | 0x04 | 0x10 | 0x20 | 0x40 | 0x80);
     assert_eq!(
         ansi,
-        r"C:\Users\Zo?\AppData\Local\Horizon\horizon-launcher.exe"
+        r"C:\Users\Zo?\AppData\Local\Apex\apex-launcher.exe"
     );
     assert_eq!(wide, exe);
     assert_eq!(
         strings,
         [
             "Play ATM in Apex",
-            r"C:\Users\Zoé\AppData\Local\Horizon",
+            r"C:\Users\Zoé\AppData\Local\Apex",
             "play --instance \"port:atm\"",
             exe,
         ]
@@ -139,7 +139,7 @@ fn shortcuts_are_made_found_renamed_and_removed() {
     let bin = trash.clone();
     let trash_fn = move |p: &Path| desktop_seams::to_folder(p, &bin);
     let t: Trash = &trash_fn;
-    let exe = Path::new("/opt/horizon-launcher");
+    let exe = Path::new("/opt/apex-launcher");
     for system in [System::Linux, System::Mac, System::Windows] {
         let made = make_in(
             system,

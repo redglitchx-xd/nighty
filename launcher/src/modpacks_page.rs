@@ -1,9 +1,9 @@
 //! Imported modpacks, on the Mods page's Modpacks tab: import a pack, read its coverage report,
-//! port what this computer can and play it as its own profile (`horizon_launcher::modpacks`).
+//! port what this computer can and play it as its own profile (`apex_launcher::modpacks`).
 use super::*;
-use horizon_launcher::browser::horizon::pack as horizon_pack;
-use horizon_launcher::modpacks::{self, Imported};
-use horizon_port_pack::report::Status;
+use apex_launcher::browser::apex::pack as apex_pack;
+use apex_launcher::modpacks::{self, Imported};
+use apex_port_pack::report::Status;
 use std::path::PathBuf;
 
 /// The report's filter: every row, or one status.
@@ -137,7 +137,7 @@ impl Launcher {
         if self.packs_loaded.is_none() {
             self.mods.report_list.reset();
             self.packs = modpacks::list();
-            self.registry_packs = horizon_pack::list();
+            self.registry_packs = apex_pack::list();
             self.reload_instances();
             if self.pack_open.is_none() {
                 self.pack_open = self.packs.first().map(|p| p.slug.clone());
@@ -171,7 +171,7 @@ impl Launcher {
             .child(pick("import-folder", "Import an instance folder…", true))
             .child(text(theme::CAPTION).w_full().text_color(t.muted).child(tr(
                 ".mrpack (Modrinth), .zip (CurseForge), or a Prism, MultiMC or CurseForge instance. \
-                 Horizon ports what it can on this computer, from your own downloads, and plays \
+                 Apex ports what it can on this computer, from your own downloads, and plays \
                  the pack as its own profile. Nothing is uploaded or shared.",
             )));
         let mut page = div()
@@ -229,14 +229,14 @@ impl Launcher {
         }
     }
 
-    /// The modpacks installed from Horizon's registry: each plays its own profile.
+    /// The modpacks installed from Apex's registry: each plays its own profile.
     fn registry_pack_rows(&self, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let mut list = div().flex().flex_col();
         for (i, p) in self.registry_packs.iter().enumerate() {
             let (play, remove) = (p.work.clone(), p.work.clone());
             let id = p.id.clone();
-            let key = format!("horizon:{id}");
+            let key = format!("apex:{id}");
             let confirming = self.confirm_remove.as_deref() == Some(key.as_str());
             let right = div()
                 .flex()
@@ -268,7 +268,7 @@ impl Launcher {
                     .on_click(cx.listener(
                         move |this, _: &ClickEvent, _, cx| {
                             if this.confirm_remove.as_ref() == Some(&key) {
-                                match horizon_pack::remove(&remove) {
+                                match apex_pack::remove(&remove) {
                                     Ok(()) => this.packs_loaded = None,
                                     Err(e) => this.pack_error = Some(e),
                                 }
@@ -453,7 +453,7 @@ impl Launcher {
         if !can_play {
             notes.push(tr("Playing needs a prepared Apex version (Play page).").into());
         }
-        let mut rows: Vec<&horizon_port_pack::report::Row> = p
+        let mut rows: Vec<&apex_port_pack::report::Row> = p
             .rows
             .iter()
             .filter(|r| self.pack_filter.is_none_or(|s| r.status == s))

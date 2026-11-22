@@ -1,7 +1,7 @@
 # Section meshing parity
 
 `tools/test_section_mesh_parity.py` compares the vertices Apex's section
-mesher (`crates/horizon-client-render/src/mesher.rs`, with `mesher/lighting.rs` and
+mesher (`crates/apex-client-render/src/mesher.rs`, with `mesher/lighting.rs` and
 `mesher/fluid.rs`) emits with the vertices the pinned client's own renderers
 emit for the same scenes.
 
@@ -20,7 +20,7 @@ emit for the same scenes.
   `FluidRenderer.tesselate`, then `RenderShape.MODEL` blocks through
   `ModelBlockRenderer.tesselateBlock` with smooth lighting on, culling on,
   cutout leaves, `BlockColors.createDefault()` and `state.getSeed(pos)`.
-- **Apex side**: `crates/horizon-client/examples/probe/section_mesh_fixture.rs`
+- **Apex side**: `crates/apex-client/examples/probe/section_mesh_fixture.rs`
   loads the prepared resources (`Assets`, `BlockFacts`, `Biomes`,
   `load_visibility`, `MeshTables`), builds the same blocks and light in real
   client `Chunk`s (a 3x3 chunk region), sets every biome's colours to the
@@ -82,7 +82,7 @@ python3 tools/test_section_mesh_parity.py --only fluids
 ```
 
 It needs the pinned jars (`tools/lab.py prepare`) and prepared client resources
-(`cargo run --release -p horizon-prepare -- --prepare`). Outputs, logs and
+(`cargo run --release -p apex-prepare -- --prepare`). Outputs, logs and
 `report.json` go to `target/section-mesh-parity/`; nothing is written under
 `.local/`. The fixture is built with `--profile fast` and reports its
 meshing time.
@@ -122,7 +122,7 @@ What was ported to get there:
   water overlay beside half-transparent and leaf blocks, back faces,
   `max(self, above)` light, bottom light from below, and cardinal shading.
 - `UnbakedCuboidGeometry.bake`: elements flat along an axis draw no faces
-  across it (`bake_block_model` in horizon-assets; the raw
+  across it (`bake_block_model` in apex-assets; the raw
   `bake_model_transformed` used by the model-baking gate is unchanged).
 
 Exported facts used: `block-behaviours.json` (class chains, `isSolid`, full

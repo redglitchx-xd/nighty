@@ -10,13 +10,13 @@ PRIVATE_ROOTS = {".local", "decompiled", "minecraft", "assets", "run", "logs"}
 PRIVATE_EXTENSIONS = {".jar", ".class", ".jfr", ".hprof", ".java", ".apk", ".aab", ".keystore", ".jks"}
 ORIGINAL_JDK_TOOLS = {"tools/JfrSummary.java", "tests/java/JfrFixture.java"}
 # Owner-approved, original NativeActivity result callback; not recovered game code.
-ANDROID_RESULT_BRIDGE = "packaging/android/java/dev/horizon/android/HorizonActivity.java"
-ANDROID_DOCUMENTS_BRIDGE = "packaging/android/java/dev/horizon/android/HorizonDocumentsProvider.java"
+ANDROID_RESULT_BRIDGE = "packaging/android/java/dev/apex/android/ApexActivity.java"
+ANDROID_DOCUMENTS_BRIDGE = "packaging/android/java/dev/apex/android/ApexDocumentsProvider.java"
 
 
 def prohibited(path):
     parsed = PurePosixPath(path)
-    if parsed.name.lower() in {"local.properties", "control.json", "android-launch.json", "horizon-touch.json", "engine-data.zip", "horizon-resources.json"}:
+    if parsed.name.lower() in {"local.properties", "control.json", "android-launch.json", "apex-touch.json", "engine-data.zip", "apex-resources.json"}:
         return True
     name = parsed.name.lower()
     if name == ".env" or (name.startswith(".env.") and name != ".env.example"):
@@ -26,9 +26,9 @@ def prohibited(path):
     # Original JDK-only tools are an exact allowlist; recovered game Java stays private.
     if path in ORIGINAL_JDK_TOOLS or path in {ANDROID_RESULT_BRIDGE, ANDROID_DOCUMENTS_BRIDGE}:
         return False
-    # Original Horizon mod sources may also be tracked.
-    if parsed.suffix == ".java" and path.startswith(("mods/horizon/src/", "mods/horizon-lab/src/")):
-        return not ("/dev/horizonlab/" in path)
+    # Original Apex mod sources may also be tracked.
+    if parsed.suffix == ".java" and path.startswith(("mods/apex/src/", "mods/apex-lab/src/")):
+        return not ("/dev/apexlab/" in path)
     return bool(parsed.parts and parsed.parts[0] in PRIVATE_ROOTS) or parsed.suffix.lower() in PRIVATE_EXTENSIONS
 
 

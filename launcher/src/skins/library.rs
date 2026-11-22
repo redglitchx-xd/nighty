@@ -199,7 +199,7 @@ impl Library {
         std::fs::create_dir_all(game_home).map_err(|_| "Could not create the game folder.")?;
         let descriptor = serde_json::json!({"schema":1,"skin":skin,"cape":cape,"slim":slim,"hide_cape":selection.hide_cape});
         std::fs::write(
-            game_home.join("horizon-appearance.json"),
+            game_home.join("apex-appearance.json"),
             descriptor.to_string(),
         )
         .map_err(|_| "Could not prepare the game's appearance.".into())
@@ -231,7 +231,7 @@ mod tests {
     use super::*;
     #[test]
     fn gallery_round_trip_is_scoped_and_cannot_escape_its_image_store() {
-        let root = std::env::temp_dir().join(format!("horizon-wardrobe-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!("apex-wardrobe-{}", std::process::id()));
         let mut library = Library::default();
         let mut png = std::io::Cursor::new(vec![]);
         cape_design(0)
@@ -255,7 +255,7 @@ mod tests {
         library
             .prepare_game(&root, "offline:Player", &root.join("game"), None)
             .unwrap();
-        assert!(root.join("game/horizon-appearance.json").is_file());
+        assert!(root.join("game/apex-appearance.json").is_file());
         std::fs::remove_dir_all(root).unwrap();
     }
 }

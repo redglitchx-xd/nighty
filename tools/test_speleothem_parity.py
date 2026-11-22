@@ -38,7 +38,7 @@ def corpus(facts,placement):
         value=definition();del value[field];yield case(value)
         for raw in [None,[],{},False,'missing']:
             yield case(definition(**{field:raw}))
-    for value in ['#minecraft:dripstone_replaceable_blocks',[],['air','water','stone'],'air','#horizon:missing']:
+    for value in ['#minecraft:dripstone_replaceable_blocks',[],['air','water','stone'],'air','#apex:missing']:
         yield case(definition(replaceable_blocks=value),repeats=2)
     for origin in [[0,-64,0],[-17,319,-33],[2147483647,2147483647,-2147483648],[-2147483648,-2147483648,2147483647]]:
         below=[origin[0],((origin[1]-1+2**31)%2**32)-2**31,origin[2],get('stone')]
@@ -50,4 +50,4 @@ def corpus(facts,placement):
 
 if __name__=='__main__':
     harness.run(corpus,'rust-speleothem-parity',__file__,
-        'Native SpeleothemFeature codecs and optional float defaults, ceiling/floor base tests, conditional random direction, four horizontal base-patch branches with radius-two/three direction draws, taller-tip chance, post-patch base recheck and waterlogged tip/frustum writes. Base/pointed configured states select block identities and their defaults; invalid pointed properties fail at native placement time. All states cover support/taller/contained-fluid roles, both RNGs, probability boundaries, rejected writes, partial failures, repeated mutation, wrapped coordinates and composition. Base patch updates and point placement are traced in order; neighbor updates, falling behavior, fluids, larger clusters and full cave generation remain pending.')
+        'Native SpeleothemFeature codecs and optional float defaults, ceiling/floor base tests, conditional random direction, four apextal base-patch branches with radius-two/three direction draws, taller-tip chance, post-patch base recheck and waterlogged tip/frustum writes. Base/pointed configured states select block identities and their defaults; invalid pointed properties fail at native placement time. All states cover support/taller/contained-fluid roles, both RNGs, probability boundaries, rejected writes, partial failures, repeated mutation, wrapped coordinates and composition. Base patch updates and point placement are traced in order; neighbor updates, falling behavior, fluids, larger clusters and full cave generation remain pending.')

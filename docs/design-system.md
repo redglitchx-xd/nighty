@@ -5,10 +5,10 @@ vanilla has no screen for (the on-screen keyboard a controller types with). Ever
 and the HUD are not part of it: they are vanilla's, because parity is the point of the game, and
 Apex's own settings are pages built from vanilla's widgets, the way mods add theirs.
 
-The tokens live in one place, `crates/horizon-theme`. The launcher (`launcher/src/theme.rs`)
-and the game (`crates/horizon-client/src/ui_theme.rs`) read them as Rust constants, and the
+The tokens live in one place, `crates/apex-theme`. The launcher (`launcher/src/theme.rs`)
+and the game (`crates/apex-client/src/ui_theme.rs`) read them as Rust constants, and the
 website reads them as CSS custom properties generated from the same crate
-(`cargo run -p xtask -- tokens` writes `crates/horizon-theme/tokens.css`, which the website's build
+(`cargo run -p xtask -- tokens` writes `crates/apex-theme/tokens.css`, which the website's build
 reads from main; a test fails when the file is out of date). Change a value in the crate and all three follow.
 
 ## Where it comes from
@@ -38,7 +38,7 @@ almost nothing but type. What we take from it is its restraint rather than its c
 
 Cool, slightly blue neutrals in two appearances with the same restraint, and Apex's violet.
 Every text colour passes WCAG AA (4.5:1) on every background it is used on; the tests in
-`horizon-theme` check each pair in both palettes.
+`apex-theme` check each pair in both palettes.
 
 | Token        | Light     | Dark      | Use |
 |--------------|-----------|-----------|-----|
@@ -141,7 +141,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
   landscape banner with the hero, the version picker and Play; Mods holds the mod, resource pack
   and modpack tabs; Versions and Patch notes are lists of panels; Settings is
   grouped panels of rows. Dark by default, Light or System in Settings (Appearance).
-- **Website** (horizon-rust/horizon-site): the Blocks look below. The same page structure as before (what it
+- **Website** (apex-rust/apex-site): the Blocks look below. The same page structure as before (what it
   is, screenshots, parity, launcher, patch notes, community), headings in Pixelify Sans, lists as
   stacks of panels, the stone texture behind the page and Apex's pixel landscape (a dawn or a
   sunset) behind the hero. Light and dark follow the system, with a toggle. A giant wordmark in
@@ -152,7 +152,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
 ## Blocks
 
 A blocky, Minecraft-like look in Apex's purple, for the website and the redesigned launcher:
-Minecraft's inventory rather than a document. Its colours are `horizon_theme::Blocks`
+Minecraft's inventory rather than a document. Its colours are `apex_theme::Blocks`
 (`BLOCKS_LIGHT`, `BLOCKS_DARK`), which `tokens.css` carries under the same names as before plus
 `--panel`, `--raised`, `--button`, `--well`, `--bevel`, `--lip`, `--outline` and the `--face`
 of the main action. The game's menus keep `LIGHT` and `DARK`.
@@ -187,15 +187,15 @@ of the main action. The game's menus keep `LIGHT` and `DARK`.
   the mark, hills and square trees (a sunset in dark, a dawn in light). The launcher bakes them in
   `launcher/src/art.rs` at the window's scale so each texel covers whole device pixels; the website
   draws them in its `scripts/art.mjs`.
-- **Icons**: Pixelarticons (MIT), 24 unit pixel SVGs in `crates/horizon-theme/icons/pixel/`, tinted
+- **Icons**: Pixelarticons (MIT), 24 unit pixel SVGs in `crates/apex-theme/icons/pixel/`, tinted
   with the text colour.
 - **Contrast**: every text colour meets WCAG AA (4.5:1) on the panels, the page and the lightest
   stone shade in both palettes (`blocks_text_meets_wcag_aa_in_both_appearances`).
 
 ## Night
 
-The launcher's look from 0.3: a pixel night sky that turns to a sunset at the horizon, with the
-content on top. Its tokens are `horizon_theme::night` (`NIGHT`, and `DAWN` for players who pick
+The launcher's look from 0.3: a pixel night sky that turns to a sunset at the apex, with the
+content on top. Its tokens are `apex_theme::night` (`NIGHT`, and `DAWN` for players who pick
 Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 - **The sky is the brand, the content is the UI.** The sky, the stepped sun, the banded clouds and
@@ -230,7 +230,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 | Token       | Night     | Dawn      | Use |
 |-------------|-----------|-----------|-----|
-| `sky-0…5`   | `#07061a` `#140f38` `#2a1656` `#5b2a78` `#b0477d` `#f08a5d` | `#c9d3f2` `#dcd8f3` `#ead5ec` `#f5d3d8` `#f9d6bd` `#fbe4c6` | the sky, top to horizon |
+| `sky-0…5`   | `#07061a` `#140f38` `#2a1656` `#5b2a78` `#b0477d` `#f08a5d` | `#c9d3f2` `#dcd8f3` `#ead5ec` `#f5d3d8` `#f9d6bd` `#fbe4c6` | the sky, top to apex |
 | `card`      | `#15112e` at 84 % | `#fdfcff` at 86 % | plates |
 | `card-hi`   | `#231c4a` at 90 % | `#ffffff` at 94 % | a selected or raised plate |
 | `stroke`, `rule` | `#b9acff` at 12 %, 10 % | `#3b2f78` at 12 %, 10 % | a plate's inner stroke, rules between rows |
@@ -246,7 +246,7 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   moves. `APEX_LAUNCHER_MOTION=full` lets the sky drift in whole texels on a half-second beat,
   stopping when the window is hidden or unfocused; `always` keeps it moving for recordings.
 - **Copy says what happens** ("Downloads 26.3 and Java 21, about 600 MB"), never praises.
-- The specimen (`APEX_LAUNCHER_PAGE=specimen horizon-launcher`) draws the type and colours in the
+- The specimen (`APEX_LAUNCHER_PAGE=specimen apex-launcher`) draws the type and colours in the
   launcher itself.
 - **The frame** (`launcher/src/shell.rs`): the sidebar is one plate from the window's top to its
   bottom (the wordmark, instances by group, servers, the launcher's version); the top bar over the
@@ -302,8 +302,8 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 ## The mark
 
-**Apex line.** A sun half set below a horizon, drawn as three horizontal bars of 4, 8 and
-10 units over a 12 unit line, on a 16 unit grid. The bars are the sun cut by the horizon into
+**Apex line.** A sun half set below a apex, drawn as three apextal bars of 4, 8 and
+10 units over a 12 unit line, on a 16 unit grid. The bars are the sun cut by the apex into
 slices, which also reads as layers of terrain and as a nod to voxels without drawing a block. It
 is built on whole units of the 16 px grid so it stays sharp at 16 px, and it scales without
 detail to 1024 px.

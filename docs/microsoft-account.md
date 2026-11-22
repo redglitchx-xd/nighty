@@ -28,7 +28,7 @@ no Microsoft sign-in"); release builds have it.
    `api.minecraftservices.com/authentication/login_with_xbox` (HTTP 403, "Invalid app registration")
    until Mojang approves them. Apply with the form linked from https://aka.ms/mce-reviewappid
    (Minecraft Java "App ID review"), giving the client ID above, the app name, the project URL
-   (https://github.com/horizon-rust/horizon) and a short description ("open-source Minecraft Java
+   (https://github.com/apex-rust/apex) and a short description ("open-source Minecraft Java
    Edition client written in Rust; signs players in to join online-mode servers"). Approval takes
    days to weeks; sign-in fails at the Minecraft step with "This app is not approved by Mojang yet"
    until then.
@@ -72,7 +72,7 @@ Decided 2026-10-27 (Ludovic, after a modder's suggestion): like other launchers,
 launcher starts the game only while an account in it owns Java Edition. Offline play stays
 possible; the launcher just doesn't offer it on its own.
 
-- **Play needs an owner.** Every Play (Home, instances and packs, `horizon-launcher play`,
+- **Play needs an owner.** Every Play (Home, instances and packs, `apex-launcher play`,
   `modpack play`, the MCP's `play`) asks `account::launch` first. It asks the Minecraft services
   again for each account, the selected one first, until one owns the game: the token renewal
   (below) if due, then entitlements and profile. Without an owner the game doesn't start and Play
@@ -88,8 +88,8 @@ possible; the launcher just doesn't offer it on its own.
   without a session, offline. An answer of "doesn't own" (or no profile) blocks at once.
 - **Offline names play behind an owner.** They can be added and played only while an owning
   account is signed in. Signing the last one out keeps them, and they play again once one is back.
-- **Who isn't affected:** the game binary itself (`horizon-client`, `horizon-ctl launch`, the
-  harnesses, CI), the dedicated server and `horizon-server`, the website. There is no bypass flag:
+- **Who isn't affected:** the game binary itself (`apex-client`, `apex-ctl launch`, the
+  harnesses, CI), the dedicated server and `apex-server`, the website. There is no bypass flag:
   the launcher's tests use accounts in a memory store (`MemoryStore`, and `APEX_NO_KEYCHAIN`
   for the CLI and MCP tests, which then have no owner).
 
@@ -97,7 +97,7 @@ possible; the launcher just doesn't offer it on its own.
 
 Decided 2026-10-27. This is the only exception to "Apex never downloads the game", and it
 applies only on the player's machine, for an account the owner gate just asked about. The
-launcher's "Download and prepare" (`horizon-launcher prepare --download`) fetches the pinned
+launcher's "Download and prepare" (`apex-launcher prepare --download`) fetches the pinned
 version straight from Mojang (`launcher/src/mojang.rs`): the version file, the client jar,
 libraries, the asset index and the assets, each checked against the size and sha1 Mojang lists.
 They go to `minecraft/` in the launcher's data folder, and the preparation runs as usual. The
@@ -115,7 +115,7 @@ one is selected. "Sign out" deletes the account's secrets from the keychain.
 - Secrets (the Microsoft refresh token, the Minecraft access token and its expiry, the last
   ownership answer) go to the OS
   keychain, one item per account: Keychain on macOS, Credential Manager on Windows, the Secret
-  Service (GNOME Keyring, KWallet) on Linux. Service name `dev.playhorizon.launcher`, account = the
+  Service (GNOME Keyring, KWallet) on Linux. Service name `dev.playapex.launcher`, account = the
   Minecraft UUID. Credential Manager takes at most 2560 bytes per item, which the secrets of a sign-in
   exceed: on Windows a longer secret is split over the items `<uuid>`, `<uuid>.1`, `<uuid>.2`... The
   Keychain has no such limit, and every item is a consent prompt for a launcher signature it doesn't
@@ -137,7 +137,7 @@ one is selected. "Sign out" deletes the account's secrets from the keychain.
 - No keychain available (a Linux box without a Secret Service, a locked keychain): sign-in still
   works for the session but nothing is saved, and the launcher says "No keychain available: you will
   have to sign in again next time" (it never falls back to a plain file).
-- Tokens never appear in logs, errors, `horizon-launcher` CLI output, MCP results or crash reports.
+- Tokens never appear in logs, errors, `apex-launcher` CLI output, MCP results or crash reports.
   Requests are logged by endpoint name only.
 
 ## Account status and renewal
@@ -156,7 +156,7 @@ claiming it requires a full login. Unreadable keychain data is never overwritten
 If Microsoft rotates its refresh credential before Xbox/Minecraft fails, the rotated credential
 is still saved so another attempt can recover.
 
-`horizon-launcher account refresh NAME_OR_UUID` exposes the same operation (MCP:
+`apex-launcher account refresh NAME_OR_UUID` exposes the same operation (MCP:
 `account_refresh`). `account list --json` includes public authentication status and token
 expiry, never tokens. `account refresh --json` returns a status object, including when renewal
 needs attention; callers inspect `state` rather than treating transport success as an online
@@ -234,7 +234,7 @@ Vanilla's `ClientHandshakePacketListenerImpl.handleHello`, `Crypt` and authlib's
 
 The connecting screen follows vanilla's states: "Connecting to the server..." until the encryption
 request, "Logging in..." while joining the session service, "Encrypting...", then "Joining world...".
-Code: `horizon-protocol` (`rsa.rs`, `crypto::server_hash`), `horizon-client` (`auth.rs`, `net.rs`).
+Code: `apex-protocol` (`rsa.rs`, `crypto::server_hash`), `apex-client` (`auth.rs`, `net.rs`).
 
 Apex's dedicated server verifies players when `online-mode=true`. A LAN or Play with Friends world
 verifies its guests when the host is signed in, as vanilla's `IntegratedServer` does
@@ -260,7 +260,7 @@ player renderer. Until a skin arrives the default skin for the UUID shows (as to
 26.3's dedicated servers default to `enforce-secure-profile=true`. A client without a chat session
 can join and play, but every chat message and signed command argument is refused with "Chat
 disabled due to missing profile public key. Please try reconnecting." (`SignedMessageChain.Decoder.unsigned`).
-To chat on such servers the game (`auth.rs`, `game/remote_chat.rs`, `horizon_protocol::secure_chat`):
+To chat on such servers the game (`auth.rs`, `game/remote_chat.rs`, `apex_protocol::secure_chat`):
 
 - fetches the profile key pair from the services `player/getCertificates` endpoint with the Minecraft
   token, on a background thread at start and on each join (AccountProfileKeyPairManager): the PKCS#8
@@ -297,7 +297,7 @@ Negative cases: a token the mock rejects (the client must show vanilla's "Invali
 and a client that skips the join (the server must say "Failed to verify username!").
 
 Rust unit tests: server hash vectors (Notch, jeb_, simon), RSA wrapping round trip with a test key,
-X.509 key parsing, AES/CFB8 vectors (already in `horizon-protocol`), the session file (permissions,
+X.509 key parsing, AES/CFB8 vectors (already in `apex-protocol`), the session file (permissions,
 age, deletion), the error mapping. Launcher: the whole token chain against a local mock of the
 Microsoft, Xbox and Minecraft endpoints, and the keychain abstraction with an in-memory backend.
 

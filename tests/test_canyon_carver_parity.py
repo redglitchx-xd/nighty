@@ -5,7 +5,7 @@ from tools import test_canyon_carver_parity as canyon
 
 class CanyonCarverCorpusTests(unittest.TestCase):
     def test_heights_custom_widths_and_failures(self):
-        config={'type':'minecraft:canyon','probability':0.01,'y':{'absolute':40},'vertical_rotation':0,'shape':{'width_smoothness':3,'distance_factor':1,'thickness':3,'horizontal_radius_factor':1,'vertical_radius_default_factor':1,'vertical_radius_center_factor':0,'y_scale':3}}
+        config={'type':'minecraft:canyon','probability':0.01,'y':{'absolute':40},'vertical_rotation':0,'shape':{'width_smoothness':3,'distance_factor':1,'thickness':3,'apextal_radius_factor':1,'vertical_radius_default_factor':1,'vertical_radius_center_factor':0,'y_scale':3}}
         fixtures=list(canyon.corpus({'canyon':json.dumps(config)}))
         self.assertEqual(fixtures,list(canyon.corpus({'canyon':json.dumps(config)})))
         self.assertEqual({f['context'][1] for f in fixtures},{16,128,384,4064})

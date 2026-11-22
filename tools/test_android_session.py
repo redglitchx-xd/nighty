@@ -24,7 +24,7 @@ mod split {
     pub(super) struct Split<'a>(pub &'a Arc<super::Resources>);
     use std::sync::Arc;
 }
-#[path = "../../../../crates/horizon-client/src/game/session.rs"] mod session;
+#[path = "../../../../crates/apex-client/src/game/session.rs"] mod session;
 #[test]
 fn relaunch_releases_each_sessions_resources() {
     for n in 0..8 {

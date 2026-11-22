@@ -56,7 +56,7 @@ enum Edge {
     End(f32),
 }
 
-/// A rectangle between two vertical and two horizontal edges, for a box whose size isn't known yet.
+/// A rectangle between two vertical and two apextal edges, for a box whose size isn't known yet.
 #[derive(Clone, Copy, Debug)]
 struct Rect {
     x: (Edge, Edge),

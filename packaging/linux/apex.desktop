@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Apex
+Comment=Minecraft: Java Edition 26.3, rewritten in Rust
+Exec=apex-client
+Icon=apex
+Terminal=false
+Categories=Game;
+StartupWMClass=apex
+NoDisplay=true

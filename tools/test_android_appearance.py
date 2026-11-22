@@ -15,7 +15,7 @@ def main():
     harness = ROOT / '.local/android/appearance-tests'
     (harness / 'src').mkdir(parents=True, exist_ok=True)
     manifest = '''[package]
-name = "horizon-appearance-tests"
+name = "apex-appearance-tests"
 version = "0.0.0"
 edition = "2024"
 [workspace]
@@ -37,13 +37,13 @@ futures-lite = "2"
 keyring = { version = "3", features = ["apple-native"] }
 security-framework = "3"
 '''
-    manifest = manifest.replace('[dependencies]', '[dependencies]\nhorizon-core = { path = "' + (ROOT / 'crates/horizon-core').as_posix() + '" }')
+    manifest = manifest.replace('[dependencies]', '[dependencies]\napex-core = { path = "' + (ROOT / 'crates/apex-core').as_posix() + '" }')
     (harness / 'Cargo.toml').write_text(manifest, encoding='utf-8')
     source = '''#![allow(dead_code)]
 mod backend {
     pub const VERSION: &str = "appearance-test";
     pub fn data_dir() -> std::path::PathBuf {
-        std::env::temp_dir().join("horizon-appearance-harness")
+        std::env::temp_dir().join("apex-appearance-harness")
     }
 }
 mod proxy {
@@ -57,10 +57,10 @@ mod java_launch {
     for name in ('account', 'skins'):
         source += f'#[path = "{(ROOT / "launcher/src" / (name + ".rs")).as_posix()}"] pub mod {name};\n'
     source += "mod hud { pub fn decode_bytes(bytes:&[u8])->Result<(u32,u32,Vec<u8>),String> { let image=image::load_from_memory(bytes).map_err(|e|e.to_string())?.to_rgba8(); Ok((image.width(),image.height(),image.into_raw())) } }\n"
-    source += 'mod engine { pub use horizon_core::player_texture::{process_cape,process_legacy_skin}; #[path="' + (ROOT / 'crates/horizon-client-render/src/skins/appearance.rs').as_posix() + '"] pub mod appearance; }\n'
+    source += 'mod engine { pub use apex_core::player_texture::{process_cape,process_legacy_skin}; #[path="' + (ROOT / 'crates/apex-client-render/src/skins/appearance.rs').as_posix() + '"] pub mod appearance; }\n'
     (harness / 'src/lib.rs').write_text(source, encoding='utf-8')
     environment = dict(os.environ)
-    environment['HORIZON_LAUNCHER_NO_SELF_UPDATE'] = '1'
+    environment['APEX_LAUNCHER_NO_SELF_UPDATE'] = '1'
     subprocess.run(['cargo', 'test', '--manifest-path', str(harness / 'Cargo.toml')],
                    cwd=ROOT, env=environment, check=True)
 

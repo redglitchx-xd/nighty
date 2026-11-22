@@ -248,8 +248,8 @@ impl ResizeScaleInternal {
             return PhysicalSize::new(0, 0);
         }
 
-        let horizontal = match writing_mode.as_str() {
-            _ if writing_mode.starts_with("horizontal") => true,
+        let apextal = match writing_mode.as_str() {
+            _ if writing_mode.starts_with("apextal") => true,
             _ if writing_mode.starts_with("vertical") | writing_mode.starts_with("sideways") => {
                 false
             },
@@ -257,12 +257,12 @@ impl ResizeScaleInternal {
             "lr" | "lr-tb" | "rl" => true,
             "tb" | "tb-lr" | "tb-rl" => false,
             _ => {
-                warn!("unrecognized `writing-mode`, assuming horizontal");
+                warn!("unrecognized `writing-mode`, assuming apextal");
                 true
             },
         };
 
-        if horizontal {
+        if apextal {
             PhysicalSize::new(entry.inline_size() as u32, entry.block_size() as u32)
         } else {
             PhysicalSize::new(entry.block_size() as u32, entry.inline_size() as u32)

@@ -119,7 +119,7 @@ Android Back closes the keyboard first, then the current screen.
 
 ### HUD margins and orientation
 
-**Options > Accessibility** has horizontal and vertical HUD margins. These inset
+**Options > Accessibility** has apextal and vertical HUD margins. These inset
 passive information such as F3, scoreboard, effects and subtitles. They do not
 resize the world, hotbar, inventory, touch controls or their input coordinates.
 
@@ -147,7 +147,7 @@ touch. The system keyboard is available in either mode.
 Open **Options > Controls > Key Binds** and change **Input profile** from
 Keyboard to **D-pad / keypad**. The profile is optional and off by default;
 its rows support rebinding and Reset just like keyboard bindings. It is saved
-per game profile in `horizon-keypad.json`. Existing launcher presets migrate once.
+per game profile in `apex-keypad.json`. Existing launcher presets migrate once.
 
 | Default key | Action |
 | --- | --- |
@@ -208,10 +208,10 @@ python tools/android_build.py --abi x86_64 --public
 Windows discovers `%LOCALAPPDATA%/Android/Sdk` and Android Studio's JDK. Otherwise
 set `ANDROID_HOME`/`JAVA_HOME` or pass `--sdk`/`--java-home`. `--gradle` selects a
 Gradle executable. Public APKs are written to
-`.local/android/apk/<abi>/horizon-android-public.apk`; signing material stays in
+`.local/android/apk/<abi>/apex-android-public.apk`; signing material stays in
 `.local/android/`. Keep the signing key to allow updates over an existing install.
 
-Each APK contains one `libhorizon_android.so`, using the NativeActivity winit
+Each APK contains one `libapex_android.so`, using the NativeActivity winit
 backend and the Rust system-keyboard bridge. `--rust-only` builds it without shared
 APK staging; `CARGO_TARGET_DIR` can separate parallel compilation caches. Run Gradle
 packaging sequentially. Public builds default to `release`: optimization level 3,
@@ -236,7 +236,7 @@ are not source-controlled. Chat/F3/F5 use regions of `gui.png`; other states use
 python tools/android_build.py --abi x86_64 --clippy
 python -m unittest discover -s tests -p 'test_android*.py'
 python tools/check_public_tree.py --history
-cargo test -p horizon-client --lib --no-default-features touch
+cargo test -p apex-client --lib --no-default-features touch
 ```
 
 Use isolated AVDs and fresh game/launcher/XDG directories for runtime tests, as

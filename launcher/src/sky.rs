@@ -3,11 +3,11 @@
 //! sprites.
 //!
 //! The sky is still by default: the art is baked once per appearance and scale into tiles whose
-//! size doesn't depend on the window. Motion is opt-in with `HORIZON_LAUNCHER_MOTION=full` (clouds
+//! size doesn't depend on the window. Motion is opt-in with `APEX_LAUNCHER_MOTION=full` (clouds
 //! drift, stars step, stopping 10 s after the window loses focus) or `always` for recordings.
 use crate::art::bake;
 use gpui::{div, img, prelude::*, px, rgb, Div, RenderImage};
-use horizon_theme::night::Night;
+use apex_theme::night::Night;
 use std::sync::{Arc, LazyLock};
 use std::time::{Duration, Instant};
 
@@ -190,8 +190,8 @@ const STAR_LEVELS: [f32; 4] = [0.95, 0.6, 0.3, 0.6];
 const STAR_PERIODS: [f32; 4] = [4., 6., 8., 10.];
 
 /// How the sky moves: still by default, under the system's reduced motion (macOS) or with
-/// `HORIZON_LAUNCHER_MOTION=off`; while the window is in front (and 10 s after) with
-/// `HORIZON_LAUNCHER_MOTION=full`; or always, with `always`, for recordings.
+/// `APEX_LAUNCHER_MOTION=off`; while the window is in front (and 10 s after) with
+/// `APEX_LAUNCHER_MOTION=full`; or always, with `always`, for recordings.
 #[derive(Clone, Copy, PartialEq)]
 enum Motion {
     Still,
@@ -451,7 +451,7 @@ fn bands(n: &Night, h: f32) -> Vec<(f32, f32, u32)> {
         let mut from = at;
         for k in 0..STEPS {
             let to = (at + span * (k + 1) as f32 / STEPS as f32).round();
-            let c = horizon_theme::night::over(next, k as f32 / STEPS as f32, n.sky[i]);
+            let c = apex_theme::night::over(next, k as f32 / STEPS as f32, n.sky[i]);
             out.push((from * TEXEL, (to - from) * TEXEL, c));
             from = to;
         }
@@ -469,7 +469,7 @@ struct Star {
 }
 
 /// The stars, the same on every start: a fixed field wide enough for any window, thinned toward
-/// the horizon.
+/// the apex.
 fn stars() -> &'static [Star] {
     static STARS: LazyLock<Vec<Star>> = LazyLock::new(|| {
         let mut rng = 0x2545_f491u32;
@@ -558,8 +558,8 @@ fn skyline(line: &Skyline, color: u32, scale: f32) -> Arc<RenderImage> {
     bake(&out, w, line.rows, LAND, scale)
 }
 
-/// The upper half of a sun cut by the horizon, in three bands of colour, its lower half sliced by
-/// rows of sky like Horizon's mark.
+/// The upper half of a sun cut by the apex, in three bands of colour, its lower half sliced by
+/// rows of sky like Apex's mark.
 fn sun(art: &Colors) -> Vec<[u8; 4]> {
     let (r, w) = (SUN_RADIUS as f32, SUN_RADIUS * 2);
     let mut out = vec![[0; 4]; w * SUN_RADIUS];
@@ -588,7 +588,7 @@ fn sun(art: &Colors) -> Vec<[u8; 4]> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use horizon_theme::night::{DAWN, NIGHT, UNCARDED_STOPS};
+    use apex_theme::night::{DAWN, NIGHT, UNCARDED_STOPS};
 
     /// The sky's upper bands, behind text without a plate, hold the night tokens' text colours.
     fn uncarded_bands(n: &Night, h: f32) -> Vec<u32> {
@@ -619,7 +619,7 @@ mod tests {
         for n in [NIGHT, DAWN] {
             for c in uncarded_bands(&n, 800.) {
                 for text in [n.ink, n.ink_soft, n.muted] {
-                    let ratio = horizon_theme::contrast(text, c);
+                    let ratio = apex_theme::contrast(text, c);
                     assert!(ratio >= 4.5, "#{text:06x} on #{c:06x}: {ratio:.2}");
                 }
             }

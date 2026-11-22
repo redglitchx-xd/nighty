@@ -293,7 +293,7 @@ checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 name = "beacons"
 version = "0.1.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -430,10 +430,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "cargo-horizon-mod"
+name = "cargo-apex-mod"
 version = "0.1.0"
 dependencies = [
- "horizon-mods",
+ "apex-mods",
  "serde_json",
 ]
 
@@ -609,7 +609,7 @@ checksum = "c2459377285ad874054d797f3ccebf984978aa39129f6eafde5cdc8315b612f8"
 name = "coords-hud"
 version = "0.1.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -1159,7 +1159,7 @@ checksum = "0b5343afd4a8365a643ac588dab4cf234a190c7f6c88c9f6dd6ffe00837661b7"
 name = "far-view"
 version = "1.0.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -1264,7 +1264,7 @@ dependencies = [
 name = "fps-overlay"
 version = "1.0.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -1599,7 +1599,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-android"
+name = "apex-android"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
@@ -1609,28 +1609,28 @@ dependencies = [
  "flate2",
  "getrandom 0.3.4",
  "glam",
- "horizon-anticheat",
- "horizon-assets",
- "horizon-bench",
- "horizon-chat-filter",
- "horizon-client",
- "horizon-client-input",
- "horizon-client-render",
- "horizon-core",
- "horizon-friends",
- "horizon-hdr",
- "horizon-items",
- "horizon-mods",
- "horizon-narrator",
- "horizon-port-pack",
- "horizon-protocol",
- "horizon-server-files",
- "horizon-shader-api",
- "horizon-shaders",
- "horizon-telemetry",
- "horizon-theme",
- "horizon-threads",
- "horizon-world",
+ "apex-anticheat",
+ "apex-assets",
+ "apex-bench",
+ "apex-chat-filter",
+ "apex-client",
+ "apex-client-input",
+ "apex-client-render",
+ "apex-core",
+ "apex-friends",
+ "apex-hdr",
+ "apex-items",
+ "apex-mods",
+ "apex-narrator",
+ "apex-port-pack",
+ "apex-protocol",
+ "apex-server-files",
+ "apex-shader-api",
+ "apex-shaders",
+ "apex-telemetry",
+ "apex-theme",
+ "apex-threads",
+ "apex-world",
  "image",
  "jni 0.21.1",
  "log",
@@ -1654,7 +1654,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-anticheat"
+name = "apex-anticheat"
 version = "0.1.0"
 dependencies = [
  "serde",
@@ -1662,34 +1662,34 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-assets"
+name = "apex-assets"
 version = "0.1.0"
 dependencies = [
- "horizon-core",
+ "apex-core",
  "png",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "horizon-bench"
+name = "apex-bench"
 version = "0.1.0"
 dependencies = [
- "horizon-telemetry",
+ "apex-telemetry",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "horizon-bots"
+name = "apex-bots"
 version = "0.1.0"
 dependencies = [
- "horizon-protocol",
+ "apex-protocol",
  "serde_json",
 ]
 
 [[package]]
-name = "horizon-chat-filter"
+name = "apex-chat-filter"
 version = "0.1.0"
 dependencies = [
  "serde",
@@ -1698,7 +1698,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-client"
+name = "apex-client"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
@@ -1709,29 +1709,29 @@ dependencies = [
  "fs4",
  "gilrs",
  "glam",
- "horizon-anticheat",
- "horizon-assets",
- "horizon-bench",
- "horizon-chat-filter",
- "horizon-client-core",
- "horizon-client-input",
- "horizon-client-render",
- "horizon-command",
- "horizon-core",
- "horizon-dualsense",
- "horizon-friends",
- "horizon-hdr",
- "horizon-items",
- "horizon-mods",
- "horizon-narrator",
- "horizon-protocol",
- "horizon-server-files",
- "horizon-shader-api",
- "horizon-shaders",
- "horizon-telemetry",
- "horizon-theme",
- "horizon-threads",
- "horizon-world",
+ "apex-anticheat",
+ "apex-assets",
+ "apex-bench",
+ "apex-chat-filter",
+ "apex-client-core",
+ "apex-client-input",
+ "apex-client-render",
+ "apex-command",
+ "apex-core",
+ "apex-dualsense",
+ "apex-friends",
+ "apex-hdr",
+ "apex-items",
+ "apex-mods",
+ "apex-narrator",
+ "apex-protocol",
+ "apex-server-files",
+ "apex-shader-api",
+ "apex-shaders",
+ "apex-telemetry",
+ "apex-theme",
+ "apex-threads",
+ "apex-world",
  "image",
  "log",
  "miniz_oxide 0.8.9",
@@ -1758,27 +1758,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-client-core"
+name = "apex-client-core"
 version = "0.1.0"
 dependencies = [
- "horizon-world",
+ "apex-world",
  "serde_json",
 ]
 
 [[package]]
-name = "horizon-client-input"
+name = "apex-client-input"
 version = "0.1.0"
 dependencies = [
  "arboard",
- "horizon-client-core",
- "horizon-dualsense",
- "horizon-theme",
+ "apex-client-core",
+ "apex-dualsense",
+ "apex-theme",
  "png",
  "winit",
 ]
 
 [[package]]
-name = "horizon-client-render"
+name = "apex-client-render"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
@@ -1789,22 +1789,22 @@ dependencies = [
  "flate2",
  "glam",
  "half",
- "horizon-assets",
- "horizon-bench",
- "horizon-client-core",
- "horizon-client-input",
- "horizon-command",
- "horizon-core",
- "horizon-hdr",
- "horizon-items",
- "horizon-narrator",
- "horizon-protocol",
- "horizon-shader-api",
- "horizon-shaders",
- "horizon-telemetry",
- "horizon-theme",
- "horizon-threads",
- "horizon-world",
+ "apex-assets",
+ "apex-bench",
+ "apex-client-core",
+ "apex-client-input",
+ "apex-command",
+ "apex-core",
+ "apex-hdr",
+ "apex-items",
+ "apex-narrator",
+ "apex-protocol",
+ "apex-shader-api",
+ "apex-shaders",
+ "apex-telemetry",
+ "apex-theme",
+ "apex-threads",
+ "apex-world",
  "log",
  "miniz_oxide 0.8.9",
  "naga",
@@ -1825,23 +1825,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-command"
+name = "apex-command"
 version = "0.1.0"
 dependencies = [
- "horizon-client-core",
- "horizon-protocol",
- "horizon-world",
+ "apex-client-core",
+ "apex-protocol",
+ "apex-world",
 ]
 
 [[package]]
-name = "horizon-core"
+name = "apex-core"
 version = "0.1.0"
 dependencies = [
  "libm",
 ]
 
 [[package]]
-name = "horizon-dualsense"
+name = "apex-dualsense"
 version = "0.1.0"
 dependencies = [
  "cpal",
@@ -1850,7 +1850,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-friends"
+name = "apex-friends"
 version = "0.1.0"
 dependencies = [
  "chacha20poly1305",
@@ -1865,7 +1865,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-hdr"
+name = "apex-hdr"
 version = "0.1.0"
 dependencies = [
  "ash",
@@ -1876,28 +1876,28 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-items"
+name = "apex-items"
 version = "0.1.0"
 dependencies = [
- "horizon-client-core",
- "horizon-core",
- "horizon-world",
+ "apex-client-core",
+ "apex-core",
+ "apex-world",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "horizon-mod-sdk"
+name = "apex-mod-sdk"
 version = "0.1.0"
 dependencies = [
  "wit-bindgen 0.60.0",
 ]
 
 [[package]]
-name = "horizon-mods"
+name = "apex-mods"
 version = "0.1.0"
 dependencies = [
- "horizon-shader-api",
+ "apex-shader-api",
  "log",
  "minisign-verify",
  "serde",
@@ -1912,21 +1912,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-mods-test-guest"
+name = "apex-mods-test-guest"
 version = "0.1.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
-name = "horizon-mods-test-ui-guest"
+name = "apex-mods-test-ui-guest"
 version = "0.1.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
-name = "horizon-narrator"
+name = "apex-narrator"
 version = "0.1.0"
 dependencies = [
  "libloading",
@@ -1938,17 +1938,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-optifine"
+name = "apex-optifine"
 version = "0.1.0"
 dependencies = [
  "regex",
 ]
 
 [[package]]
-name = "horizon-port-pack"
+name = "apex-port-pack"
 version = "0.1.0"
 dependencies = [
- "horizon-mods",
+ "apex-mods",
  "serde",
  "serde_json",
  "sha1",
@@ -1958,7 +1958,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-prepare"
+name = "apex-prepare"
 version = "0.1.0"
 dependencies = [
  "crc32fast",
@@ -1970,13 +1970,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-protocol"
+name = "apex-protocol"
 version = "0.1.0"
 dependencies = [
  "flate2",
  "getrandom 0.3.4",
- "horizon-core",
- "horizon-world",
+ "apex-core",
+ "apex-world",
  "ipconfig",
  "serde_json",
  "sha1",
@@ -1984,16 +1984,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-relay"
+name = "apex-relay"
 version = "0.1.0"
 dependencies = [
  "getrandom 0.3.4",
- "horizon-friends",
+ "apex-friends",
  "serde_json",
 ]
 
 [[package]]
-name = "horizon-release-sign"
+name = "apex-release-sign"
 version = "0.1.0"
 dependencies = [
  "base64",
@@ -2001,18 +2001,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-server"
+name = "apex-server"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
  "base64",
  "chrono",
- "horizon-anticheat",
- "horizon-bench",
- "horizon-chat-filter",
- "horizon-core",
- "horizon-release-sign",
- "horizon-server-files",
+ "apex-anticheat",
+ "apex-bench",
+ "apex-chat-filter",
+ "apex-core",
+ "apex-release-sign",
+ "apex-server-files",
  "libc",
  "p12-keystore",
  "png",
@@ -2030,19 +2030,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-server-files"
+name = "apex-server-files"
 version = "0.1.0"
 dependencies = [
  "base64",
- "horizon-core",
- "horizon-protocol",
- "horizon-world",
+ "apex-core",
+ "apex-protocol",
+ "apex-world",
  "log",
  "ureq",
 ]
 
 [[package]]
-name = "horizon-shader-api"
+name = "apex-shader-api"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
@@ -2056,18 +2056,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-shaders"
+name = "apex-shaders"
 version = "0.1.0"
 dependencies = [
  "half",
- "horizon-core",
+ "apex-core",
  "naga",
  "png",
  "zip 9.1.3",
 ]
 
 [[package]]
-name = "horizon-telemetry"
+name = "apex-telemetry"
 version = "0.1.0"
 dependencies = [
  "getrandom 0.3.4",
@@ -2078,11 +2078,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-theme"
+name = "apex-theme"
 version = "0.1.0"
 
 [[package]]
-name = "horizon-threads"
+name = "apex-threads"
 version = "0.1.0"
 dependencies = [
  "libc",
@@ -2092,11 +2092,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "horizon-world"
+name = "apex-world"
 version = "0.1.0"
 dependencies = [
  "flate2",
- "horizon-core",
+ "apex-core",
  "libm",
  "lz4_flex",
  "postcard",
@@ -2466,7 +2466,7 @@ dependencies = [
 name = "keystrokes"
 version = "1.0.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -2655,7 +2655,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 name = "minimap"
 version = "1.0.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -3541,7 +3541,7 @@ dependencies = [
 name = "predator-missile"
 version = "0.1.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -3725,7 +3725,7 @@ dependencies = [
 name = "recipes"
 version = "1.0.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -5214,7 +5214,7 @@ checksum = "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88"
 name = "welcome"
 version = "0.1.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]
@@ -6069,7 +6069,7 @@ checksum = "e450f9b2ed1dff33c94c12589a87338689467b9c4f5d8a5710bd09a847d2c8a7"
 name = "xtask"
 version = "0.1.0"
 dependencies = [
- "horizon-theme",
+ "apex-theme",
 ]
 
 [[package]]
@@ -6239,7 +6239,7 @@ checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
 name = "zoom"
 version = "1.0.0"
 dependencies = [
- "horizon-mod-sdk",
+ "apex-mod-sdk",
 ]
 
 [[package]]

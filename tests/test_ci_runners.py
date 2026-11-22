@@ -1,11 +1,11 @@
-"""playhorizon's checks runners (docs/ci-runners.md) never run a fork's pull request."""
+"""playapex's checks runners (docs/ci-runners.md) never run a fork's pull request."""
 import re
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = ROOT / ".github/workflows"
-LABELS = ("playhorizon-ci", "playhorizon-light")
+LABELS = ("playapex-ci", "playapex-light")
 FORK_GUARD = "github.event.pull_request.head.repo.full_name == github.repository"
 
 

@@ -2,7 +2,7 @@
   "hooks": [
     {
       "name": "block_highlight",
-      "target": "horizon_client::game::native_hooks::Game<'_>::native_block_highlight",
+      "target": "apex_client::game::native_hooks::Game<'_>::native_block_highlight",
       "side": "client",
       "cancellable": true
     }

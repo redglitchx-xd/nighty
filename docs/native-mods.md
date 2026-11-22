@@ -1,10 +1,10 @@
 # Native mods
 
 Native mods are **mixin bundles** that change the game's own Rust source before it is compiled, with
-[horizon-mixins](https://github.com/horizon-rust/horizon-mixins) (MIT, by levzzz5154, made for Apex). A bundle
-is a `horizon-mixin.toml` and a few `.rs` helpers that hook into named functions of the game (HEAD, BEFORE_CALL,
+[apex-mixins](https://github.com/apex-rust/apex-mixins) (MIT, by levzzz5154, made for Apex). A bundle
+is a `apex-mixin.toml` and a few `.rs` helpers that hook into named functions of the game (HEAD, BEFORE_CALL,
 RETURN, MODIFY_ARG, OVERWRITE...; the tool's README lists them). A port such as Veinminer is three HEAD hooks and
-one module. Start a mod from [horizon-native-mod-template](https://github.com/horizon-rust/horizon-native-mod-template).
+one module. Start a mod from [apex-native-mod-template](https://github.com/apex-rust/apex-native-mod-template).
 
 Native mods are native code with the player's rights, not sandboxed. They are always on in the launcher: there is no
 switch. The first install shows a trust notice, and every build waits behind a red warning; the registry lists one only
@@ -13,30 +13,30 @@ instance they are installed in.
 
 ## Pinned to a Nightly
 
-A native mod builds on one exact Apex commit: `[compatibility] horizon_revision` in its `horizon-mixin.toml`,
-and `horizon` in the `horizon-native.json` of its registry file (`.hnmod`, `horizon_mods::index::native`). Mods
+A native mod builds on one exact Apex commit: `[compatibility] apex_revision` in its `apex-mixin.toml`,
+and `apex` in the `apex-native.json` of its registry file (`.hnmod`, `apex_mods::index::native`). Mods
 pin a **Nightly's commit** (or a release's). Every Nightly ships its source and keeps its commit for good as the
 tag `nightly-source/<date>-<short>` ([release-flow.md](release-flow.md#nightly-channel)), so a pinned mod still
 builds after its Nightly is replaced. When the mods of one build pin different commits, the launcher says which
 mod pins which and the commit the build would use, the newest of them, and builds only after the player chooses
 **Build anyway** (`native-build --allow-version-mismatch`): such mods often still apply and compile. A failed build
-then says the mods were made for other versions. Their horizon-mixins pins may differ too: the build uses the
+then says the mods were made for other versions. Their apex-mixins pins may differ too: the build uses the
 newest of them and the launcher's own, never one older than a mod was made with. A bundle with no pin builds on
 the commit of the installed version the build starts from.
 
 ### Mods on the hook points
 
-A mod that hooks only Apex's native hook points (`crates/horizon-client/src/game/native_hooks.rs`, with a few
+A mod that hooks only Apex's native hook points (`crates/apex-client/src/game/native_hooks.rs`, with a few
 free functions in other crates: [render hook points](#render-hook-points), [items' default
-components](#items-default-components), `horizon_world::loot::native_loot_table_load`; empty functions the game
+components](#items-default-components), `apex_world::loot::native_loot_table_load`; empty functions the game
 calls at fixed places, plus helpers, kept stable across releases) can name the version it
-needs instead of pinning: `"hooks": 1` in its `.hnmod`'s `horizon-native.json`, the `NATIVE_HOOKS_API` of that
+needs instead of pinning: `"hooks": 1` in its `.hnmod`'s `apex-native.json`, the `NATIVE_HOOKS_API` of that
 file when it was made. Hook points are only ever added: each addition raises `NATIVE_HOOKS_API`, and a mod builds
-on any Apex whose version is the one it needs or a later one. Its `horizon` is then only the commit it was tested on. The launcher builds it on the commit the other mods
+on any Apex whose version is the one it needs or a later one. Its `apex` is then only the commit it was tested on. The launcher builds it on the commit the other mods
 pin, else on the installed version's commit (the game the player plays), after checking that commit's
 `NATIVE_HOOKS_API` (read from GitHub) is at least the mod's; when it isn't and nothing pins, it builds on the commit the
-mod was tested on. In its own copy of the mod it sets `horizon_revision` to the commit it builds on. Apex's
-own native mods (Zoom, FPS counter, Keystrokes, Minimap; horizon-rust/horizon-mods, `native/<name>/`) are made this way, so any of them build together
+mod was tested on. In its own copy of the mod it sets `apex_revision` to the commit it builds on. Apex's
+own native mods (Zoom, FPS counter, Keystrokes, Minimap; apex-rust/apex-mods, `native/<name>/`) are made this way, so any of them build together
 with no re-release for each Nightly.
 
 Hook and helper authors use [API fragments](../tools/native-hook-fragments/README.md) to request a number.
@@ -282,13 +282,13 @@ changing the player's saved shader selection); other packs are unaffected.
 
 ## A bundle
 
-A bundle is a folder with a `horizon-mixin.toml`. Besides its helpers and modules (horizon-mixins' README) it can
-have its own crate, data files and a post-build step (horizon-mixins 0.6.0). The test bundle
+A bundle is a folder with a `apex-mixin.toml`. Besides its helpers and modules (apex-mixins' README) it can
+have its own crate, data files and a post-build step (apex-mixins 0.6.0). The test bundle
 [`launcher/tests/fixtures/native-crate-demo`](../launcher/tests/fixtures/native-crate-demo) uses all of them:
 
 ```
 native-crate-demo/
-  horizon-mixin.toml
+  apex-mixin.toml
   frame.rs                # helper, compiled into the game
   data/greeting.txt       # the bundle's data: native_data!("crate_demo", "greeting.txt")
   engine/                 # the mod's own crate
@@ -314,7 +314,7 @@ bindings = [{ name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *s
 [[crate]]
 id = "engine"
 path = "engine"           # holds Cargo.toml
-# dependent = "horizon-client"   (the default: the workspace package that depends on it)
+# dependent = "apex-client"   (the default: the workspace package that depends on it)
 
 [[post_build]]
 crate = "engine"
@@ -325,36 +325,36 @@ args = []
 ### Named hook points
 
 `native-hooks.json` at the root of the source names each hook point and the version of its contract (signature,
-when it is called, what it does): `{"name": "hud", "version": 1, "target": "horizon_client::game::native_hooks::Game<'_>::native_hud"}`.
-An injection names `hook` and `hook_version` instead of `target`, and horizon-mixins resolves it from the catalog
+when it is called, what it does): `{"name": "hud", "version": 1, "target": "apex_client::game::native_hooks::Game<'_>::native_hud"}`.
+An injection names `hook` and `hook_version` instead of `target`, and apex-mixins resolves it from the catalog
 of the source it applies to, so a hook point can move in the source without breaking the mods that use it. A name
 the catalog lacks is `E_HOOK_UNKNOWN` (the error lists the names it has), a version it lacks `E_HOOK_VERSION`. A
 contract is never changed: an incompatible change adds a version. Helpers (`native_text`, `native_player`…) are not
 in the catalog; they are kept stable as the hook points are. A test (`catalog_matches_hook_points`) keeps the
-catalog and the hook points' sources (`native_hooks.rs`, `gfx/native_render.rs`, `horizon-world`'s `loot.rs`) in step.
+catalog and the hook points' sources (`native_hooks.rs`, `gfx/native_render.rs`, `apex-world`'s `loot.rs`) in step.
 
 ### The mod's crate
 
 A `[[crate]]` is a Cargo package of the bundle's, staged as `native-crates/<mod>/<crate>/` and added to the
 workspace's members and to the `[dependencies]` of its `dependent`, so helpers call it as
 `crate_demo_engine::checksum(…)`. Cargo compiles it once and keeps it: editing a helper, or switching another mod
-on or off, recompiles `horizon-client` but not the mod's crate, so the heavy code of a big mod belongs there and
-only the glue in helpers. A crate can't depend on `horizon-client` (Cargo forbids the cycle) or on any path or git
-crate, and has no `Cargo.lock`, `[workspace]` or build of its own. Apex's own crates (`horizon-core`…) are path
+on or off, recompiles `apex-client` but not the mod's crate, so the heavy code of a big mod belongs there and
+only the glue in helpers. A crate can't depend on `apex-client` (Cargo forbids the cycle) or on any path or git
+crate, and has no `Cargo.lock`, `[workspace]` or build of its own. Apex's own crates (`apex-core`…) are path
 crates too, so they are refused the same way, on purpose for now: a mod names game types through its helpers, which
-are compiled into `horizon-client`; a stable API crate for mods' own crates is #3897.
+are compiled into `apex-client`; a stable API crate for mods' own crates is #3897.
 
 **Dependencies come from Apex's `Cargo.lock`.** A crate names registry crates by version requirement
 (`crc32fast = "1"`, `{ version, features, default-features, optional }`); each must already be in Apex's lock
-file in a version that matches, and builds in exactly that version. The lock file is the allow list: horizon-mixins
+file in a version that matches, and builds in exactly that version. The lock file is the allow list: apex-mixins
 refuses a crate the lock lacks (`E_CRATE_DEPENDENCY`) and writes the mod's crates into the staged lock without
 changing any other byte, so the game still builds with `--locked`. The launcher checks it again (every downloaded
 package of the staged lock as in Apex's: name, version, source, checksum), and a feature that turns on a
 dependency the lock lacks fails at `cargo fetch --locked` with a message saying so. The build stops with:
 
 ```
-horizon-mixins failed (exit status: 1). The end of its output, the whole of it in …/native/build.log:
-E_CRATE_DEPENDENCY: crate_lock needs rand ^0.9, which isn't in Apex's Cargo.lock (…/horizon-mixin.toml)
+apex-mixins failed (exit status: 1). The end of its output, the whole of it in …/native/build.log:
+E_CRATE_DEPENDENCY: crate_lock needs rand ^0.9, which isn't in Apex's Cargo.lock (…/apex-mixin.toml)
 ```
 
 ### Conditional data
@@ -386,7 +386,7 @@ sounds, teleports and drops are open to the hook. An unclaimed kind does nothing
 ### Data files
 
 A bundle's `data/` folder (any files) is staged as `native-data/<mod>/` at the root of the workspace. A helper or
-module compiles a file in with `horizon_client::native_data!("<mod id>", "path/in/data")` (`&'static [u8; N]`,
+module compiles a file in with `apex_client::native_data!("<mod id>", "path/in/data")` (`&'static [u8; N]`,
 `crate::native_data!` inside the lib), since hook points API 41. A mod's crate keeps its own data in its folder and
 reads it with `include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/data/…"))`. The registry's `.hnmod` may carry
 both (`mixins/<id>/data/…`, `mixins/<id>/<crate>/data/…`).
@@ -410,14 +410,14 @@ folder with:
 |---|---|
 | `APEX_NATIVE_MOD` | the mod's id |
 | `APEX_NATIVE_VERSION_DIR` | the new build's version folder (also the working directory) |
-| `APEX_NATIVE_DATA_DIR` | `<version folder>/native-data/<mod>/`, created: what the game reads at run time with `native_built_data("<mod>")` (or `horizon_client::native_data::built`) |
+| `APEX_NATIVE_DATA_DIR` | `<version folder>/native-data/<mod>/`, created: what the game reads at run time with `native_built_data("<mod>")` (or `apex_client::native_data::built`) |
 | `APEX_NATIVE_CACHE_DIR` | `<launcher data>/native/cache/<mod>/`, created, kept from one build to the next |
 | `APEX_NATIVE_BUNDLE_DATA_DIR` | the bundle's own `data/` as staged for the build (`native/stage/native-data/<mod>/`); read it, don't write it |
 
 Its output goes to `native/build.log`. A `native-post-build.json` that can't be read, or names a mod id that isn't
 one, stops the build instead of skipping the steps. When a step fails, so does the build ("crate_demo's post-build
 step failed …") and the version folder is removed. It runs on the player's computer like the rest of the mod's code: only the
-launcher runs it, never horizon-mixins.
+launcher runs it, never apex-mixins.
 
 API 47 adds `native_entity_join_level(dimension, entity, kind, pos, loaded_from_disk, canceled)`, an entity joining a
 server level (NeoForge's `EntityJoinLevelEvent`, vanilla's `PersistentEntitySectionManager.addEntity`):
@@ -611,7 +611,7 @@ item is consumed, on the server thread, for the acting player. The kind and the 
 the game's own effects, sounds, teleports and drops are open to the hook. An unclaimed kind does nothing.
 The hook sees the item's own consumable component, not a patch on the stack; a bare vanilla name and an unknown `minecraft:` kind are the loader's, not the hook's. Bundles that use it need "hooks": 74.
 
-API 75 adds [loot table hooks](#loot-tables), for changing loot a mod didn't make. `native_loot_table_load(id, table)`, in `horizon-world`'s `loot.rs`, gets each loot table's JSON as it loads, after the data packs' (NeoForge's `LootTableLoadEvent`, Fabric's `LootTableEvents.MODIFY`): add pools or entries, change or replace it, and chests, block and mob drops, fishing and the rest then roll the changed table. It runs wherever tables load, a client too. `native_loot_drops(context, drops)` gets the items a broken block or a dead mob is about to drop, to add, change or take out (global loot modifiers, `MODIFY_DROPS`), with `NativeLootDrops`: the table rolled, the dimension, the origin, the block or the mob, the player who broke or killed it, the tool and an explosion's radius. It hears blocks a player, an explosion or a mob breaks, not other breaks such as leaves decaying. Bundles need `"hooks": 75`.
+API 75 adds [loot table hooks](#loot-tables), for changing loot a mod didn't make. `native_loot_table_load(id, table)`, in `apex-world`'s `loot.rs`, gets each loot table's JSON as it loads, after the data packs' (NeoForge's `LootTableLoadEvent`, Fabric's `LootTableEvents.MODIFY`): add pools or entries, change or replace it, and chests, block and mob drops, fishing and the rest then roll the changed table. It runs wherever tables load, a client too. `native_loot_drops(context, drops)` gets the items a broken block or a dead mob is about to drop, to add, change or take out (global loot modifiers, `MODIFY_DROPS`), with `NativeLootDrops`: the table rolled, the dimension, the origin, the block or the mob, the player who broke or killed it, the tool and an explosion's radius. It hears blocks a player, an explosion or a mob breaks, not other breaks such as leaves decaying. Bundles need `"hooks": 75`.
 
 API 76 adds `native_state_for_placement(state, context, fluid, answer)`: the state a block is about to be placed in
 (`Block.getStateForPlacement(BlockPlaceContext)`), `state` the block's own default state. Answer only for your own
@@ -630,7 +630,7 @@ API 77 adds a `minecraft:post_attack` enchantment effect of a mod's own kind, on
 
 API 78 adds `native_screen_render_post`, the point of `ScreenEvent.Render.Post`: a native mod draws over the open screen after it and its tooltips, given its id, the server-opened menu's vanilla type (`menu`) and title, its container panel, its slot count, the mouse in GUI pixels and the partial tick (`NativeScreenView`). Every container, station and mod window draws on the inventory screen and so reports `inventory`: tell them apart by `menu` and `title` (None on a window the client opened) and by `slots`. It does not fire on the title screen, nor for the prompts, books and sign editors drawn over gameplay after it. Bundles that use it need "hooks": 78.
 
-API 79 adds `native_modify_default_components(item, components)`, in `horizon-world`'s `item_defaults.rs`: an item's default
+API 79 adds `native_modify_default_components(item, components)`, in `apex-world`'s `item_defaults.rs`: an item's default
 components in `items.json`'s form, for any item, vanilla's included (NeoForge's `ModifyDefaultComponentsEvent`). Insert
 or replace a component to set it (`"minecraft:max_stack_size": 16`), remove it to take it away. The item table,
 loot, enchanting and item models all read the changed defaults, and stacks are saved and sent against them as
@@ -644,7 +644,7 @@ API 80 adds the open screen hears of a mouse button going down (`native_screen_m
 In the window: install a native mod from the Mods page, into the instance picked on the left ("Installs into
 {instance}", shown even with one instance). The first one shows a trust notice once (native mods aren't sandboxed; the
 first build downloads Rust and can take 20 to 30 minutes; later builds are faster); `mods install` prints it too. Each
-installed native mod's row says "Installed in {instance}" and has **Open folder** (`<instance>/horizon-native-mods/`).
+installed native mod's row says "Installed in {instance}" and has **Open folder** (`<instance>/apex-native-mods/`).
 The installed list has a **Native build of {instance}** row for the instance picked on the left, never another's:
 
 - a badge: **Not built** (the version it plays isn't a `native-*` build), **Needs rebuild** (the `mods` in its
@@ -658,7 +658,7 @@ The installed list has a **Native build of {instance}** row for the instance pic
 The instance list on the left shows such an instance as "Native build · Nightly 10-28" (its base). The launcher names
 the mods, warns in red, and builds only from "I trust these mods: build"; the row shows each step and the error if
 one fails, on the instance being built only; one build runs at a time. From the command line:
-`horizon-launcher native-build [FOLDER] [--instance NAME] [--update] --trust-native-code`. FOLDER is a bundle, an
+`apex-launcher native-build [FOLDER] [--instance NAME] [--update] --trust-native-code`. FOLDER is a bundle, an
 unpacked `.hnmod`, or a folder of them; without it, the native mods turned on in the instance. It is not an MCP tool:
 trusting native code is the player's decision, never an agent's.
 
@@ -679,34 +679,34 @@ trusting native code is the player's decision, never an agent's.
    `/etc/os-release` (Debian, Ubuntu and Mint:
    `sudo apt install build-essential pkg-config libasound2-dev libudev-dev`). SteamOS has GCC without the C
    library's headers, and a read-only system: native builds don't work there yet.
-   `horizon-launcher rust status|install|remove`.
-2. **horizon-mixins**, at the commit the mods name (their `.hnmod`'s `mixins`), else `native_mods::MIXINS_REV`,
+   `apex-launcher rust status|install|remove`.
+2. **apex-mixins**, at the commit the mods name (their `.hnmod`'s `mixins`), else `native_mods::MIXINS_REV`,
    built once with that cargo (`cargo install --locked --git … --rev …`) into `native/tools/<commit>/`.
 3. **The source** of the pinned commit: GitHub's archive of it, once per commit (`native/source/<commit>/`, about
-   63 MB unpacked), with the commit in `.horizon-revision`. Never the player's own checkout. Links in the
+   63 MB unpacked), with the commit in `.apex-revision`. Never the player's own checkout. Links in the
    archive are left out: the tool refuses them and nothing needs them to build.
 4. **Mixins.** The bundles are copied first, so the build and its key use that copy whatever happens to the
-   folder meanwhile. `horizon-mixins apply` stages the modded source; the launcher copies only the files that
+   folder meanwhile. `apex-mixins apply` stages the modded source; the launcher copies only the files that
    changed into `native/stage/`, so Cargo, which goes by file times, recompiles only the crates the mods touch.
    With mods' crates, their dependencies are checked against Apex's `Cargo.lock` ("The mod's crate").
-5. **Compile**: `cargo build --locked --profile fast [--features horizon-client/mods] -p horizon-client`, into
+5. **Compile**: `cargo build --locked --profile fast [--features apex-client/mods] -p apex-client`, into
    `native/target/`. `fast` is the workspace's own profile: the release's optimizations without its link-time
    ones (`lto = false`, `codegen-units = 16`, incremental), so a rebuild recompiles and links only what changed.
    A revision whose `Cargo.toml` has no `fast` builds with `release`, the release's own command (game-build.yml);
    `native-mods.json` says which (`profile`). The Mods page's "Native build" row → "Release build: slower to build,
-   slightly faster game", `horizon-launcher settings native-profile release` or `native-build --profile release`
+   slightly faster game", `apex-launcher settings native-profile release` or `native-build --profile release`
    compile the release's own profile instead (thin LTO). The profile is in the build's key and each has its own
    folder (`native/target/fast/`, `native/target/release/`), so the two never mix and may both stay. The mods feature
    is passed while the revision still has it. Cargo downloads the locked crates from crates.io (Apex has no git
-   dependencies). The compiler and the horizon-mixins build run at the lowest priority (`rust_toolchain::low_priority`:
+   dependencies). The compiler and the apex-mixins build run at the lowest priority (`rust_toolchain::low_priority`:
    nice 19 and the idle I/O class on Linux, nice 19 on macOS, below-normal priority on Windows), so the desktop and a
    game in play stay smooth; on an otherwise idle computer they still use every core. The log is `native/build.log`;
-   a failure shows its last lines (a horizon-mixins diagnostic in one line).
+   a failure shows its last lines (a apex-mixins diagnostic in one line).
 6. **Post-build**: each mod's post-build program is built; it runs in the new version folder once that is copied
    (next step), before the version counts as installed ("Post-build steps").
 7. **Install**: a new version, `native-<commit>-<key>`, a copy of the starting version's folder (resources
    included, cloned on APFS, Btrfs and ReFS) with the built game in place of its own, and a `native-mods.json`
-   saying which release or Nightly it started from (`base`) and which commit, mods, horizon-mixins and Rust made
+   saying which release or Nightly it started from (`base`) and which commit, mods, apex-mixins and Rust made
    it. The instance the mods are installed in plays it, the default **Apex** instance included: the build
    pins its version, as picking a version does. Updates of the launcher's version leave a pinned instance where
    it is, and their clean-up never removes a native build. An instance built before this (the **Native mods**
@@ -715,7 +715,7 @@ trusting native code is the player's decision, never an agent's.
 ## Rebuilds stay on the instance's Apex
 
 A build starts from the version the instance plays (`native_mods::base_for`). When that is a native build, the
-next one compiles the same commit (its `native-mods.json`'s `horizon`) from the same game files, unless a mod pins
+next one compiles the same commit (its `native-mods.json`'s `apex`) from the same game files, unless a mod pins
 another, so a rebuild after a mod changes or is switched off compiles only what changed. A newer Apex is taken
 only when the player asks: `native-build --update` starts from the newest installed release or Nightly (a full
 rebuild); `native_mods::update_for` says which one, if any, the window can offer.
@@ -731,16 +731,16 @@ has one, is passed with `--config`.
 
 Every path the build's tools see — the toolchain, the Cargo home, `native/` and the tools' temp dir (TMPDIR,
 TMP and TEMP, where gcc, the assembler, `ld` and `cargo install` put their scratch files) — comes from
-`backend::build_dir`: the launcher's data folder, resolved (never through a link, which horizon-mixins
+`backend::build_dir`: the launcher's data folder, resolved (never through a link, which apex-mixins
 refuses). On Windows, when that path is not spelled in ASCII — a Cyrillic user name in `%APPDATA%`, which
 MinGW-w64's tools can't open — it is the folder's own short (8.3) name where the volume keeps one, else a
-folder under `ProgramData` named for it (`horizon-launcher-<id>`); a data folder that is itself a junction to
+folder under `ProgramData` named for it (`apex-launcher-<id>`); a data folder that is itself a junction to
 a drive with an ASCII path resolves to that and needs neither.
 
 ## Install from GitHub
 
 An author can ship a native mod without a registry pull request per version: the player installs it from a
-GitHub link, on the Mods page ("Add from GitHub") or with `horizon-launcher mods add-github <url>
+GitHub link, on the Mods page ("Add from GitHub") or with `apex-launcher mods add-github <url>
 [--mod ID | --all] [--instance NAME] --trust-native-code`. The link is `https://github.com/<owner>/<repo>`
 (its latest release), `.../releases/tag/<tag>`, `.../tree/<ref>` or `.../commit/<sha>`.
 
@@ -749,21 +749,21 @@ GitHub link, on the Mods page ("Add from GitHub") or with `horizon-launcher mods
   branch that moves. A release with a `.hnmod` asset installs that file (its SHA-256 is compared with the one GitHub
   lists). With no release or no such asset, the launcher fetches
   `codeload.github.com/<owner>/<repo>/tar.gz/<sha>` and looks in it for mods by the rules of
-  `native-build <folder>`: a folder with `horizon-mixin.toml`, or an unpacked `.hnmod` (`horizon-native.json`).
+  `native-build <folder>`: a folder with `apex-mixin.toml`, or an unpacked `.hnmod` (`apex-native.json`).
   Several mods: they are listed, and the player picks one or installs all. A source folder must pin the Apex commit
-  (`[compatibility] horizon_revision`); the launcher packs its Rust, TOML and `data/` files into a `.hnmod`.
+  (`[compatibility] apex_revision`); the launcher packs its Rust, TOML and `data/` files into a `.hnmod`.
   A release that ships only a content mod (`.hmod`) says "not supported yet": installing `.hmod` files from a link
   is not built.
-- **Checked like the registry's files.** The `.hnmod` is read as `horizon_mods::index::native::Bundle::read` reads a
+- **Checked like the registry's files.** The `.hnmod` is read as `apex_mods::index::native::Bundle::read` reads a
   registry file (only Rust, TOML and data under `mixins/<id>/`, size limits, nothing run) before it is installed.
 - **Said first.** Before anything is downloaded: "not reviewed by the Apex registry; native mods run with full
   access to this computer; read the source", with a link to the exact commit. The command needs
   `--trust-native-code`, as `native-build` does. It is not an MCP tool: trusting native code is the player's
   decision, never an agent's.
-- **Origin kept.** `horizon-native-mods/<id>.origin.json` beside the `.hnmod`: owner/repo, release tag (for a
+- **Origin kept.** `apex-native-mods/<id>.origin.json` beside the `.hnmod`: owner/repo, release tag (for a
   release), commit, asset name and the SHA-256 of the installed file. `mods list` shows "from GitHub: owner/repo @
   tag" (or the commit's first 7 digits).
-- **Updates.** `horizon-launcher mods update-github [ID] [--check]` compares a mod from a release with the
+- **Updates.** `apex-launcher mods update-github [ID] [--check]` compares a mod from a release with the
   repository's latest release, and a mod from a commit with the head of the default branch; a newer one is
   installed with the same warning and `--trust-native-code`. `mods remove <id>` removes it. A mod already
   installed from the registry (or by hand) is never replaced.
@@ -772,18 +772,18 @@ Installing turns Native mods on, as any native mod does; then build as usual.
 
 ## Cache and disk
 
-The key hashes the commit, the horizon-mixins commit, Rust's version, the profile and features, and every file of
+The key hashes the commit, the apex-mixins commit, Rust's version, the profile and features, and every file of
 every bundle. The same set on the same commit is never built twice. A change gives a new build, and
-`native/target/` stays, so a rebuild compiles only `horizon-client` and what the mods touched.
+`native/target/` stays, so a rebuild compiles only `apex-client` and what the mods touched.
 
-**Incremental rebuilds.** With `fast`, Cargo recompiles only the changed parts of `horizon-client`, not the whole
+**Incremental rebuilds.** With `fast`, Cargo recompiles only the changed parts of `apex-client`, not the whole
 crate with LTO. This holds because the stage (`native/stage/`) is one folder for every build and the launcher writes
 only the files whose content changed (Cargo goes by file times), switching mods on the same commit reuses the same
 `native/target/`, and the launcher removes `CARGO_INCREMENTAL` and `CARGO_BUILD_INCREMENTAL` from the build's
 environment. `release` has no incremental compilation (the release profile's own).
 
 **Build status.** Before it starts, the build says which case it is, with the profile: "Up to date (no build needed)",
-"Incremental rebuild: mods X, Y" (or "Apex commit a to b", "horizon-mixins"; compared with the last build of that
+"Incremental rebuild: mods X, Y" (or "Apex commit a to b", "apex-mixins"; compared with the last build of that
 profile, kept in `native/built.json`) or "First build: the whole game (several minutes)". While compiling it shows the
 crate, crates done of the total (Cargo's own progress), and the time taken; afterwards "Built in 42 s (fast,
 incremental)". The window shows it in the Native mods row, `native-build` prints each step with its time on standard
@@ -795,8 +795,8 @@ source downloaded first):
 
 | What | Time |
 |---|---|
-| First build: Rust, horizon-mixins, the whole game (384 crates) | 4 min 29 s in all; 3 min 6 s of compiling the game; `native/target/` about 2 GB |
-| One mod switched off, rebuild | 56 s in all, 51 s of compiling (only `horizon-client`) |
+| First build: Rust, apex-mixins, the whole game (384 crates) | 4 min 29 s in all; 3 min 6 s of compiling the game; `native/target/` about 2 GB |
+| One mod switched off, rebuild | 56 s in all, 51 s of compiling (only `apex-client`) |
 | That mod switched on again | under 1 s: the kept build plays again |
 | Nothing changed, rebuild | 1 s, nothing compiled |
 
@@ -805,13 +805,13 @@ post-build step), measured the same way on 2026-10-30 (Rust already downloaded):
 
 | What | Time | Compiled |
 |---|---|---|
-| First build (horizon-mixins, the crates, the whole game) | 3 min 27 s; 2 min 24 s compiling the game | 343 crates |
-| A helper's code changed | 48 s (43 s compiling) | `horizon-client` only: the mod's crate is kept |
-| The mod's crate changed | 11 s (6 s compiling) | `crate-demo-engine`, then `horizon-client` |
+| First build (apex-mixins, the crates, the whole game) | 3 min 27 s; 2 min 24 s compiling the game | 343 crates |
+| A helper's code changed | 48 s (43 s compiling) | `apex-client` only: the mod's crate is kept |
+| The mod's crate changed | 11 s (6 s compiling) | `crate-demo-engine`, then `apex-client` |
 | Nothing changed | under 1 s | nothing |
 
 The same set with the `release` profile took 7 min 6 s for the first build and 2 min 34 s per rebuild (2 min 28 s of
-compiling `horizon-client`, mostly its link-time optimization). In play, a `fast` game drew the same frames per
+compiling `apex-client`, mostly its link-time optimization). In play, a `fast` game drew the same frames per
 second as the Nightly's own `release` build (vsync-bound, about 112 FPS at 120 Hz), with about 0.1 ms more CPU per
 frame (0.57 to 0.68 ms against 0.51 to 0.54 ms).
 
@@ -821,15 +821,15 @@ Measured before builds used `fast`, with the `release` profile, on 2026-10-28 on
 | What | Size, time |
 |---|---|
 | Rust 1.99.1 (`<launcher data>/rust/`) | 453 MB; 58 s to download and unpack |
-| horizon-mixins (`native/tools/`) | 7 MB; built once in 19 s |
+| apex-mixins (`native/tools/`) | 7 MB; built once in 19 s |
 | Crates in the launcher's Cargo home (`<launcher data>/cargo/`) | 289 MB |
 | Source of one commit, and the stage | 64 MB each |
 | First build: the whole game | 9 min 10 s of compiling, 9 min 41 s in all; `native/target/` 1.5 GB |
-| Rebuild after a helper's code changed | 2 min 46 s of compiling (only `horizon-client`), 2 min 53 s in all |
-| A change horizon-mixins ignores (a comment) | nothing compiled; 31 s, mostly the version folder's copy |
+| Rebuild after a helper's code changed | 2 min 46 s of compiling (only `apex-client`), 2 min 53 s in all |
+| A change apex-mixins ignores (a comment) | nothing compiled; 31 s, mostly the version folder's copy |
 
 Measured 2026-10-29 on Windows 11 (Ryzen 7 9800X3D, 16 threads), the same mod and Nightly, an empty `native/target/`
-(horizon-mixins, the source and the crates were already downloaded):
+(apex-mixins, the source and the crates were already downloaded):
 
 | What | Size, time |
 |---|---|
@@ -852,20 +852,20 @@ each was built or last used): switching a mod off and on again plays the kept bu
   shows a warning in red before every build: the mods run with full access to the computer, and their ids and
   versions. The Mods page says who made each one, and "Not made or endorsed by the Apex project" for any mod not
   Apex's own.
-- **The registry** (horizon-rust/horizon-mods) lists them as their own kind, `native-mod`, only after a maintainer
+- **The registry** (apex-rust/apex-mods) lists them as their own kind, `native-mod`, only after a maintainer
   has read the source and the repository they come from. Its entry names the GitHub repository (`repo`); each
   release of it with a `.hnmod` asset is a version once the bundle passes the registry's checks, with no further
   review (nothing is built or run by the registry; the player's launcher builds it behind its warning). The `.hnmod` contains `.rs` and `.toml` files and may contain data files under
   `mixins/<id>/data/` or a crate's `data/`. The launcher checks the bundle without running anything. Native code is trusted.
   The file is pinned by SHA-256 like every registry file, and the version, game and pins are the bundle's own
-  `horizon-native.json`. `revoked.toml` takes a bad release down.
+  `apex-native.json`. `revoked.toml` takes a bad release down.
   A content mod's entry may turn `native-mod` once (never back): its `.hmod` versions stay published and
   are checked as `.hmod`s, the index lists only its `.hnmod` versions, and the launcher's update keeps the
   player's `.hmod` (the game runs it until a native build has the mod, then skips it); removing the mod removes both.
 - **Isolation of data.** Native mods run only in the instance they are installed in, with its worlds, options and
   logs (the default Apex instance's, when they are installed there); other instances play their own versions.
-- What this does not do: sandbox the compiled game. horizon-mixins' checks stop mistakes, not a malicious helper
-  ([security notes](https://github.com/horizon-rust/horizon-mixins/blob/main/docs/security.md)).
+- What this does not do: sandbox the compiled game. apex-mixins' checks stop mistakes, not a malicious helper
+  ([security notes](https://github.com/apex-rust/apex-mixins/blob/main/docs/security.md)).
 
 ## Multiplayer
 
@@ -877,7 +877,7 @@ each was built or last used): switching a mod off and on again plays the kept bu
 ## Left to do
 
 - A list of every native build, to delete the ones no instance needs.
-- A prebuilt horizon-mixins from its CI instead of building it on the player's computer.
+- A prebuilt apex-mixins from its CI instead of building it on the player's computer.
 
 ## Named hook catalog (draft)
 
@@ -903,7 +903,7 @@ A native server tick hook can call `native_server_block` with its context, a dim
 ### Server commands and players
 
 For mods that run where the world is simulated: a dedicated server, a LAN host, single player's server thread
-(`crates/horizon-client/src/game/native_server.rs`). The SMP mod of the official server is built on them
+(`crates/apex-client/src/game/native_server.rs`). The SMP mod of the official server is built on them
 ([smp.md](smp.md)).
 
 - **`native_register_commands(commands)`**: push a `NativeCommand` per usage, asked once when a world opens to
@@ -980,7 +980,7 @@ For mods that run where the world is simulated: a dedicated server, a LAN host, 
 
 ### Mobs
 
-API 37, `crates/horizon-client/src/game/native_mobs.rs`: helpers for server mods, for the level in place, on a server only (on a
+API 37, `crates/apex-client/src/game/native_mobs.rs`: helpers for server mods, for the level in place, on a server only (on a
 client they do nothing, and the readers give nothing). Each takes the `dimension` (`minecraft:overworld`) of the level it means, as
 `native_set_block` does, and is refused when another level is in place. The per-level tick hooks (API 23) run with a defined level in
 place; `native_server_tick` does not define one, so name the dimension and expect a refusal there.
@@ -1002,11 +1002,11 @@ place; `native_server_tick` does not define one, so name the dimension and expec
 Changing loot a mod didn't make, as NeoForge's `LootTableLoadEvent` and global loot modifiers and Fabric's
 `LootTableEvents.MODIFY` and `MODIFY_DROPS` do. A mod's own loot function and condition kinds are #5451.
 
-- **`horizon_world::loot::native_loot_table_load(id, table)`**: each table's JSON as it loads, after the data packs'. Push a pool
+- **`apex_world::loot::native_loot_table_load(id, table)`**: each table's JSON as it loads, after the data packs'. Push a pool
   onto `table["pools"]` or an entry onto a pool's `entries`; chests, block and mob drops, fishing and the rest then roll the
   changed table. Keep a replaced table's `random_sequence`: a mob's table without one drops nothing. It runs wherever tables load,
   a client too, so make the same change each time; a `/reload` may keep the tables already loaded. It is a free function in
-  `crates/horizon-world/src/loot.rs`, so a helper injected there compiles inside `horizon-world`, without `crate::game`.
+  `crates/apex-world/src/loot.rs`, so a helper injected there compiles inside `apex-world`, without `crate::game`.
 - **`native_loot_drops(context, drops)`**: the items a broken block or a dead mob is about to drop, after its tables rolled (a
   mob's worn, held and carried items and inventory too, not an enderman's carried block or a copper golem's preserved equipment).
   Add, change or take out stacks; empty ones don't drop. `NativeLootDrops` says what dropped them: its own loot table (empty when
@@ -1036,7 +1036,7 @@ During a machine's own tick its block entity is out of the world, so these answe
 
 ### Entities
 
-`crates/horizon-client/src/game/native_entities.rs`: helpers for server mods, for the level in place, on a server only. Each
+`crates/apex-client/src/game/native_entities.rs`: helpers for server mods, for the level in place, on a server only. Each
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_summon(dimension, kind, pos, nbt)` spawns an entity of `kind` from its compound, as `/summon <kind> <pos> <nbt>`
@@ -1055,7 +1055,7 @@ client, so a call a tick looks smooth.
 
 ### Advancement triggers
 
-`crates/horizon-client/src/game/native_criteria.rs`: a mod's own criteria triggers, as a NeoForge mod registers a
+`crates/apex-client/src/game/native_criteria.rs`: a mod's own criteria triggers, as a NeoForge mod registers a
 `CriterionTrigger` and calls its `SimpleCriterionTrigger.trigger`. The advancement is an ordinary file of a content mod
 or a world's data pack (`data/mymod/advancement/connect_a_pipe.json`) whose criterion names the mod's trigger and
 whatever conditions the mod reads:
@@ -1086,7 +1086,7 @@ whatever conditions the mod reads:
 
 ### Explosions
 
-`crates/horizon-client/src/game/native_explosions.rs`: a helper for server mods, for the level in place, on a server only. It
+`crates/apex-client/src/game/native_explosions.rs`: a helper for server mods, for the level in place, on a server only. It
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does, and is refused when another
 level is in place.
 
@@ -1109,7 +1109,7 @@ it moves only what the player sees, not where they are or aim.
 
 ### A player's motion
 
-`crates/horizon-client/src/game/native_motion.rs`: a push on a client, a flying speed on a server.
+`crates/apex-client/src/game/native_motion.rs`: a push on a client, a flying speed on a server.
 
 - `native_push_player([x, y, z])` (client) adds a push to the player's own velocity, in blocks a tick, as an
   explosion's knockback does: the player's own game moves them. The server didn't send it, so on a LAN or dedicated
@@ -1145,7 +1145,7 @@ plays nothing.
 
 ### Falling blocks
 
-`crates/horizon-client/src/game/native_falling.rs`: a helper for server mods, for the level in place, on a server only. It
+`crates/apex-client/src/game/native_falling.rs`: a helper for server mods, for the level in place, on a server only. It
 names the level it means by its `dimension` (`minecraft:overworld`), as `native_set_block` does.
 
 - `native_spawn_falling_block(dimension, state, pos, velocity, falling)` throws a falling block of `state` from `pos` (its
@@ -1159,12 +1159,12 @@ names the level it means by its `dimension` (`minecraft:overworld`), as `native_
 
 ### Mod messages
 
-API 40, `crates/horizon-client/src/game/native_net.rs`: bytes between a mod's server half and its client half, on the
-one custom payload channel `horizon:mod_net`. A vanilla client never gets them, and a vanilla server isn't sent any.
+API 40, `crates/apex-client/src/game/native_net.rs`: bytes between a mod's server half and its client half, on the
+one custom payload channel `apex:mod_net`. A vanilla client never gets them, and a vanilla server isn't sent any.
 
 - `native_net_send_to_player(player, channel, data)` on the server and `native_net_send_to_server(channel, data)` on the
   client send one. The channel is `mod_id:name`: the id `[a-z0-9_]`, the name `[a-z0-9_./-]`, each 1 to 64 characters;
-  `minecraft` and `horizon` are the game's. The data is at most 30 000 bytes, and 32 messages a tick go each way per
+  `minecraft` and `apex` are the game's. The data is at most 30 000 bytes, and 32 messages a tick go each way per
   player. Ok means accepted: a player who left doesn't get it. Sending to the server is an error until the player has
   joined.
 - `native_net_from_client(player, channel, data)` and `native_net_from_server(channel, data)` hear them, all mods on every
@@ -1174,7 +1174,7 @@ one custom payload channel `horizon:mod_net`. A vanilla client never gets them, 
 
 ### Server menus
 
-API 10, `crates/horizon-client/src/game/native_menus.rs`: menus a server mod builds from ordinary items, which a
+API 10, `crates/apex-client/src/game/native_menus.rs`: menus a server mod builds from ordinary items, which a
 stock client shows as a chest (`generic_9x1` to `generic_9x6`); nothing is installed on the player's side.
 
 - `native_open_menu(uuid, rows, title, items)` opens one in place of the player's open menu (its window id);
@@ -1195,8 +1195,8 @@ player whose state is (inside `native_perform_command`): call them from a menu h
 
 ### Render hook points
 
-`crates/horizon-client-render/src/gfx/native_render.rs`: the renderer's own hook points, free functions rather than
-`Game` methods, which a bundle targets as `horizon_client_render::gfx::native_render::native_<name>`. They run on the
+`crates/apex-client-render/src/gfx/native_render.rs`: the renderer's own hook points, free functions rather than
+`Game` methods, which a bundle targets as `apex_client_render::gfx::native_render::native_<name>`. They run on the
 render thread with the frame's wgpu objects; what a mod draws there shows in that frame.
 
 - `native_world_drawn(world)`: the world is drawn (sky, terrain, entities, particles, weather and the world post pass),
@@ -1211,8 +1211,8 @@ render thread with the frame's wgpu objects; what a mod draws there shows in tha
 
 ### Items' default components
 
-`crates/horizon-world/src/item_defaults.rs`: `native_modify_default_components(item, components)`, a free function a
-bundle targets as `horizon_world::item_defaults::native_modify_default_components` (NeoForge's
+`crates/apex-world/src/item_defaults.rs`: `native_modify_default_components(item, components)`, a free function a
+bundle targets as `apex_world::item_defaults::native_modify_default_components` (NeoForge's
 `ModifyDefaultComponentsEvent`). `components` is the item's entry in `items.json`, vanilla's default-component report:
 insert or replace a key to set a component (`"minecraft:max_stack_size": 16`), remove it to take the component away.
 Any item can be changed, vanilla's included. Write values as vanilla's codec writes them: nothing decodes them with it.

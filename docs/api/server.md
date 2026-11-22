@@ -1,11 +1,11 @@
 # Server API
 
-What a host, a panel or a bot can do with a Apex server: the `horizon-server` commands, `server.toml` and the
+What a host, a panel or a bot can do with a Apex server: the `apex-server` commands, `server.toml` and the
 control API. How to host: [hosting.md](../hosting.md); the design: [server.md](../server.md).
 
 ## Overview
 
-`horizon-server` sets up a server folder, runs the game as a dedicated server under a supervisor (restarts on a crash,
+`apex-server` sets up a server folder, runs the game as a dedicated server under a supervisor (restarts on a crash,
 backups on a schedule, updates with a rollback), and lets other programs manage it through a local HTTP API with a
 token. The web panel uses that API, and so can a moderation bot: players, kick, ban and pardon (by name or
 address), op and deop, the whitelist, and metrics as Prometheus text.
@@ -18,15 +18,15 @@ address), op and deop, the whitelist, and metrics as Prometheus text.
 
 ## Guide
 
-1. `horizon-server init` in an empty folder, then `horizon-server start` ([hosting.md](../hosting.md)).
-2. From a script: `horizon-server status --json`, `horizon-server cmd say hi`, `horizon-server backup`. By hand:
-   `horizon-server console` attaches to the running server (live log, status header, command line).
-   From an AI agent: `horizon-server --dir /srv/minecraft mcp` is an MCP server on stdio with a tool per endpoint
+1. `apex-server init` in an empty folder, then `apex-server start` ([hosting.md](../hosting.md)).
+2. From a script: `apex-server status --json`, `apex-server cmd say hi`, `apex-server backup`. By hand:
+   `apex-server console` attaches to the running server (live log, status header, command line).
+   From an AI agent: `apex-server --dir /srv/minecraft mcp` is an MCP server on stdio with a tool per endpoint
    (`players`, `ban`, `events`, `set_config`...); add it to the agent's MCP servers, run as the server's user.
-3. From a program: read `.horizon/api.json` (address and token), then `GET /api/v1/status` with
+3. From a program: read `.apex/api.json` (address and token), then `GET /api/v1/status` with
    `Authorization: Bearer <token>`. A program that runs elsewhere or keeps its settings (a Discord bot) uses a
    fixed address and token: `[api] bind` and `[api] token` in `server.toml` ([hosting.md](../hosting.md#a-bot-or-a-tool-of-your-own)).
-4. Moderate: `horizon-server players`, `horizon-server ban NAME [REASON]`, or `POST /api/v1/players/ban`. An
+4. Moderate: `apex-server players`, `apex-server ban NAME [REASON]`, or `POST /api/v1/players/ban`. An
    action runs vanilla's console command on the running game, so it kicks, logs and saves `banned-players.json`
    exactly as an operator's `/ban` does; the reply says whether anything `changed` and has the console's lines.
 5. Monitor: point Prometheus (or any scraper that sends a bearer token) at `GET /api/v1/metrics/prometheus`.
@@ -42,13 +42,13 @@ address), op and deop, the whitelist, and metrics as Prometheus text.
 
 ## Reference
 
-[server-reference.md](server-reference.md), generated from `horizon-server`'s source: the help text, every
+[server-reference.md](server-reference.md), generated from `apex-server`'s source: the help text, every
 `server.toml` key with its default and the `server.properties` key it writes, and every endpoint.
 
 ## Examples
 
 ```sh
-token=$(jq -r .token .horizon/api.json); address=$(jq -r .address .horizon/api.json)
+token=$(jq -r .token .apex/api.json); address=$(jq -r .address .apex/api.json)
 curl -s -H "Authorization: Bearer $token" "http://$address/api/v1/status"
 curl -s -H "Authorization: Bearer $token" -d '{"line": "list"}' "http://$address/api/v1/command"
 curl -s -H "Authorization: Bearer $token" "http://$address/api/v1/players"
@@ -93,6 +93,6 @@ addition; a change to one starts `/api/v2`, served beside `/api/v1`.
 - Vanilla's management protocol (`management-server-*`): the WebSocket, its authentication, `rpc.discover`,
   `players`, `players/kick`, `server/{status,save,stop,system_message}`, and the four lists' getters.
 - The management protocol's TLS (on by default, as in vanilla): a PKCS12 keystore, or a self-signed one generated
-  in `.horizon/` when none is set.
+  in `.apex/` when none is set.
 - The management protocol's `allowlist/{add,remove,set,clear}` and `bans/{add,remove,set,clear}`.
 - The management protocol's `ip_bans/{add,remove,set,clear}` and `operators/{add,remove,set,clear}`.

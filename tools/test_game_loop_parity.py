@@ -114,7 +114,7 @@ def scroll_cases(rng):
                     slot=rng.randrange(9), ops=ops)
         yield case
         yield dict(case, spectator=True)
-    # Bounds, recovery from each bound, fractional accumulation, and horizontal-only input.
+    # Bounds, recovery from each bound, fractional accumulation, and apextal-only input.
     yield dict(t='scroll', discrete=False, sens=lab.dbits(1.0), slot=4, spectator=True,
                ops=[[lab.dbits(x), lab.dbits(y)] for x, y in
                     [(0, 100), (0, -1), (0, -100), (0, 1), (0, .4), (0, .7),
@@ -154,8 +154,8 @@ def main():
              'FramerateLimiter and vsync present-mode selection are covered by Rust unit tests only.')
     harness.differential(
         'rust-game-loop-parity', 'VanillaGameLoopOracle', 'game_loop_probe', make_cases, scope,
-        sources=[lab.ROOT / 'crates/horizon-client/src/clock.rs']
-        + [lab.ROOT / f'crates/horizon-client-input/src/{name}.rs' for name in ('mouse', 'window', 'keymapping')])
+        sources=[lab.ROOT / 'crates/apex-client/src/clock.rs']
+        + [lab.ROOT / f'crates/apex-client-input/src/{name}.rs' for name in ('mouse', 'window', 'keymapping')])
 
 
 if __name__ == '__main__':

@@ -25,35 +25,35 @@ not a small performance patch.
 
 ## Rendering findings
 
-- [`c9614815f`](https://github.com/horizon-rust/horizon/commit/c9614815f)
+- [`c9614815f`](https://github.com/apex-rust/apex/commit/c9614815f)
   introduces a submission thread and can draw the first-person hand in the world
-  pass. Follow-up [`fea41f867`](https://github.com/horizon-rust/horizon/commit/fea41f867)
+  pass. Follow-up [`fea41f867`](https://github.com/apex-rust/apex/commit/fea41f867)
   limits automatic threaded submission to Linux after severe Metal regressions.
   Preserve that platform gate; Android requires its own comparison. A rendering
   thread's existence alone is not evidence of higher mobile FPS.
-- [`27a5ccdbc`](https://github.com/horizon-rust/horizon/commit/27a5ccdbc)
+- [`27a5ccdbc`](https://github.com/apex-rust/apex/commit/27a5ccdbc)
   adds an optional separate arena for translucent geometry, off by default.
   The initial implementation excludes ordinary flat-index frames and can grow
   pages toward 2 GiB. Do not transplant those allocations as Android defaults.
-  Later [`18ac513e8`](https://github.com/horizon-rust/horizon/commit/18ac513e8)
+  Later [`18ac513e8`](https://github.com/apex-rust/apex/commit/18ac513e8)
   bounds bindings to used ranges, avoiding GPU initialization of unused tails;
-  [`b91226cac`](https://github.com/horizon-rust/horizon/commit/b91226cac)
+  [`b91226cac`](https://github.com/apex-rust/apex/commit/b91226cac)
   adds shrinking after terrain settles. Neither follow-up is included in the
   published candidate above.
-- [`b0f9532aa`](https://github.com/horizon-rust/horizon/commit/b0f9532aa)
+- [`b0f9532aa`](https://github.com/apex-rust/apex/commit/b0f9532aa)
   subsequently supports translucent arenas in flat-index frames. It changes
   section IDs, arena moves, index addressing and draw binding together. Taking
   only its draw-call reduction would omit necessary ownership changes. Test water,
   glass, arena growth/shrink, resource reloads and native/classic shader packs.
-- [`873ff80cd`](https://github.com/horizon-rust/horizon/commit/873ff80cd)
+- [`873ff80cd`](https://github.com/apex-rust/apex/commit/873ff80cd)
   defers buffer release off the render thread. It targets frame spikes on page
   retirement rather than steady-state fragment cost. Android GLES context use,
   bind-group ownership and submission lifetime require review before adaptation.
-- [`45129f311`](https://github.com/horizon-rust/horizon/commit/45129f311)
+- [`45129f311`](https://github.com/apex-rust/apex/commit/45129f311)
   releases unused blur/outline targets. Our blur caches bind groups, so simply
   clearing textures would retain their views through those groups. Any adaptation
   must release dependent references and measure menu re-entry allocation spikes.
-- [`2b874aea1`](https://github.com/horizon-rust/horizon/commit/2b874aea1)
+- [`2b874aea1`](https://github.com/apex-rust/apex/commit/2b874aea1)
   halves blur dimensions only on software adapters. Hardware GPUs keep their
   previous path. It is not a demonstrated Adreno blur optimization.
 

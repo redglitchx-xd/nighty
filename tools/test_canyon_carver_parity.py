@@ -28,7 +28,7 @@ def corpus(resources):
         shape={**config['shape'],'width_smoothness':[1,2,3,2**31-1][mode%4],
                'vertical_radius_center_factor':[-1,0,0.5,2][mode%4],
                'distance_factor':[-1,0,0.001,0.5,1,2,4,0.75][mode%8],
-               'horizontal_radius_factor':[0,0.1,1,3][mode%4],
+               'apextal_radius_factor':[0,0.1,1,3][mode%4],
                'thickness':[-1,0,1,6][mode%4],'y_scale':[-1,0,1,4][mode%4]}
         custom={**config,'shape':shape,'vertical_rotation':[-0.5,0,0.5,1][mode%4],'y':{'absolute':40}}
         yield {'definition':encode(custom),'context':[-64,384,63],'legacy':bool(mode%2),'seed':mode*971,'target':[0,0],'origin':[0,0],'repeats':2,'fail':[-1,0,1,63][mode//8]}
@@ -51,10 +51,10 @@ def main():
     report_path=build/"report.json";report_path.unlink(missing_ok=True)
     if args.prepare:lab.prepare()
     lock,jars,libraries=base.verify_artifacts()
-    oracle=lab.ROOT/"mods/horizon/src/test/java/dev/horizonlab/parity/VanillaCanyonCarverOracle.java"
+    oracle=lab.ROOT/"mods/apex/src/test/java/dev/apexlab/parity/VanillaCanyonCarverOracle.java"
     helper=oracle.with_name("VanillaAnchorOracle.java")
-    sources=[oracle,helper,Path(__file__),lab.ROOT/"tools/test_worldgen_parity.py",lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/lab.py",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock",lab.ROOT/"crates/horizon-core/Cargo.toml",lab.ROOT/"crates/horizon-world/Cargo.toml",
-             *sorted((lab.ROOT/"crates/horizon-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/horizon-world/src").rglob("*.rs")),lab.ROOT/"crates/horizon-world/examples/probe/canyon_carver_fixture.rs"]
+    sources=[oracle,helper,Path(__file__),lab.ROOT/"tools/test_worldgen_parity.py",lab.ROOT/"tools/test_rust_parity.py",lab.ROOT/"tools/lab.py",lab.ROOT/"Cargo.toml",lab.ROOT/"Cargo.lock",lab.ROOT/"crates/apex-core/Cargo.toml",lab.ROOT/"crates/apex-world/Cargo.toml",
+             *sorted((lab.ROOT/"crates/apex-core/src").rglob("*.rs")),*sorted((lab.ROOT/"crates/apex-world/src").rglob("*.rs")),lab.ROOT/"crates/apex-world/examples/probe/canyon_carver_fixture.rs"]
     tested_sources=base.source_hashes(sources)
     resources=worldgen.registry_resources(jars['server'],'carver')
     if not resources or resources!=worldgen.registry_resources(jars['client'],'carver'):raise ValueError('reference carver resources differ')
@@ -65,14 +65,14 @@ def main():
         with (build/(name+".log")).open("w",encoding="utf-8") as log:base.run(list(map(str,command)),stdout=log,stderr=subprocess.STDOUT)
     dependency_path=os.pathsep.join(map(str,libraries))
     run(["javac","--release",lock["minecraft"]["java_major"],"-proc:none","-cp",str(jars["server"])+os.pathsep+dependency_path,"-d",classes,oracle,helper],"compile-java")
-    run(["cargo","build","--release","-p","horizon-world","--example","world_probe"],"compile-rust")
+    run(["cargo","build","--release","-p","apex-world","--example","world_probe"],"compile-rust")
     metadata=json.loads(subprocess.check_output(["cargo","metadata","--no-deps","--format-version","1"],cwd=lab.ROOT,text=True))
     binary=Path(metadata["target_directory"])/"release/examples"/("world_probe.exe" if os.name=="nt" else "world_probe")
     run([binary,"canyon_carver_fixture",build],"rust")
     references=[]
     for side,jar in jars.items():
         reference=build/f"{side}.txt"
-        run(["java","-Xmx512M","-cp",os.pathsep.join([str(classes),str(jar),dependency_path]),"dev.horizonlab.parity.VanillaCanyonCarverOracle",side,build],side)
+        run(["java","-Xmx512M","-cp",os.pathsep.join([str(classes),str(jar),dependency_path]),"dev.apexlab.parity.VanillaCanyonCarverOracle",side,build],side)
         matched=base.compare(reference,build/"rust.txt")
         references.append({"side":side,"jar_sha256":lab.digest(jar,"sha256"),"output_sha256":lab.digest(reference,"sha256"),"matched_output_lines":matched})
         print(f"{side}: {matched:,} canyon-carver output lines match Rust",flush=True)
@@ -81,7 +81,7 @@ def main():
             "java":subprocess.check_output(["java","--version"],text=True).splitlines()[0],"rustc":subprocess.check_output(["rustc","--version"],text=True).strip(),
             "fixtures":len(fixtures),"carve_attempts":sum(f["repeats"] for f in fixtures),"bundled_canyon_definitions":1,
             "sources_sha256":tested_sources,"fixtures_sha256":tested_fixtures,"rust_output_sha256":lab.digest(build/"rust.txt","sha256"),"references":references,
-            "scope":"Actual WorldCarver.DIRECT_CODEC, CanyonWorldCarver.isStartChunk and CanyonWorldCarver.carve using the independently authenticated bundled canyon definition. Compares ordered output cells including duplicates, partial output failures, resulting mask intervals and subsequent random longs across repeated invocations. Covers both outer random modes, local legacy streams, height-dependent width factors, horizontal/vertical radius variation, four generation heights, negative/distant/extreme coordinates and adjacent/far origin chunks. Custom shapes exercise width smoothness, path length, degenerate radii and failure branches; malformed selected codec fields are tested. Gaussian/weighted provider codecs, neighbor-carver seeding/biome selection, blending and complete worlds remain outside this scope. Rust bounds paths to 4096 steps, height to 4064 and total candidates to 2^24 per invocation."}
+            "scope":"Actual WorldCarver.DIRECT_CODEC, CanyonWorldCarver.isStartChunk and CanyonWorldCarver.carve using the independently authenticated bundled canyon definition. Compares ordered output cells including duplicates, partial output failures, resulting mask intervals and subsequent random longs across repeated invocations. Covers both outer random modes, local legacy streams, height-dependent width factors, apextal/vertical radius variation, four generation heights, negative/distant/extreme coordinates and adjacent/far origin chunks. Custom shapes exercise width smoothness, path length, degenerate radii and failure branches; malformed selected codec fields are tested. Gaussian/weighted provider codecs, neighbor-carver seeding/biome selection, blending and complete worlds remain outside this scope. Rust bounds paths to 4096 steps, height to 4064 and total candidates to 2^24 per invocation."}
 
     lab.write_json(report_path,report);print(f"Scoped canyon-carver parity passed: {report_path}")
 

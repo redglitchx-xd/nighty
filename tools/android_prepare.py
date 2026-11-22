@@ -129,10 +129,10 @@ def main():
     java_home = args.java_home or download_jdk(manifest, private / 'jdk')
     environment = dict(os.environ, JAVA_HOME=str(java_home.resolve()))
     isolated = Path(tempfile.mkdtemp(prefix='prepare-', dir=private))
-    for key in ['HORIZON_HOME', 'HORIZON_LAUNCHER_HOME', 'XDG_DATA_HOME', 'XDG_CONFIG_HOME']:
+    for key in ['APEX_HOME', 'APEX_LAUNCHER_HOME', 'XDG_DATA_HOME', 'XDG_CONFIG_HOME']:
         environment[key] = str(isolated / key.lower())
-    environment.update(HORIZON_LAUNCHER_NO_SELF_UPDATE='1', HORIZON_NO_AUDIO='1')
-    subprocess.run(['cargo', 'run', '-p', 'horizon-prepare', '--', '--root', str(ROOT), '--prepare',
+    environment.update(APEX_LAUNCHER_NO_SELF_UPDATE='1', APEX_NO_AUDIO='1')
+    subprocess.run(['cargo', 'run', '-p', 'apex-prepare', '--', '--root', str(ROOT), '--prepare',
                     '--minecraft-dir', str(minecraft), '--server-jar', str(server)],
                    cwd=ROOT, env=environment, check=True)
     package_resources(args.version, private)
@@ -141,8 +141,8 @@ def main():
 def package_resources(version, private):
     if version != lab.pinned_version():
         raise ValueError('Only the engine-pinned Minecraft version is supported')
-    resources = ROOT / '.local/horizon-client' / version
-    if not (resources / 'horizon-resources.json').is_file():
+    resources = ROOT / '.local/apex-client' / version
+    if not (resources / 'apex-resources.json').is_file():
         raise FileNotFoundError('Prepare the resources before packaging them')
     serve = private / 'serve'
     serve.mkdir(parents=True, exist_ok=True)

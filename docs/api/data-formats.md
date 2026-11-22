@@ -7,15 +7,15 @@ and worlds. Each entry names its version field, its documentation and its level 
 
 | Format | Where | Version | Level | Documented in |
 | --- | --- | --- | --- | --- |
-| Benchmark report | the benchmark's output, the local log, uploads | `"format": "horizon-benchmark-report"`, `"version": 1` | stable | [benchmark-report.md](../benchmark-report.md) |
+| Benchmark report | the benchmark's output, the local log, uploads | `"format": "apex-benchmark-report"`, `"version": 1` | stable | [benchmark-report.md](../benchmark-report.md) |
 | Telemetry batch | `POST /v1/batch` from the launcher | `"schema": 1` | stable | [telemetry.md](../telemetry.md) |
 | Telemetry consent | `telemetry/consent.json` in the game folder | `"version": 2` | stable | [telemetry.md](../telemetry.md) |
-| Content mod package | `.hmod`: a zip with `horizon-mod.toml`, `assets/`, `data/` | the manifest's `api` | preview | [mods.md](../mods.md#the-manifest), [mod-index.md](mod-index.md) |
-| Native mod package | `.hnmod`: a zip with `horizon-native.json` and the bundle's `.rs` and `.toml` files | `schema` | experimental | [native-mods.md](../native-mods.md) |
-| Mods turned on | `horizon-mods.txt` | none | preview | [mods.md](../mods.md#playing-with-mods) |
-| Apex settings | `horizon-graphics.txt`, `horizon-extras.txt` (`key:value`, as `options.txt`) | none: unknown keys fall back to defaults | preview | [graphics.md](../graphics.md), [extras.md](../extras.md#options-storage) |
+| Content mod package | `.hmod`: a zip with `apex-mod.toml`, `assets/`, `data/` | the manifest's `api` | preview | [mods.md](../mods.md#the-manifest), [mod-index.md](mod-index.md) |
+| Native mod package | `.hnmod`: a zip with `apex-native.json` and the bundle's `.rs` and `.toml` files | `schema` | experimental | [native-mods.md](../native-mods.md) |
+| Mods turned on | `apex-mods.txt` | none | preview | [mods.md](../mods.md#playing-with-mods) |
+| Apex settings | `apex-graphics.txt`, `apex-extras.txt` (`key:value`, as `options.txt`) | none: unknown keys fall back to defaults | preview | [graphics.md](../graphics.md), [extras.md](../extras.md#options-storage) |
 | Server settings | `server.toml` | its keys | stable | [server-reference.md](server-reference.md) |
-| Control endpoints | the game's socket file (TCP form), `.horizon/api.json` | none | preview | [agent-control.md](agent-control.md), [server-reference.md](server-reference.md) |
+| Control endpoints | the game's socket file (TCP form), `.apex/api.json` | none | preview | [agent-control.md](agent-control.md), [server-reference.md](server-reference.md) |
 | Release checksums | `SHA256SUMS`, `SHA256SUMS.sig` on releases since signing began (#1011) | the signed text names the tag | stable | [security.md](../security.md) |
 | Worlds | the world folder | vanilla 26.3's (`DataVersion`) | vanilla's | [world-data.md](../world-data.md) |
 
@@ -39,4 +39,4 @@ Worlds are vanilla's format, so any tool that reads a 26.3 world reads a Apex wo
 ## Changelog
 
 - Benchmark report version 1; telemetry schema 1, consent version 2.
-- Content mods can declare mob effects in `data/<id>/horizon/mob_effect/<name>.json` (`category`, `color`).
+- Content mods can declare mob effects in `data/<id>/apex/mob_effect/<name>.json` (`category`, `color`).

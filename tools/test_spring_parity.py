@@ -56,9 +56,9 @@ def corpus(facts, placement):
     for legacy,seed,fail,reject in itertools.product([False,True],[0,-1,0x123456789abcdef],[-1,0,5,12,14],[0,3]):
         placed={'feature':spring(),'placement':[{'type':'count','count':2}]}
         yield case(placed,mode='placed',legacy=legacy,seed=seed,fail=fail,reject=reject,repeats=2)
-        yield case({'type':'overlay','features':[placed,{'feature':'horizon:moss','placement':[]}]},legacy=legacy,seed=seed,fail=fail,reject=reject)
+        yield case({'type':'overlay','features':[placed,{'feature':'apex:moss','placement':[]}]},legacy=legacy,seed=seed,fail=fail,reject=reject)
 
 
 if __name__=='__main__':
     harness.run(corpus,'rust-spring-parity',__file__,
-        'Native SpringFeature codec and ordered cavity checks. Every block state is exercised above, below, at the origin and as a horizontal neighbor; all air/rock/other five-neighbor combinations and requested count pairs, overlapping air/valid-block membership, defaults, malformed fields, tags, wrapped coordinates and all 37 fluid states are included. Separate ordered rock and hole reads, flags 2, rejected writes, immediate fluid tick requests even after rejected writes, partial failures and untouched random streams are compared. Scheduled requests, named providers and overlay/modifier composition are traced; execution of fluid ticks, spreading and full gameplay remain pending.')
+        'Native SpringFeature codec and ordered cavity checks. Every block state is exercised above, below, at the origin and as a apextal neighbor; all air/rock/other five-neighbor combinations and requested count pairs, overlapping air/valid-block membership, defaults, malformed fields, tags, wrapped coordinates and all 37 fluid states are included. Separate ordered rock and hole reads, flags 2, rejected writes, immediate fluid tick requests even after rejected writes, partial failures and untouched random streams are compared. Scheduled requests, named providers and overlay/modifier composition are traced; execution of fluid ticks, spreading and full gameplay remain pending.')

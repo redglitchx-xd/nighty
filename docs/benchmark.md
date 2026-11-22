@@ -15,11 +15,11 @@ One game is started per window size (1280x720 and 1920x1080 by default) and rend
 ## How it is kept fair
 
 - **Same machine, same run conditions.** Games run one at a time; the load average before and after each run (Windows has none, so it is left out there) and the machine (CPU, RAM, OS) are stored with the results. Runs on a machine doing other work are marked as such and not published.
-- **Same settings, one file.** Every game gets the same `options.txt`, written by the driver: render distance, simulation distance 12, unlimited frame rate (`maxFps:260`), VSync off, FOV 70, automatic GUI scale, windowed, no pause on lost focus, and `inactivityFpsLimit:minimized` (both games otherwise drop to 30 FPS after a minute without input). Everything else stays at vanilla's defaults: Apex reads vanilla's `options.txt` keys and its defaults match vanilla's (the options harness checks it), and Apex's own settings (`horizon-graphics.txt`) are left at their defaults, which render as vanilla does.
+- **Same settings, one file.** Every game gets the same `options.txt`, written by the driver: render distance, simulation distance 12, unlimited frame rate (`maxFps:260`), VSync off, FOV 70, automatic GUI scale, windowed, no pause on lost focus, and `inactivityFpsLimit:minimized` (both games otherwise drop to 30 FPS after a minute without input). Everything else stays at vanilla's defaults: Apex reads vanilla's `options.txt` keys and its defaults match vanilla's (the options harness checks it), and Apex's own settings (`apex-graphics.txt`) are left at their defaults, which render as vanilla does.
 - **Same resolution.** Both games get the same window size, `--width` and `--height` (vanilla's own launch arguments, which Apex takes too): 1280x720, the size results were first published at, then 1920x1080, the commonest screen; `--sizes` picks others. The size each game actually renders at is stored with the results: a compositor or screen smaller than the window can shrink it.
-- **Same world and path.** Same seed and world type; same paths, yaw and pitch, same flight speed; the same steps in the same order. Vanilla is driven by a small dev-only Fabric mod (`mods/horizon/src/bench`), which only calls the game's own code: it creates the world with `WorldOpenFlows.createFreshLevel` as the Create World screen does, teleports with `/tp`, sets the time with `/time set`, and places the player on the path each frame as Apex's `horizon-ctl fly` does.
+- **Same world and path.** Same seed and world type; same paths, yaw and pitch, same flight speed; the same steps in the same order. Vanilla is driven by a small dev-only Fabric mod (`mods/apex/src/bench`), which only calls the game's own code: it creates the world with `WorldOpenFlows.createFreshLevel` as the Create World screen does, teleports with `/tp`, sets the time with `/time set`, and places the player on the path each frame as Apex's `apex-ctl fly` does.
 - **Warm-up excluded.** Each scene's flight starts only after its chunks are loaded and drawn and 2 seconds have passed; the load itself is reported separately. JIT warm-up of the JVM during the first scene is part of vanilla's real behaviour and is not removed.
-- **The same statistics code.** Apex returns its raw frame times (`horizon-ctl fly ... raw`) and the vanilla mod writes its own; `stats()` in the driver computes every figure for both.
+- **The same statistics code.** Apex returns its raw frame times (`apex-ctl fly ... raw`) and the vanilla mod writes its own; `stats()` in the driver computes every figure for both.
 - **Vanilla as players run it.** Your own 26.3 client jar and libraries (as the official launcher installs them for your OS), the official launcher's default JVM arguments (`-Xmx2G` and its G1 options) and the version manifest's JVM flags (`-XX:StackShadowPages=32`, without which vanilla crashes on about half its starts on Windows), Java 25. The game's assets index is not used, so neither game plays sound (Apex runs with `APEX_NO_AUDIO=1`, vanilla with OpenAL's null device); textures, models and shaders come from the client jar as usual.
 - **Performance mods.** `--game vanilla-mods` adds the Fabric builds for 26.3 of Sodium, Lithium, FerriteCore and ImmediatelyFast, the versions pinned with their hashes in `tools/benchmark-deps/mods.lock.json` (downloaded from Modrinth, never committed), plus Fabric API if one of them needs it.
 
@@ -37,27 +37,27 @@ One game is started per window size (1280x720 and 1920x1080 by default) and rend
 The game runs the Apex half of this benchmark by itself, with nothing else installed:
 
 ```sh
-horizon-client --benchmark standard --render-distance 16
+apex-client --benchmark standard --render-distance 16
 ```
 
-It starts at the title screen, creates the world `horizon-benchmark` (seed 1234, creative; the next run replaces it, and it never touches a world it didn't create), flies the four scenes as above, writes a report to `benchmarks/` in the game folder and quits. `--benchmark village` (or `forest`, `ocean`, `mountain`) flies one scene. For the run only, VSync is off, the frame rate unlimited and the game doesn't pause or slow down without focus; your options are not changed. Your other settings (render distance unless given, graphics, window size) are used as they are, and stored in the report, so compare reports with the same conditions.
+It starts at the title screen, creates the world `apex-benchmark` (seed 1234, creative; the next run replaces it, and it never touches a world it didn't create), flies the four scenes as above, writes a report to `benchmarks/` in the game folder and quits. `--benchmark village` (or `forest`, `ocean`, `mountain`) flies one scene. For the run only, VSync is off, the frame rate unlimited and the game doesn't pause or slow down without focus; your options are not changed. Your other settings (render distance unless given, graphics, window size) are used as they are, and stored in the report, so compare reports with the same conditions.
 
 The report is the [benchmark report format](benchmark-report.md): startup to the title screen and to in-world, each scene's chunk load time, chunks generated and section meshes built, every flight's frame figures and histogram, resident and GPU memory, the binary's size, and the machine (OS, CPU, RAM, GPU, driver, backend, display), the load average before the run and whether it ran on battery. If you allowed benchmark uploads (the launcher's data collection choices, [docs/telemetry.md](telemetry.md)), the same report, dated to the day and without local fields, is kept for the launcher to send; otherwise it stays on your machine.
 
 ## Reproduce it
 
-You need Apex built (`cargo build --release -p horizon-client --bins`) and its resources prepared from your own copy of 26.3 (which also provides `.local/minecraft/26.3`, the vanilla client the driver starts), Java 25 with `javac`, and Python 3.10 or newer.
+You need Apex built (`cargo build --release -p apex-client --bins`) and its resources prepared from your own copy of 26.3 (which also provides `.local/minecraft/26.3`, the vanilla client the driver starts), Java 25 with `javac`, and Python 3.10 or newer.
 
 ```sh
-python3 tools/perf_bench.py --game horizon --label horizon-mine
+python3 tools/perf_bench.py --game apex --label apex-mine
 python3 tools/perf_bench.py --game vanilla --label vanilla-mine
 python3 tools/perf_bench.py --game vanilla-mods --label mods-mine
-python3 tools/perf_bench.py --table horizon-mine vanilla-mine mods-mine
+python3 tools/perf_bench.py --table apex-mine vanilla-mine mods-mine
 ```
 
 Options: `--distances 8,16`, `--sizes 1920x1080`, `--scenes village,ocean`, `--seconds 20`, `--repeats 5`, `--heap 4G` (vanilla), `--offscreen` (Apex, for locked or headless sessions). Results go to `benchmarks/perf/<label>-rd<N>.json` at 1280x720 and `<label>-1080p-rd<N>.json` at 1920x1080 (other sizes `<label>-<W>x<H>-rd<N>.json`; `--table` takes those labels), one [benchmark report](benchmark-report.md) per window size and render distance (the same format the game's `--benchmark` and the launcher write), with the load average before each game; each game's log, and the vanilla driver's event log, stay in `.local/perf-bench/`. Keep the machine otherwise idle, plugged in, and the window on a screen.
 
-On Windows, run `python tools\perf_bench.py ...` the same way. Apex's control endpoint there is a localhost TCP port, which the game writes to a `.json` file in the temporary folder. `--build` can point at an installed release (`%APPDATA%\horizon-launcher\versions\vX.Y.Z`, with `--resources` its `.local\horizon-client\26.3`), and the report then gives that release's version.
+On Windows, run `python tools\perf_bench.py ...` the same way. Apex's control endpoint there is a localhost TCP port, which the game writes to a `.json` file in the temporary folder. `--build` can point at an installed release (`%APPDATA%\apex-launcher\versions\vX.Y.Z`, with `--resources` its `.local\apex-client\26.3`), and the report then gives that release's version.
 
 ## Results
 

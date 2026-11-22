@@ -2,7 +2,7 @@
   "hooks": [
     {
       "name": "player_command",
-      "target": "horizon_client::game::native_hooks::Game<'_>::native_player_command",
+      "target": "apex_client::game::native_hooks::Game<'_>::native_player_command",
       "neoforge": "CommandEvent",
       "side": "server",
       "cancellable": true

@@ -1,7 +1,7 @@
 # Android architecture and compatibility
 
 Apex Android adds native packaging, installation, touch input and Android
-platform integration to [Apex's Rust engine](https://github.com/ludovic111/horizon).
+platform integration to [Apex's Rust engine](https://github.com/ludovic111/apex).
 World simulation, the renderer, Java protocol and shared menus remain upstream
 components. [Integration records](android-upstream.json) identify reviewed merges.
 

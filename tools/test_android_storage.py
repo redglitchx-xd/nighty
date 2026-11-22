@@ -9,7 +9,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 
 JAVA = r'''
-package dev.horizon.storageprobe;
+package dev.apex.storageprobe;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -24,7 +24,7 @@ public final class Probe extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         try {
-            System.loadLibrary("horizon_android");
+            System.loadLibrary("apex_android");
             nativeCheck(getFilesDir().getAbsolutePath());
             String authority = getPackageName() + ".documents";
             Uri roots = DocumentsContract.buildRootsUri(authority);
@@ -32,7 +32,7 @@ public final class Probe extends Activity {
                 check(c != null && c.moveToFirst(), "root");
             }
             Uri mods = DocumentsContract.buildDocumentUri(authority, "p0/mods");
-            Uri children = DocumentsContract.buildChildDocumentsUri(authority, "horizon");
+            Uri children = DocumentsContract.buildChildDocumentsUri(authority, "apex");
             try (Cursor c = getContentResolver().query(children, null, null, null, null)) {
                 check(c != null && c.getCount() == 6, "six directories");
             }
@@ -75,15 +75,15 @@ public final class Probe extends Activity {
             try (ParcelFileDescriptor fd = getContentResolver().openFileDescriptor(secret, "r")) {}
             catch (FileNotFoundException error) { denied = true; }
             check(denied, "traversal denied");
-            Log.i("HorizonStorageProbe", "PASS roots, create, write, read, rename, delete, traversal and Bionic flock");
+            Log.i("ApexStorageProbe", "PASS roots, create, write, read, rename, delete, traversal and Bionic flock");
             android.widget.TextView text = new android.widget.TextView(this);
-            text.setText("Horizon storage probe: PASS"); setContentView(text);
+            text.setText("Apex storage probe: PASS"); setContentView(text);
             if (getIntent().getBooleanExtra("browse", false)) {
                 android.content.Intent view = new android.content.Intent(android.content.Intent.ACTION_VIEW);
                 view.setDataAndType(mods, DocumentsContract.Document.MIME_TYPE_DIR);
                 view.addFlags(3); startActivity(view);
             }
-        } catch (Throwable error) { Log.e("HorizonStorageProbe", "FAIL", error); }
+        } catch (Throwable error) { Log.e("ApexStorageProbe", "FAIL", error); }
     }
 }
 '''
@@ -103,11 +103,11 @@ def main():
     (out / 'classes').mkdir(exist_ok=True)
     (out / 'dex').mkdir(exist_ok=True)
     (out / 'Cargo.toml').write_text('''[package]
-name = "horizon-storage-probe"
+name = "apex-storage-probe"
 version = "0.0.0"
 edition = "2024"
 [lib]
-name = "horizon_android"
+name = "apex_android"
 crate-type = ["cdylib"]
 [workspace]
 [dependencies]
@@ -115,14 +115,14 @@ jni = "0.21"
 serde_json = "1"
 rustix = { version = "1", features = ["fs"] }
 ''', encoding='utf-8')
-    source = ROOT / 'crates/horizon-client/src'
+    source = ROOT / 'crates/apex-client/src'
     modules = '\n'.join(f'#[path = "{(source / path).as_posix()}"] mod {name};'
         for name, path in [('document_provider', 'android/document_provider.rs'),
-                           ('document_store', 'android/document_store.rs'), ('file_lock', '../../horizon-client-render/src/file_lock.rs')])
+                           ('document_store', 'android/document_store.rs'), ('file_lock', '../../apex-client-render/src/file_lock.rs')])
     (out / 'src/lib.rs').write_text('''#![allow(dead_code)]
 ''' + modules + r'''
 #[unsafe(no_mangle)]
-extern "system" fn Java_dev_horizon_storageprobe_Probe_nativeCheck(
+extern "system" fn Java_dev_apex_storageprobe_Probe_nativeCheck(
     mut env: jni::JNIEnv, _: jni::objects::JClass, home: jni::objects::JString,
 ) {
     let result = (|| -> Result<(), Box<dyn std::error::Error>> {
@@ -143,7 +143,7 @@ extern "system" fn Java_dev_horizon_storageprobe_Probe_nativeCheck(
         receiver.recv_timeout(std::time::Duration::from_secs(2))??;
         waiter.join().map_err(|_| "cache-lock waiter failed")?;
         std::fs::write(home.join("android-launcher.json"), "{}")?;
-        let mods = home.join("horizon-mods");
+        let mods = home.join("apex-mods");
         std::fs::create_dir_all(&mods)?;
         let _ = std::fs::remove_file(mods.join("probe.hmod"));
         let _ = std::fs::remove_file(mods.join("renamed.hmod"));
@@ -160,11 +160,11 @@ extern "system" fn Java_dev_horizon_storageprobe_Probe_nativeCheck(
 }
 ''', encoding='utf-8')
     (out / 'Probe.java').write_text(JAVA, encoding='utf-8')
-    manifest = '''<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.horizon.storageprobe">
+    manifest = '''<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="dev.apex.storageprobe">
 <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="35"/>
-<application android:debuggable="true" android:label="Horizon Storage Probe" android:extractNativeLibs="true">
-<provider android:name="dev.horizon.android.HorizonDocumentsProvider" android:authorities="dev.horizon.storageprobe.documents" android:exported="true" android:grantUriPermissions="true" android:permission="android.permission.MANAGE_DOCUMENTS"><intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER"/></intent-filter></provider>
-<activity android:name="dev.horizon.storageprobe.Probe" android:exported="true"/>
+<application android:debuggable="true" android:label="Apex Storage Probe" android:extractNativeLibs="true">
+<provider android:name="dev.apex.android.ApexDocumentsProvider" android:authorities="dev.apex.storageprobe.documents" android:exported="true" android:grantUriPermissions="true" android:permission="android.permission.MANAGE_DOCUMENTS"><intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER"/></intent-filter></provider>
+<activity android:name="dev.apex.storageprobe.Probe" android:exported="true"/>
 </application></manifest>'''
     (out / 'AndroidManifest.xml').write_text(manifest, encoding='utf-8')
     env = os.environ.copy()
@@ -174,7 +174,7 @@ extern "system" fn Java_dev_horizon_storageprobe_Probe_nativeCheck(
         subprocess.run([str(v) for v in command], check=True, cwd=ROOT, **kwargs)
     run(['cargo', 'build', '--manifest-path', out / 'Cargo.toml', '--target', 'aarch64-linux-android'], env=env)
     run([jdk / 'bin/javac.exe', '-source', '8', '-target', '8', '-classpath', sdk / 'platforms/android-35/android.jar',
-         '-d', out / 'classes', out / 'Probe.java', ROOT / 'packaging/android/java/dev/horizon/android/HorizonDocumentsProvider.java'])
+         '-d', out / 'classes', out / 'Probe.java', ROOT / 'packaging/android/java/dev/apex/android/ApexDocumentsProvider.java'])
     classes = sorted((out / 'classes').rglob('*.class'))
     run([jdk / 'bin/java.exe', '-cp', bt / 'lib/d8.jar', 'com.android.tools.r8.D8', '--min-api', '28',
          '--lib', sdk / 'platforms/android-35/android.jar', '--output', out / 'dex', *classes])
@@ -182,7 +182,7 @@ extern "system" fn Java_dev_horizon_storageprobe_Probe_nativeCheck(
     run([bt / 'aapt2.exe', 'link', '-I', sdk / 'platforms/android-35/android.jar', '--manifest', out / 'AndroidManifest.xml', '-o', unsigned])
     with zipfile.ZipFile(unsigned, 'a') as archive:
         archive.write(out / 'dex/classes.dex', 'classes.dex')
-        archive.write(out / 'target/aarch64-linux-android/debug/libhorizon_android.so', 'lib/arm64-v8a/libhorizon_android.so')
+        archive.write(out / 'target/aarch64-linux-android/debug/libapex_android.so', 'lib/arm64-v8a/libapex_android.so')
     apk = out / 'probe.apk'
     run([bt / 'zipalign.exe', '-f', '4', unsigned, apk])
     run([jdk / 'bin/java.exe', '-jar', bt / 'lib/apksigner.jar', 'sign', '--ks', ROOT / '.local/android/debug.keystore',
@@ -190,7 +190,7 @@ extern "system" fn Java_dev_horizon_storageprobe_Probe_nativeCheck(
     if args.serial:
         adb = sdk / 'platform-tools/adb.exe'
         run([adb, '-s', args.serial, 'install', '--no-incremental', '-r', apk])
-        run([adb, '-s', args.serial, 'shell', 'am', 'start', '-n', 'dev.horizon.storageprobe/.Probe', '--ez', 'browse', str(args.browse).lower()])
+        run([adb, '-s', args.serial, 'shell', 'am', 'start', '-n', 'dev.apex.storageprobe/.Probe', '--ez', 'browse', str(args.browse).lower()])
     print(apk)
 
 

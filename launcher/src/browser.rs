@@ -1,19 +1,19 @@
 //! The mod browser's sources: search Modrinth (CurseForge support is coming soon) for what
-//! Horizon loads, say how well each result runs, and download a file only after its checksum
+//! Apex loads, say how well each result runs, and download a file only after its checksum
 //! matches (docs/mod-browser.md).
 //!
-//! Offered: Java mods (Fabric, NeoForge, Forge), whose content Horizon ports and whose jar is
+//! Offered: Java mods (Fabric, NeoForge, Forge), whose content Apex ports and whose jar is
 //! checked before install ([`java`]), modpacks (imported and ported), resource packs
 //! (`resourcepacks/`) and data packs (into a world, [`installed::install_datapack`]). Java code
-//! itself doesn't run in Horizon (docs/mods.md).
+//! itself doesn't run in Apex (docs/mods.md).
 #[path = "browser/curseforge.rs"]
 pub mod curseforge;
 #[path = "browser/details.rs"]
 pub mod details;
 #[path = "browser/download.rs"]
 pub mod download;
-#[path = "browser/horizon.rs"]
-pub mod horizon;
+#[path = "browser/apex.rs"]
+pub mod apex;
 #[path = "browser/images.rs"]
 pub mod images;
 #[path = "browser/installed.rs"]
@@ -28,11 +28,11 @@ pub mod modrinth;
 
 use serde::{Deserialize, Serialize};
 
-/// The Minecraft version Horizon plays. A version port updates it with the other `"26.3"` sites
+/// The Minecraft version Apex plays. A version port updates it with the other `"26.3"` sites
 /// (docs/version-ports.md).
 pub const GAME: &str = "26.3";
 
-/// What a project is, as far as Horizon is concerned.
+/// What a project is, as far as Apex is concerned.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum Kind {
@@ -40,7 +40,7 @@ pub enum Kind {
     Modpack,
     /// A Java mod: its content is ported ([`java`]).
     Mod,
-    /// One of Horizon's own shader packs (`.hshader`, docs/shaders.md), from Horizon's registry
+    /// One of Apex's own shader packs (`.hshader`, docs/shaders.md), from Apex's registry
     /// only.
     Shader,
     /// A data pack: it goes into one world's `datapacks/` (`crate::datapacks`).
@@ -83,8 +83,8 @@ impl Kind {
 pub enum SourceId {
     Modrinth,
     CurseForge,
-    /// Horizon's own registry of reviewed mods, modpacks and resource packs ([`horizon`]).
-    Horizon,
+    /// Apex's own registry of reviewed mods, modpacks and resource packs ([`apex`]).
+    Apex,
 }
 
 impl SourceId {
@@ -92,19 +92,19 @@ impl SourceId {
         match self {
             SourceId::Modrinth => "Modrinth",
             SourceId::CurseForge => "CurseForge",
-            SourceId::Horizon => "Apex",
+            SourceId::Apex => "Apex",
         }
     }
 }
 
-/// How well a project runs in Horizon.
+/// How well a project runs in Apex.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Support {
-    /// Made for the version Horizon plays, and Horizon reads everything it uses.
+    /// Made for the version Apex plays, and Apex reads everything it uses.
     Works,
     /// It loads, with the limit said.
     Partial(String),
-    /// It can't run in Horizon: never offered for install.
+    /// It can't run in Apex: never offered for install.
     No(String),
 }
 
@@ -175,7 +175,7 @@ pub struct FileRef {
     pub name: String,
     pub size: u64,
     pub sha512: Option<String>,
-    /// What Horizon's registry lists.
+    /// What Apex's registry lists.
     pub sha256: Option<String>,
     pub sha1: Option<String>,
     pub primary: bool,
@@ -276,15 +276,15 @@ pub trait Source: Send + Sync {
 
 /// What the launcher says wherever CurseForge would be.
 pub const CURSEFORGE_SOON: &str = "CurseForge support is coming soon.";
-/// What another source answers for shader packs: Horizon's own are on its registry only.
-pub const SHADERS_ON_HORIZON: &str =
+/// What another source answers for shader packs: Apex's own are on its registry only.
+pub const SHADERS_ON_APEX: &str =
     "Apex's shader packs are on Apex's registry: pick Apex.";
 
-/// The sources this launcher uses: Modrinth and Horizon's registry. CurseForge support is coming
+/// The sources this launcher uses: Modrinth and Apex's registry. CurseForge support is coming
 /// soon: its API needs a paid key, so no search or install goes to it; `curseforge` is kept for
 /// then.
 pub fn sources() -> Vec<Box<dyn Source>> {
-    vec![Box::new(modrinth::Modrinth), Box::new(horizon::Registry)]
+    vec![Box::new(modrinth::Modrinth), Box::new(apex::Registry)]
 }
 
 /// The source of that id, when this launcher can use it.
@@ -292,9 +292,9 @@ pub fn source(id: SourceId) -> Option<Box<dyn Source>> {
     sources().into_iter().find(|s| s.id() == id)
 }
 
-/// How well a project of `kind` made for `game_versions` and `loaders` runs in Horizon.
+/// How well a project of `kind` made for `game_versions` and `loaders` runs in Apex.
 pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Support {
-    if loaders.iter().any(|l| l == horizon::LOADER) {
+    if loaders.iter().any(|l| l == apex::LOADER) {
         return Support::Works;
     }
     match kind {
@@ -318,9 +318,9 @@ pub fn support(kind: Kind, game_versions: &[String], loaders: &[String]) -> Supp
     }
 }
 
-/// What a data pack does in Horizon today, said before install; the install says it for the
+/// What a data pack does in Apex today, said before install; the install says it for the
 /// pack's own files (`crate::datapacks::coverage`).
-pub const DATAPACK_SUPPORT: &str = "Horizon runs a data pack's functions, function tags, \
+pub const DATAPACK_SUPPORT: &str = "Apex runs a data pack's functions, function tags, \
      predicates and item modifiers; not yet its recipes, loot tables, advancements, other tags \
      or worldgen.";
 
@@ -353,7 +353,7 @@ pub fn pick(kind: Kind, versions: &[Version], everything: bool) -> Option<&Versi
         .filter(|v| v.blocked.is_none() && v.file().is_some());
     if versions
         .iter()
-        .any(|v| v.loaders.iter().any(|l| l == horizon::LOADER))
+        .any(|v| v.loaders.iter().any(|l| l == apex::LOADER))
     {
         if let Some(v) = usable.clone().find(|v| v.game_versions.iter().any(|g| g == GAME)) {
             return Some(v);

@@ -14,8 +14,8 @@ Account files, launcher configuration and prepared game resources are not expose
 Reports are read-only and can be copied or shared through Files. Screenshots
 continue to appear in **Pictures/ApexAndroid**.
 
-**Configuration** exposes only `options.txt`, `horizon-graphics.txt`,
-`horizon-touch.json` and `horizon-keypad.json`. These are the existing engine
+**Configuration** exposes only `options.txt`, `apex-graphics.txt`,
+`apex-touch.json` and `apex-keypad.json`. These are the existing engine
 settings, not copied or relocated files. Return to the launcher before reading
 or editing Configuration or Worlds. Changes apply when the game starts again.
 Keep a backup before manual edits; invalid settings may be reset by their loader.
@@ -50,7 +50,7 @@ Supported files:
 - Mods: sandboxed `.hmod` archives; Java `.jar` mods are not accepted. Executing
   `.hmod` mods requires a 64-bit APK, but the files can be managed on 32-bit builds.
 - Resource packs: ZIPs with valid `pack.mcmeta` at the archive root.
-- Shaders: native `.hshader` packs, native shader ZIPs with `horizon-shaders.toml`
+- Shaders: native `.hshader` packs, native shader ZIPs with `apex-shaders.toml`
   (stored as `.hshader`), or classic ZIPs with shader sources under `shaders/`.
   A classic ZIP's structure being valid does not guarantee support for all of its
   shader features; the existing game loader reports compatibility errors.
@@ -96,7 +96,7 @@ provider and Bionic file lock in a separate small probe app with fresh app data.
 For a native shader smoke test, package Apex's included Golden Hour example:
 
 ```sh
-cargo run -p horizon-shader-api --bin horizon-shader -- pack crates/horizon-shader-api/packs/golden_hour --out .local/golden_hour-1.0.0.hshader
+cargo run -p apex-shader-api --bin apex-shader -- pack crates/apex-shader-api/packs/golden_hour --out .local/golden_hour-1.0.0.hshader
 ```
 
 Transfer the resulting file to the phone, import it under Shaders, then enable it

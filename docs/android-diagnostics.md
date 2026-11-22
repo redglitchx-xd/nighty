@@ -8,7 +8,7 @@ On an APK containing the 0.7.6 diagnostic changes:
    a few seconds so its background system-exit collector can finish.
 2. Open launcher Settings > **Diagnostic report** > **Export ZIP**.
 3. The system Files app opens **Apex Android / Reports**. Copy/share the newest
-   `horizon-diagnostics-*.zip`. Review it before attaching it to an issue.
+   `apex-diagnostics-*.zip`. Review it before attaching it to an issue.
 4. Include the exact APK version/source commit, device, renderer, resolution,
    and what you did immediately before the failure. State whether you returned
    to the Apex launcher or the Android home screen.
@@ -74,9 +74,9 @@ not retain traces. In these cases collect an ADB log while reproducing, or ask
 for a device-specific test. With the correct device selected:
 
 ```powershell
-adb -s SERIAL logcat -v threadtime > horizon-system-log.txt
+adb -s SERIAL logcat -v threadtime > apex-system-log.txt
 # Reproduce; stop collection with Ctrl+C.
-adb -s SERIAL shell dumpsys activity exit-info dev.horizon.android
+adb -s SERIAL shell dumpsys activity exit-info dev.apex.android
 ```
 
 A full system log may include other apps' information. Review/redact it before

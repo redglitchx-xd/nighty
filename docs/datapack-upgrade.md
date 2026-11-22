@@ -5,9 +5,9 @@ worldgen data pack written for 26.2 (registry errors on load). Apex
 targets 26.3, so such a pack has to be rewritten first:
 
 ```sh
-cargo run --release -p horizon-port-pack -- upgrade-datapack PACK.zip --world <world folder>
+cargo run --release -p apex-port-pack -- upgrade-datapack PACK.zip --world <world folder>
 # or into any folder:
-cargo run --release -p horizon-port-pack -- upgrade-datapack PACK.zip OUT/
+cargo run --release -p apex-port-pack -- upgrade-datapack PACK.zip OUT/
 ```
 
 `--world` writes the upgraded pack to `<world>/datapacks/<pack name>-26.3/`.
@@ -40,7 +40,7 @@ Each rewrite is the one vanilla's own data went through between 26.2 and
 | `cache_2d`, `cache_once`, `cache_all_in_cell` | `cache` (26.3's caches only memoise) | Rosetta |
 | `end_islands` | `end_outer_islands` | Rosetta |
 | `constant` `{argument}` | the number | codec |
-| `interpolated` (cell from the noise settings' `size_horizontal * 4`, `size_vertical * 4`) | `interpolated` with `cell_size_xz`/`cell_size_y`, from the settings whose router reaches the function | Rosetta: vanilla's 4 x 8 |
+| `interpolated` (cell from the noise settings' `size_apextal * 4`, `size_vertical * 4`) | `interpolated` with `cell_size_xz`/`cell_size_y`, from the settings whose router reaches the function | Rosetta: vanilla's 4 x 8 |
 | noise settings `noise.size_*` | dropped (on each `interpolated`) | Rosetta |
 | router `final_density` (26.2 added the beardifier in `NoiseChunk`) | `add(final_density, beardifier)` | as vanilla's `overworld/final_density` |
 | router `barrier`, `fluid_level_*`, `lava`, `aquifers_enabled` | `aquifers` object; `exclusion` spells out 26.2's `isDeepDarkRegion` (erosion < -0.225 and depth > 0.9) from the pack's own erosion and depth; `surface_level` is the preliminary surface | as vanilla's |

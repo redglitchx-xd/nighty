@@ -14,7 +14,7 @@
 /run/
 /logs/
 /dist/
-/mods/horizon/build/
+/mods/apex/build/
 /saves/
 /backups/
 /tools/logs/
@@ -22,18 +22,18 @@
 # What the client writes to its working directory when run from the repo root.
 /options.txt
 /debug-profile.json
-/horizon.txt
-/horizon-graphics.txt
-/horizon-controller.txt
-/horizon-extras.txt
-/horizon-player.txt
+/apex.txt
+/apex-graphics.txt
+/apex-controller.txt
+/apex-extras.txt
+/apex-player.txt
 /servers.dat
 /screenshots/
-/.horizon-cache/
+/.apex-cache/
 /crash-reports/
 /debug/
-/horizon-touch.json
-/horizon-touch.json.tmp
+/apex-touch.json
+/apex-touch.json.tmp
 # Android build outputs, signing material and local account/session state.
 **/.gradle/
 **/node_modules/
@@ -51,8 +51,8 @@
 # Release-only compiled original exporter bundle.
 /exporters/
 
-/horizon-keypad.json
-/horizon-keypad.json.tmp
+/apex-keypad.json
+/apex-keypad.json.tmp
 
 # Local artwork workspace and original reference images.
 /art/

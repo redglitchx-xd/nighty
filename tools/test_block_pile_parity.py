@@ -32,7 +32,7 @@ def corpus(facts, placement):
                  {'type': 'random_block', 'blocks': ['stone', 'water', 'hay_block']},
                  {'type': 'rotated', 'state': {'id': 'oak_log'}},
                  {'type': 'weighted', 'entries': [{'data': 'stone', 'weight': 1}, {'data': 'hay_block', 'weight': 3}]},
-                 'horizon:stone']
+                 'apex:stone']
     for provider, ground, legacy, seed, fail, reject in itertools.product(
             providers, ['stone', 'dirt_path', 'air', 'oak_slab', 'shulker_box', 'moving_piston'],
             [False, True], [0, -1, 0x123456789abcdef], [-1, 0, 1, 2, 7, 19], [0, 1, 3]):
@@ -42,7 +42,7 @@ def corpus(facts, placement):
         yield case(fallback=get(fallback), origin=[-17, y, -33], seed=seed)
     for x, z, seed in itertools.product([2147483647, -2147483648], [2147483647, -2147483648], range(8)):
         yield case(origin=[x, 64, z], seed=seed)
-    # One overflowing horizontal dimension produces a negative native iterator
+    # One overflowing apextal dimension produces a negative native iterator
     # count; injected failures terminate after a finite matching prefix.
     for x, z in [(2147483647, 0), (0, -2147483648)]:
         for fail in [0, 1, 3]:
@@ -53,7 +53,7 @@ def corpus(facts, placement):
     for legacy, seed, fail, reject in itertools.product([False, True], [0, -1, 0x123456789abcdef], [-1, 0, 5, 21], [0, 3]):
         placed = {'feature': pile(providers[2]), 'placement': [{'type': 'count', 'count': 2}, {'type': 'in_square'}]}
         yield case(placed, mode='placed', legacy=legacy, seed=seed, fail=fail, reject=reject)
-        yield case({'type': 'overlay', 'features': [placed, {'feature': 'horizon:moss', 'placement': []}]},
+        yield case({'type': 'overlay', 'features': [placed, {'feature': 'apex:moss', 'placement': []}]},
                    legacy=legacy, seed=seed, fail=fail, reject=reject)
 
 

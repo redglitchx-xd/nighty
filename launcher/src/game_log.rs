@@ -7,7 +7,7 @@
 //! account names.
 use std::path::Path;
 
-/// mclo.gs's API; `HORIZON_LAUNCHER_PASTE_URL` points it elsewhere for tests.
+/// mclo.gs's API; `APEX_LAUNCHER_PASTE_URL` points it elsewhere for tests.
 const API: &str = "https://api.mclo.gs/1";
 const PASTE_ENV: &str = "APEX_LAUNCHER_PASTE_URL";
 /// mclo.gs keeps at most 25,000 lines and 10 MiB: the end of a longer log is sent.
@@ -30,13 +30,13 @@ pub fn matches(line: &str, search: &str) -> bool {
 }
 
 /// The names to take out of a log: the account names and offline names, the offline player
-/// name kept in each game folder (`horizon-player.txt`), and the computer's user name.
+/// name kept in each game folder (`apex-player.txt`), and the computer's user name.
 pub fn names(homes: &[&Path]) -> Vec<String> {
     let accounts = crate::account::Accounts::load();
     let mut names: Vec<String> = accounts.accounts.into_iter().map(|a| a.name).collect();
     names.extend(accounts.offline);
     for home in homes {
-        if let Ok(name) = std::fs::read_to_string(home.join("horizon-player.txt")) {
+        if let Ok(name) = std::fs::read_to_string(home.join("apex-player.txt")) {
             names.push(name.trim().to_string());
         }
     }

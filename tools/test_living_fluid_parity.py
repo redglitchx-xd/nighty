@@ -20,7 +20,7 @@ def corpus():
     def bits(v):return struct.pack('>d',float(v)).hex()
     def single(v):return struct.pack('>f',float(v)).hex()
     def row(**kw):
-        f=dict(mode='fluid',input=[.4,0,.8],velocity=[.1,-.08,-.2],after_velocity=[.3,-.6,.9],fall=6,friction=.6,friction_modifier=1,drag_modifier=1,speed=.1,flying_speed=.02,yaw=37,ground=[True,True],climb=[False,False],scaffolding=False,suppress=False,player=False,horizontal=False,jumping=False,snow=False,after_horizontal=False,after_jumping=False,after_snow=False,powder_tag=False,boots=False,levitation=None,client=False,chunk=True,gravity=.08,y=64,min_y=-64,discard=False,omni=False,yaw_mutate=False,move_mutate=False,fail=-1)
+        f=dict(mode='fluid',input=[.4,0,.8],velocity=[.1,-.08,-.2],after_velocity=[.3,-.6,.9],fall=6,friction=.6,friction_modifier=1,drag_modifier=1,speed=.1,flying_speed=.02,yaw=37,ground=[True,True],climb=[False,False],scaffolding=False,suppress=False,player=False,apextal=False,jumping=False,snow=False,after_apextal=False,after_jumping=False,after_snow=False,powder_tag=False,boots=False,levitation=None,client=False,chunk=True,gravity=.08,y=64,min_y=-64,discard=False,omni=False,yaw_mutate=False,move_mutate=False,fail=-1)
         f.update(water=True,sprint=[False],slow_down=.8,efficiency=0,dolphin=False,lava_height=1,floatable_height=0,threshold=.4,free=False,vehicle=False,float_tag=False,free_mutate=False,falling=True,old_y=64,after_y=64)
         f.update(kw)
         for k in ['input','velocity','after_velocity']:f[k]=[bits(v) for v in f[k]]
@@ -43,15 +43,15 @@ def corpus():
                 for falling in [False,True]:yield row(mode='lava',lava_height=height,threshold=threshold,gravity=gravity,falling=falling,move_mutate=True)
     for mode in ['water','lava','fluid','jump','float']:
         for mask in range(256):
-            f={k:bool(mask&(1<<i)) for i,k in enumerate(['water','after_horizontal','free','vehicle','float_tag','dolphin','move_mutate','free_mutate'])}
-            yield row(mode=mode,**f,climb=[True],floatable_height=1,threshold=.4,horizontal=f['after_horizontal'])
+            f={k:bool(mask&(1<<i)) for i,k in enumerate(['water','after_apextal','free','vehicle','float_tag','dolphin','move_mutate','free_mutate'])}
+            yield row(mode=mode,**f,climb=[True],floatable_height=1,threshold=.4,apextal=f['after_apextal'])
     for mode in ['water','lava','fluid','jump','float']:
         for fail in range(-1,30):
             for water in [False,True]:
                 for free in [False,True]:
-                    for shallow in [False,True]:yield row(mode=mode,fail=fail,water=water,free=free,lava_height=.1 if shallow else 2,vehicle=True,float_tag=True,floatable_height=1,move_mutate=True,free_mutate=True,horizontal=True,after_horizontal=True,climb=[True])
+                    for shallow in [False,True]:yield row(mode=mode,fail=fail,water=water,free=free,lava_height=.1 if shallow else 2,vehicle=True,float_tag=True,floatable_height=1,move_mutate=True,free_mutate=True,apextal=True,after_apextal=True,climb=[True])
     rng=random.Random(0x464c554944)
-    flags=['water','horizontal','after_horizontal','dolphin','vehicle','float_tag','free','move_mutate','free_mutate','falling','player','yaw_mutate']
+    flags=['water','apextal','after_apextal','dolphin','vehicle','float_tag','free','move_mutate','free_mutate','falling','player','yaw_mutate']
     vectors=[[.3,-.08,.7],[-0.0,-0.0,-0.0],[1,float('nan'),2],[float('inf'),-float('inf'),0],[.005,.003,.01]]
     for _ in range(10000):
         f={k:bool(rng.randrange(2)) for k in flags}
@@ -65,19 +65,19 @@ def main():
     report_path=build/'report.json';report_path.unlink(missing_ok=True)
     if args.prepare:lab.prepare()
     lock,jars,libraries=base.verify_artifacts()
-    oracle=lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaLivingFluidOracle.java'
-    sources=[oracle,Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/horizon-core/Cargo.toml',lab.ROOT/'crates/horizon-world/Cargo.toml',*sorted((lab.ROOT/'crates/horizon-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/horizon-world/src').rglob('*.rs')),lab.ROOT/'crates/horizon-world/examples/probe/living_fluid_fixture.rs']
+    oracle=lab.ROOT/'mods/apex/src/test/java/dev/apexlab/parity/VanillaLivingFluidOracle.java'
+    sources=[oracle,Path(__file__),lab.ROOT/'tools/test_rust_parity.py',lab.ROOT/'tools/lab.py',lab.ROOT/'Cargo.toml',lab.ROOT/'Cargo.lock',lab.ROOT/'crates/apex-core/Cargo.toml',lab.ROOT/'crates/apex-world/Cargo.toml',*sorted((lab.ROOT/'crates/apex-core/src').rglob('*.rs')),*sorted((lab.ROOT/'crates/apex-world/src').rglob('*.rs')),lab.ROOT/'crates/apex-world/examples/probe/living_fluid_fixture.rs']
     tested_sources=base.source_hashes(sources)
     classes=build/'classes';classes.mkdir(exist_ok=True)
     def run(command,name):
         with (build/(name+'.log')).open('w',encoding='utf-8') as log:base.run(list(map(str,command)),stdout=log,stderr=subprocess.STDOUT)
     dependency_path=os.pathsep.join(map(str,libraries))
-    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/horizon/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle],'compile-java')
+    run(['javac','--release',lock['minecraft']['java_major'],'-proc:none','-sourcepath',str(lab.ROOT/'mods/apex/src/test/java'),'-cp',str(jars['server'])+os.pathsep+dependency_path,'-d',classes,oracle],'compile-java')
     def java(side,mode,path):
-        run(['java','-Xmx512M','-cp',os.pathsep.join([str(classes),str(jars[side]),dependency_path]),'dev.horizonlab.parity.VanillaLivingFluidOracle',mode,path],side+'-'+mode)
+        run(['java','-Xmx512M','-cp',os.pathsep.join([str(classes),str(jars[side]),dependency_path]),'dev.apexlab.parity.VanillaLivingFluidOracle',mode,path],side+'-'+mode)
     fixtures=list(corpus());inputs=build/'inputs.txt';inputs.write_text(''.join(json.dumps(value,separators=(',',':'))+'\n' for value in fixtures),encoding='utf-8')
     fixture_paths=[inputs];tested_fixtures=base.source_hashes(fixture_paths)
-    run(['cargo','build','--release','-p','horizon-world','--example','world_probe'],'compile-rust')
+    run(['cargo','build','--release','-p','apex-world','--example','world_probe'],'compile-rust')
     metadata=json.loads(subprocess.check_output(['cargo','metadata','--no-deps','--format-version','1'],cwd=lab.ROOT,text=True))
     binary=Path(metadata['target_directory'])/'release/examples'/('world_probe.exe' if os.name=='nt' else 'world_probe')
     run([binary,'living_fluid_fixture',build],'rust');references=[]

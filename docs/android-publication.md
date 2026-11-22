@@ -18,7 +18,7 @@ python tools/android_build.py --abi x86 --public
 python tools/android_build.py --abi x86_64 --public
 ```
 
-Outputs are `.local/android/apk/<abi>/horizon-android-public.apk`.
+Outputs are `.local/android/apk/<abi>/apex-android-public.apk`.
 The build signs and audits each APK. Default development APKs are not release
 artifacts: they may contain private resource bundles and enable debugging.
 
@@ -107,7 +107,7 @@ never publishes releases.
 Every CI build signs with one permanent certificate, so each APK updates the
 installed app in place: Android requires the same certificate and a higher
 `versionCode`, and it no longer asks for an uninstall between builds. The key is
-an RSA-4096 PKCS12 keystore, valid 100 years, alias `horizon-release`.
+an RSA-4096 PKCS12 keystore, valid 100 years, alias `apex-release`.
 
 It lives only in four repository secrets, never in Git and never in an artifact:
 
@@ -115,7 +115,7 @@ It lives only in four repository secrets, never in Git and never in an artifact:
 | --- | --- |
 | `ANDROID_KEYSTORE_BASE64` | The whole keystore, base64-encoded |
 | `ANDROID_KEYSTORE_PASSWORD` | The keystore password |
-| `ANDROID_KEY_ALIAS` | `horizon-release` |
+| `ANDROID_KEY_ALIAS` | `apex-release` |
 | `ANDROID_KEY_PASSWORD` | The key password (the same one) |
 
 The build job writes them to `.local/android/release.keystore`, and

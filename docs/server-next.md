@@ -9,7 +9,7 @@ vanilla Java clients welcome and vanilla's rules kept exactly. Two bars:
    harnesses (each one runs the real 26.3 jars and Apex on the same inputs and compares the results).
 
 All of it lives in this repo. Single player's integrated server, LAN, `--dedicated` and the
-`horizon-server` supervisor run the same server code (section 3). horizon-rust/horizon-server is only a
+`apex-server` supervisor run the same server code (section 3). apex-rust/apex-server is only a
 download home, for people who want a standalone server.
 
 Contents: the measured baseline (section 1), the targets (2), where the work goes (3), the design of each part
@@ -27,7 +27,7 @@ rest of Apex.
 ## 1. Baseline (measured 2026-10-29, Mac mini M4 Pro, 14 cores, 64 GB)
 
 **Servers.**
-- Apex: `horizon-client --dedicated` at horizon `668419b92`, `fast` profile. This is main *before* the three
+- Apex: `apex-client --dedicated` at apex `668419b92`, `fast` profile. This is main *before* the three
   tick fixes still in review (#3815, #3834, #3847).
 - Vanilla: 26.3 `server.jar` on Temurin 25, `-Xms4G -Xmx4G`.
 - Pumpkin: release `0.2.1+26.3-26.51`, `pumpkin-ARM64-macOS`, SHA-256 checked against the release's
@@ -37,9 +37,9 @@ rest of Apex.
 with forced game mode, max players 200, difficulty easy, bound to 127.0.0.1. Pumpkin also ran with its
 Bedrock listeners, LAN broadcast, plugins and telemetry turned off, through its own `pumpkin.toml`.
 
-**Load.** `horizon-bots --behaviour mixed` (60 % walk within 48 blocks of spawn, 20 % explore outwards at
+**Load.** `apex-bots --behaviour mixed` (60 % walk within 48 blocks of spawn, 20 % explore outwards at
 22 blocks/s, 20 % idle). One bot joins every 0.5 s, then a 30 s warm-up, then a 60 s window. The bots don't fight:
-`horizon-bots` has no combat yet (issue S-1, section 9.3).
+`apex-bots` has no combat yet (issue S-1, section 9.3).
 
 **How each number is taken.** The server measures itself, the same way on all three:
 - MSPT: the console's `tick query` every 5 s, which reports the average, P50, P95 and P99 over the last
@@ -141,17 +141,17 @@ Single player runs on the server thread (`game/integrated.rs`, since #1514), so 
 hosts and `--dedicated` share every line of server code: the tick, the levels, the hub, the entity tracker,
 saving. A separate server repo would fork that code or pin it across repos, and either way two copies would
 drift. Gameplay is about 420 000 lines (`game/` 133 k, `mobs/` 62 k, `lan/` 15 k, the flat lib 90 k, and
-`horizon-world` 124 k), guarded by the 324 harnesses. So everything here lands in horizon:
+`apex-world` 124 k), guarded by the 324 harnesses. So everything here lands in apex:
 
 | Part | Where | Shared by |
 |---|---|---|
 | Parallel tick (section 4) | `game/levels.rs`, `game/integrated.rs`, `game/dedicated.rs`, and the scheduler as a new module beside them | integrated server, LAN, dedicated |
-| Network front (5) | the hub, `lan/` (`conn.rs`, `hub.rs`, `chunks.rs`, `tracking.rs`); framing in `horizon-protocol` | LAN, Play with Friends, dedicated, the integrated server's memory connection where it applies |
-| Saving and light off the tick thread (5.5) | `game/saving.rs`, `save.rs`, `horizon-world` | everyone |
-| Fast path (8) | `horizon-protocol` (the `horizon:hello` payloads), `lan/conn.rs` (server), `net.rs` and `game/remote*.rs` (client) | every Apex client against every Apex server |
-| Operations (9.2) | `crates/horizon-server` (supervisor, panel, control API, MCP), `crates/horizon-server-files` | dedicated |
-| Plugin API (W9) | `crates/horizon-mods` and the server hooks from #3706 and #3878 | integrated server, LAN, dedicated |
-| Bench (W0) | `tools/server_bench.py`, `crates/horizon-bots`, `benchmarks/` | — |
+| Network front (5) | the hub, `lan/` (`conn.rs`, `hub.rs`, `chunks.rs`, `tracking.rs`); framing in `apex-protocol` | LAN, Play with Friends, dedicated, the integrated server's memory connection where it applies |
+| Saving and light off the tick thread (5.5) | `game/saving.rs`, `save.rs`, `apex-world` | everyone |
+| Fast path (8) | `apex-protocol` (the `apex:hello` payloads), `lan/conn.rs` (server), `net.rs` and `game/remote*.rs` (client) | every Apex client against every Apex server |
+| Operations (9.2) | `crates/apex-server` (supervisor, panel, control API, MCP), `crates/apex-server-files` | dedicated |
+| Plugin API (W9) | `crates/apex-mods` and the server hooks from #3706 and #3878 | integrated server, LAN, dedicated |
+| Bench (W0) | `tools/server_bench.py`, `crates/apex-bots`, `benchmarks/` | — |
 
 What changes for single player: it gets the exact parallel phases (4.1, 4.2 `tick = "vanilla"`), the cheaper
 hub and off-thread saving, at no cost in behaviour. `tick = "regions"` is a dedicated-server option and
@@ -163,11 +163,11 @@ already the same binary.
 
 ### 3.2 `--dedicated`, the supervisor and the download repo
 
-- **`horizon-client --dedicated`** (the `horizon-engine` build without audio and controllers,
+- **`apex-client --dedicated`** (the `apex-engine` build without audio and controllers,
   [server.md](server.md) §3) stays the server engine and the harnesses' server. With `APEX_SERIAL_TICK` it is also the serial
   reference every parallel phase is compared against (4.3).
-- **`horizon-server`** (the supervisor) stays the program owners run.
-- **horizon-rust/horizon-server** holds no code. Its releases repack the engine and the supervisor, built from
+- **`apex-server`** (the supervisor) stays the program owners run.
+- **apex-rust/apex-server** holds no code. Its releases repack the engine and the supervisor, built from
   this repo's tags, for people who only want a standalone server (W8).
 
 ## 4. Ticking on more cores
@@ -202,7 +202,7 @@ replays that case serially (the arriving entity's tick runs in the destination's
 throws entities through portals every tick checks it against the serial path, tick by tick.
 - **Removes:** the levels' sum becomes their maximum. It helps only when players are spread over dimensions;
   with everyone in the overworld it gains nothing. That's why 4.2 exists.
-- **Engine work (horizon):** levels already have separate state (`levels.rs` parks the inactive ones). The
+- **Engine work (apex):** levels already have separate state (`levels.rs` parks the inactive ones). The
   work is making `Game`'s per-level part a value a thread can own, with the shared part behind the barrier log.
 
 ### 4.2 One level on more cores (exact by default)
@@ -303,7 +303,7 @@ per server start and sent as prepared frames. The first chunks around the spawn 
   (18.7 % → 0.3 %).
 - Saving: at autosave (every 6 000 ticks) and on unload, a chunk is snapshotted on the tick thread (a copy of
   its sections and block entities' NBT, which is cheap). The workers serialize, compress and write the region
-  files, through vanilla's `RegionFile` format (`horizon-world`).
+  files, through vanilla's `RegionFile` format (`apex-world`).
 - The bench gets an autosave window so that the spike is measured, not guessed.
 
 ## 6. Who can join
@@ -313,7 +313,7 @@ per server start and sent as prepared frames. The first chunks around the spawn 
 ```toml
 online_mode = true   # the default: every player's account is checked
 [clients]
-allow = "any"        # "any" (vanilla Java and Apex) or "horizon" (Apex clients only)
+allow = "any"        # "any" (vanilla Java and Apex) or "apex" (Apex clients only)
 ```
 
 - **Online mode is on by default**, as on every server, vanilla's included. With it on, each player's
@@ -321,7 +321,7 @@ allow = "any"        # "any" (vanilla Java and Apex) or "horizon" (Apex clients 
   - `online_mode` stays the owner's setting. hosting.md's warnings about offline mode stay as they are: an
     offline server checks no accounts, so keep it on a LAN or a tailnet.
   - No other auth providers. Apex's own sign-in: [microsoft-account.md](microsoft-account.md).
-- With `allow = "horizon"`, the server refuses a client that didn't send brand `horizon` and the fast-path
+- With `allow = "apex"`, the server refuses a client that didn't send brand `apex` and the fast-path
   hello (section 8) in configuration. The refusal message names the Apex launcher.
   - **Be honest about what this is:** a convenience filter, not security. Apex's client is open source, so
     a modified client can claim to be Apex. It keeps vanilla players off a server they can't play fully,
@@ -347,7 +347,7 @@ Each step below is one or more PRs. Each one is measured with the bench on three
 2. **Headless engine** ([server.md](server.md) §2): the dedicated path skips everything only a window uses: the
    HUD and block atlases, item and block-entity models, entity models, the panorama, fog and music tables, the
    meshing tables, and client language files beyond the server's own messages.
-3. **One server data file, mapped, parsed on first use.** `horizon-prepare` writes a compact, versioned binary
+3. **One server data file, mapped, parsed on first use.** `apex-prepare` writes a compact, versioned binary
    `server.pack` from the owner's own files: block states, registries, tags, worldgen settings, loot tables,
    recipes, advancements, structure templates.
    - The engine maps it (`mmap`) and decodes an entry the first time it's needed: a loot table at the first
@@ -375,22 +375,22 @@ uniform sections.
 Vanilla's protocol stays the default and is never changed for a vanilla client. Apex clients ask for more,
 in configuration:
 
-1. The client sends brand `horizon` (it does today, `net.rs`), then a `horizon:hello` custom payload:
+1. The client sends brand `apex` (it does today, `net.rs`), then a `apex:hello` custom payload:
    protocol revision plus a capability bit set.
-2. The server answers `horizon:hello` with the subset it accepts. Apex's server already answers a Apex
-   brand with `horizon:quiet_commands` (`lan/conn.rs`), and this is the same mechanism.
+2. The server answers `apex:hello` with the subset it accepts. Apex's server already answers a Apex
+   brand with `apex:quiet_commands` (`lan/conn.rs`), and this is the same mechanism.
 3. A client that sends no hello, or a capability the server doesn't know, gets vanilla. The fast path is
    always negotiated, never assumed.
 
 | Capability | What it changes | Measured cost it removes |
 |---|---|---|
-| `chunk-zstd` | chunk packets in Apex's own section encoding with a shared zstd dictionary, as one `horizon:chunk` payload | bytes per chunk (section 1: 3.6–3.7 KB for Apex and Pumpkin alike with vanilla's format) |
+| `chunk-zstd` | chunk packets in Apex's own section encoding with a shared zstd dictionary, as one `apex:chunk` payload | bytes per chunk (section 1: 3.6–3.7 KB for Apex and Pumpkin alike with vanilla's format) |
 | `far-terrain` | the server sends LOD tiles beyond view distance from the saved world, at low priority under the send budget. The client's `lod.rs` draws them today from its own generator | the client generating far terrain itself. Players see the server's real world, builds included |
 | `entity-batch` | one packet per tick with every tracked entity's change, quantized as vanilla's deltas are | per-packet overhead: dozens of small moves per tick per player |
 | `server-stats` | TPS, MSPT and the player's own ping, for the client's debug overlay | none (a feature) |
 
 Each capability has its own harness. A Apex client with the capability, and one without, must end up with
-identical client state (`horizon-ctl state` digests). The client half lands in horizon behind the same
+identical client state (`apex-ctl state` digests). The client half lands in apex behind the same
 negotiation, so a Apex client still plays on every vanilla server.
 
 ## 9. Plan
@@ -407,16 +407,16 @@ negotiation, so a Apex client still plays on every vanilla server.
 | W5 | **Saving off the tick thread** | no autosave spike in p99 | bench with an autosave window |
 | W6 | **Fast path**: hello, `chunk-zstd`, `entity-batch`, `far-terrain` | −50 % bytes for Apex clients | per-capability harness |
 | W7 | **Operations**: metrics endpoint (Prometheus text, loopback/tailnet only), scheduled restarts | the official server's checklist (9.2) | an hour-long soak with 100 bots |
-| W8 | **Downloads**: a workflow in horizon-rust/horizon-server repacks the engine and supervisor from this repo's release tags | one archive per OS, the same checksums as horizon's release | the release |
-| W9 | **Plugin API**: server-side mods on `horizon-mods`, with events, commands, permissions and a scheduler, on the server hooks (#3706, #3878). Led by levzzz5154, who leads modding; roadmap item `server-mods` | a plugin can do what bunchy7s asks for, measured per-tick cost under 0.1 ms with no plugin loaded | mod harness on the integrated server and `--dedicated` |
+| W8 | **Downloads**: a workflow in apex-rust/apex-server repacks the engine and supervisor from this repo's release tags | one archive per OS, the same checksums as apex's release | the release |
+| W9 | **Plugin API**: server-side mods on `apex-mods`, with events, commands, permissions and a scheduler, on the server hooks (#3706, #3878). Led by levzzz5154, who leads modding; roadmap item `server-mods` | a plugin can do what bunchy7s asks for, measured per-tick cost under 0.1 ms with no plugin loaded | mod harness on the integrated server and `--dedicated` |
 
 W0 comes first: without a bench that repeats within 5 %, no tick PR can show its gain. W1, W2 and W4 can run
 side by side. W3 waits for W0. W9 follows levzzz5154's plan.
 
 ### 9.2 The official server
 
-horizon.bunchy7s.dev already runs Apex's own server, hosted by bunchy7s: `horizon-client --dedicated` from the
-current release, in online mode, without the `horizon-server` supervisor. It runs no plugins, and
+apex.bunchy7s.dev already runs Apex's own server, hosted by bunchy7s: `apex-client --dedicated` from the
+current release, in online mode, without the `apex-server` supervisor. It runs no plugins, and
 kira-pumpkin was never used on it (his answers, 2026-10-29). So each improvement above reaches it with a
 release, and its baseline is the Apex row of section 1. What he asked for is a plugin API, which is W9.
 
@@ -434,19 +434,19 @@ the supervisor (a missing feature, or no need), so that the supervisor covers wh
 - **S-5 (#3975) docs: an owner's page** comparing `server.properties` to `server.toml`: done, [owners.md](owners.md).
 - **S-6 (#3976) bots: report bytes and join time**, so the bench doesn't need `nettop`.
 
-## Appendix A. Open horizon PRs on the server's theme (2026-10-29)
+## Appendix A. Open apex PRs on the server's theme (2026-10-29)
 
 A snapshot of that day, not kept up to date: a PR's state now is on GitHub.
 
 Each one is **use** (what the server takes from it), **covered** (by what), or **not for the server**. ★ marks
-the ones that should land in horizon first: the server builds on them, so triage should prove them first.
+the ones that should land in apex first: the server builds on them, so triage should prove them first.
 
 | PR | Author | Verdict |
 |---|---|---|
 | ★ #3815, ★ #3847 | ludovic111 | **use**: tick-thread costs (section 1). In the merger; #3834 merged |
 | ★ #3036 | hectoreccles | **use**: chunk batch bodies on helper threads, the base of W1 (5.3) |
-| ★ #2608 | FusselTV | **use**: nothing kept around spawn while nobody is on. It cuts idle CPU, idle RAM and start time, two of the three numbers where Pumpkin leads. It conflicts since `streaming.rs` moved to `horizon-client-render`; triage carries it if needed, as #2698 did |
-| ★ #3756 | ludovic111 | **use**: the server names itself `horizon`, which the fast path (8) builds on |
+| ★ #2608 | FusselTV | **use**: nothing kept around spawn while nobody is on. It cuts idle CPU, idle RAM and start time, two of the three numbers where Pumpkin leads. It conflicts since `streaming.rs` moved to `apex-client-render`; triage carries it if needed, as #2698 did |
+| ★ #3756 | ludovic111 | **use**: the server names itself `apex`, which the fast path (8) builds on |
 | ★ #3441 | xKumorio | **use**: guests' known movement as vanilla's; server players' gameplay |
 | ★ #3873 | DUzzL | **use**: breeding statistics and advancements credited on the server thread |
 | ★ #3300, ★ #3802 | masa-masa-0314, ThatCakeIsAPie | **use**: a world's data packs reach recipes, loot, advancements, tags and block state providers. Servers run packs |
@@ -461,7 +461,7 @@ the ones that should land in horizon first: the server builds on them, so triage
 | #3750, #3851 | leifiyoo, DUzzL | **use**: block entities replaced as vanilla does; the axolotl test fix (main's failing `pr_ready` test) |
 | #3369–#3374 | ThatCakeIsAPie | not for the server core: upgrading 26.2 data packs is an owner's tool, which the supervisor can call later |
 | #3201 | damnurmum | not for the server: packet translation for client mods |
-| #3276 | dan4ikx | not for the server now: client audio, UDP and mod payloads. Its client-to-server mod channels are a starting point for W9's plugin channels, and must not collide with `horizon:hello` (8) |
+| #3276 | dan4ikx | not for the server now: client audio, UDP and mod payloads. Its client-to-server mod channels are a starting point for W9's plugin channels, and must not collide with `apex:hello` (8) |
 | #3869, #3724, #3023 | spidercraft, aangeraakt, Web-mc1 | not for the server: Play with Friends codes, client skins, the launcher's ViaProxy |
 | #3669, #3841, #3865, #3881 | various | not for the server: client-side fixes |
 

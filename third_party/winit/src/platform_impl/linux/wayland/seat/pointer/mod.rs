@@ -169,17 +169,17 @@ impl PointerHandler for WinitState {
                         window_id,
                     );
                 },
-                PointerEventKind::Axis { horizontal, vertical, .. } => {
+                PointerEventKind::Axis { apextal, vertical, .. } => {
                     // Get the current phase.
                     let mut pointer_data = pointer.winit_data().inner.lock().unwrap();
 
-                    let has_discrete_scroll = horizontal.discrete != 0 || vertical.discrete != 0;
+                    let has_discrete_scroll = apextal.discrete != 0 || vertical.discrete != 0;
 
                     // Figure out what to do about start/ended phases here.
                     //
                     // Figure out how to deal with `Started`. Also the `Ended` is not guaranteed
                     // to be sent for mouse wheels.
-                    let phase = if horizontal.stop || vertical.stop {
+                    let phase = if apextal.stop || vertical.stop {
                         TouchPhase::Ended
                     } else {
                         match pointer_data.phase {
@@ -198,13 +198,13 @@ impl PointerHandler for WinitState {
                     let delta = if has_discrete_scroll {
                         // NOTE: Wayland sign convention is the inverse of winit.
                         MouseScrollDelta::LineDelta(
-                            (-horizontal.discrete) as f32,
+                            (-apextal.discrete) as f32,
                             (-vertical.discrete) as f32,
                         )
                     } else {
                         // NOTE: Wayland sign convention is the inverse of winit.
                         MouseScrollDelta::PixelDelta(
-                            LogicalPosition::new(-horizontal.absolute, -vertical.absolute)
+                            LogicalPosition::new(-apextal.absolute, -vertical.absolute)
                                 .to_physical(scale_factor),
                         )
                     };

@@ -61,17 +61,17 @@ def main():
     lock, jars, libraries = base.verify_artifacts()
     root = lab.LOCAL/'rust-native-scene-collision'; root.mkdir(exist_ok=True)
     report = root/'report.json'; report.unlink(missing_ok=True)
-    resources = lab.LOCAL/'horizon-client'/lock['minecraft']['version']
+    resources = lab.LOCAL/'apex-client'/lock['minecraft']['version']
     resources_before = client.resource_fingerprint(resources)
-    oracle = lab.ROOT/'mods/horizon/src/test/java/dev/horizonlab/parity/VanillaSceneCollisionOracle.java'
+    oracle = lab.ROOT/'mods/apex/src/test/java/dev/apexlab/parity/VanillaSceneCollisionOracle.java'
     helpers = [oracle.with_name(name+'.java') for name in [
         'VanillaRegistryCollisionScanOracle', 'VanillaHeightmapOracle', 'VanillaCollisionOracle',
         'VanillaBlockStateCodecOracle', 'VanillaSuffocationOracle', 'VanillaFaceSupportOracle']]
     sources = [Path(__file__), lab.ROOT/'tools/test_native_client.py', lab.ROOT/'tools/test_rust_parity.py',
                lab.ROOT/'tools/lab.py', lab.ROOT/'tools/prepare_native_client.py', oracle, *helpers,
                lab.ROOT/'Cargo.toml', lab.ROOT/'Cargo.lock',
-               lab.ROOT/'crates/horizon-client/examples/probe/scene_collision_probe.rs']
-    for crate in ['horizon-core', 'horizon-world', 'horizon-assets', 'horizon-client', 'horizon-client-render']:
+               lab.ROOT/'crates/apex-client/examples/probe/scene_collision_probe.rs']
+    for crate in ['apex-core', 'apex-world', 'apex-assets', 'apex-client', 'apex-client-render']:
         sources += [lab.ROOT/'crates'/crate/'Cargo.toml', *sorted((lab.ROOT/'crates'/crate/'src').rglob('*.rs'))]
     tested = base.source_hashes(sources)
     def run(command, name):
@@ -82,7 +82,7 @@ def main():
     dependencies = os.pathsep.join(map(str, libraries))
     run(['javac', '--release', lock['minecraft']['java_major'], '-proc:none', '-cp',
          str(jars['server'])+os.pathsep+dependencies, '-d', classes, oracle, *helpers], 'compile-java')
-    run(['cargo', 'build', '--locked', '-p', 'horizon-client', '--example', 'client_probe'], 'compile-rust')
+    run(['cargo', 'build', '--locked', '-p', 'apex-client', '--example', 'client_probe'], 'compile-rust')
     metadata = json.loads(subprocess.check_output(['cargo', 'metadata', '--locked', '--no-deps', '--format-version', '1'], cwd=lab.ROOT))
     executable = Path(metadata['target_directory'])/'debug/examples'/('client_probe.exe' if os.name=='nt' else 'client_probe')
     cases = []
@@ -96,7 +96,7 @@ def main():
         references = []
         for side, jar in jars.items():
             run(['java', '-Xmx768M', '-cp', os.pathsep.join([str(classes), str(jar), dependencies]),
-                 'dev.horizonlab.parity.VanillaSceneCollisionOracle', side, build, resources], f'{side}-{radius}')
+                 'dev.apexlab.parity.VanillaSceneCollisionOracle', side, build, resources], f'{side}-{radius}')
             matched = base.compare(build/(side+'.txt'), build/'rust.txt')
             if matched != len(fixtures): raise AssertionError('Incomplete collision output')
             references.append({'side': side, 'jar_sha256': lab.digest(jar, 'sha256'),
@@ -113,7 +113,7 @@ def main():
                            'rustc': subprocess.check_output(['rustc', '--version'], text=True).strip(),
                            'java': subprocess.check_output(['java', '--version'], text=True).splitlines()[0],
                            'sources_sha256': tested, 'resources': resources_before, 'cases': cases,
-                           'scope': 'Actual client Assets loader and TestWorld resident chunks feed registered collision shapes, block scanning, Entity.collide step resolution and noCollision. Native independently constructs both scene sizes and all 16 gallery states/positions; compares exact movement bits and occupancy before/after against both pinned JARs. Includes partial blocks, pyramid ledges, negative/unloaded chunk boundaries, initial overlaps, vertical/horizontal/diagonal/tiny/zero movement and step heights. Position collision contexts, absent other entities/block entities and no border are explicit scene conditions. This validates the collision adapter, not player travel, gravity, tick scheduling, fluid/entity gameplay, rendering pixels or a complete playable game.'})
+                           'scope': 'Actual client Assets loader and TestWorld resident chunks feed registered collision shapes, block scanning, Entity.collide step resolution and noCollision. Native independently constructs both scene sizes and all 16 gallery states/positions; compares exact movement bits and occupancy before/after against both pinned JARs. Includes partial blocks, pyramid ledges, negative/unloaded chunk boundaries, initial overlaps, vertical/apextal/diagonal/tiny/zero movement and step heights. Position collision contexts, absent other entities/block entities and no border are explicit scene conditions. This validates the collision adapter, not player travel, gravity, tick scheduling, fluid/entity gameplay, rendering pixels or a complete playable game.'})
     print(f'Scoped native scene collision parity passed: {report}', flush=True)
 
 

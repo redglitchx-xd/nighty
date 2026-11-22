@@ -9,27 +9,27 @@ Apex's own format.
 
 | Part | Where | State |
 |---|---|---|
-| Format, stages, check | `crates/horizon-shader-api` | API 0.1, experimental |
-| Authoring tool | `horizon-shader` (same crate) | `new`, `check`, `pack` |
-| Templates | `crates/horizon-shader-api/templates/` | post, sky, material |
-| Example pack | `crates/horizon-shader-api/packs/golden_hour` | a warm sky and two post passes |
+| Format, stages, check | `crates/apex-shader-api` | API 0.1, experimental |
+| Authoring tool | `apex-shader` (same crate) | `new`, `check`, `pack` |
+| Templates | `crates/apex-shader-api/templates/` | post, sky, material |
+| Example pack | `crates/apex-shader-api/packs/golden_hour` | a warm sky and two post passes |
 | In the game: every stage | Options > Apex Settings > Shader Packs | sky, material, post passes, hot reload |
 | The registry and the launcher | `shader` kind ([api/mod-index.md](api/mod-index.md)); the Mods page's Shader packs tab | checked, then installed into `shaderpacks/` |
 
 ## Quick start
 
 ```sh
-cargo install --path crates/horizon-shader-api      # or: cargo run -p horizon-shader-api --bin horizon-shader -- <command>
-horizon-shader new my_pack --template post          # also: --template sky, --template material; --name "My Pack"
-horizon-shader check my_pack                        # what the game, the launcher and the registry will check
-horizon-shader pack my_pack                         # check, then write my_pack-0.1.0.hshader beside the folder
+cargo install --path crates/apex-shader-api      # or: cargo run -p apex-shader-api --bin apex-shader -- <command>
+apex-shader new my_pack --template post          # also: --template sky, --template material; --name "My Pack"
+apex-shader check my_pack                        # what the game, the launcher and the registry will check
+apex-shader pack my_pack                         # check, then write my_pack-0.1.0.hshader beside the folder
 ```
 
 `check` prints each stage with its cost, and the pack's SHA-256:
 
 ```
 golden_hour 1.0.0 (shader API 0.1): ok
-  sky       Warm horizon                     99 expressions, 0 texture reads
+  sky       Warm apex                     99 expressions, 0 texture reads
   post      Glow                            192 expressions, 3 texture reads
   post      Colour grade                    201 expressions, 2 texture reads
   sha256 b5e0d98c...
@@ -63,7 +63,7 @@ and the whole label when its name was shortened to fit. Leaving the page saves t
 
 ## A pack
 
-A folder (or the same files zipped as a `.hshader`) with `horizon-shaders.toml` and WGSL files:
+A folder (or the same files zipped as a `.hshader`) with `apex-shaders.toml` and WGSL files:
 
 ```toml
 schema = 1
@@ -109,7 +109,7 @@ Post passes also read `scene_color`, `scene_depth`, `previous` (the last pass's 
 `depth_at(uv)` and `view_position(uv, depth)`.
 
 Rules the check enforces: your files declare no bindings (`@group`/`@binding`), no entry points and no names starting
-with `horizon_`. Code shared by several stages goes in files listed in `shared`, put before every stage.
+with `apex_`. Code shared by several stages goes in files listed in `shared`, put before every stage.
 
 ## Sprite tags
 

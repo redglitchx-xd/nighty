@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The checks runners on playhorizon (the partner's Linux server, docs/ci-runners.md): GitHub's 20 hosted jobs at a
+# The checks runners on playapex (the partner's Linux server, docs/ci-runners.md): GitHub's 20 hosted jobs at a
 # time are shared by every pull request, so the same-repository ones and main's pushes run here instead.
 #
 #   bash tools/ci/checks-runners.sh install < token   # register (token on stdin), install, start; again to update
@@ -7,21 +7,21 @@
 #   bash tools/ci/checks-runners.sh uninstall < token  # stop and unregister (a remove-token)
 #
 # The token is made on a machine whose gh has admin on the repository, never printed or stored here:
-#   gh api -X POST repos/horizon-rust/horizon/actions/runners/registration-token --jq .token |
-#     ssh ludovic@playhorizon 'bash ~/horizon-install/checks-runners.sh install'
+#   gh api -X POST repos/apex-rust/apex/actions/runners/registration-token --jq .token |
+#     ssh ludovic@playapex 'bash ~/apex-install/checks-runners.sh install'
 #
 # Two kinds of runner, each a systemd user service in ~/.actions-runners/<name>:
-# - horizon-ci-<n> (label playhorizon-ci, CI_RUNNERS of them, default 2): ci.yml's verify and launcher jobs. Each has
+# - apex-ci-<n> (label playapex-ci, CI_RUNNERS of them, default 2): ci.yml's verify and launcher jobs. Each has
 #   its own work folder, rustup home and cargo target folder (outside the checkout, so the checkout's clean leaves it),
 #   and they share one cargo home (registry and git sources).
-# - horizon-light-<n> (label playhorizon-light, LIGHT_RUNNERS, default 2): the bots that run main's own scripts on
+# - apex-light-<n> (label playapex-light, LIGHT_RUNNERS, default 2): the bots that run main's own scripts on
 #   pull_request_target and comment events (pr labels, overlap note, cancel-on-close, claim command). No Rust.
-# All of them run nice, pinned to CPUs 4-7 inside horizon-ci.slice (linux-runner.sh: CPU quota and memory cap for
+# All of them run nice, pinned to CPUs 4-7 inside apex-ci.slice (linux-runner.sh: CPU quota and memory cap for
 # all CI on the machine), so CPUs 0-3 stay for tools/remote.sh runs, benchmarks and the servers.
 # Before every job, ci-shared/job-started.sh fails a job from a fork's pull request (whatever its workflow file says)
 # and empties a cargo target folder grown past MAX_TARGET_GB.
 set -euo pipefail
-repo=horizon-rust/horizon
+repo=apex-rust/apex
 base=$HOME/.actions-runners
 shared=$base/ci-shared
 units=${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user
@@ -32,8 +32,8 @@ packages="build-essential pkg-config git curl jq gh libasound2-dev libudev-dev l
   libx11-xcb-dev libfontconfig-dev libvulkan-dev"
 
 runners() {
-  for i in $(seq 1 "$ci"); do echo "horizon-ci-$i playhorizon-ci"; done
-  for i in $(seq 1 "$light"); do echo "horizon-light-$i playhorizon-light"; done
+  for i in $(seq 1 "$ci"); do echo "apex-ci-$i playapex-ci"; done
+  for i in $(seq 1 "$light"); do echo "apex-light-$i playapex-light"; done
 }
 
 shared_files() {
@@ -101,13 +101,13 @@ install() {
   if [ -n "${missing// /}" ]; then
     sudo -n env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends $missing > /dev/null
   fi
-  [ -f "$units/horizon-ci.slice" ] || { echo "No horizon-ci.slice: install tools/ci/linux-runner.sh first"; exit 1; }
+  [ -f "$units/apex-ci.slice" ] || { echo "No apex-ci.slice: install tools/ci/linux-runner.sh first"; exit 1; }
   shared_files
   cp "$0" "$shared/checks-runners.sh"
   # The checks' share of the CI slice's memory: a build that runs out stops there, not the parity runner's jobs.
-  cat > "$units/horizon-ci-checks.slice" <<EOF
+  cat > "$units/apex-ci-checks.slice" <<EOF
 [Unit]
-Description=Horizon CI: the checks runners' jobs (tools/ci/checks-runners.sh)
+Description=Apex CI: the checks runners' jobs (tools/ci/checks-runners.sh)
 [Slice]
 MemoryHigh=12G
 MemoryMax=16G
@@ -117,19 +117,19 @@ EOF
     if [ ! -f "$dir/.runner" ]; then
       unpack "$dir"
       (cd "$dir" && ./config.sh --unattended --replace --url "https://github.com/$repo" --token "$token" \
-        --name "playhorizon-${name#horizon-}" --labels "$label" --work _work > /dev/null)
+        --name "playapex-${name#apex-}" --labels "$label" --work _work > /dev/null)
     fi
     mkdir -p "$dir/home"
     {
       echo "LANG=C.UTF-8"
       echo "HOME=$dir/home"
       echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=$shared/job-started.sh"
-      echo "HORIZON_TELEMETRY_URL=off"
-      echo "HORIZON_NO_AUDIO=1"
-      echo "HORIZON_NO_HEARTBEAT=1"
-      echo "HORIZON_LAUNCHER_NO_SELF_UPDATE=1"
+      echo "APEX_TELEMETRY_URL=off"
+      echo "APEX_NO_AUDIO=1"
+      echo "APEX_NO_HEARTBEAT=1"
+      echo "APEX_LAUNCHER_NO_SELF_UPDATE=1"
       echo "GH_PROMPT_DISABLED=1"
-      if [ "$label" = playhorizon-ci ]; then
+      if [ "$label" = playapex-ci ]; then
         rust "$dir"
         echo "RUSTUP_HOME=$dir/rustup"
         echo "CARGO_HOME=$shared/cargo"
@@ -139,11 +139,11 @@ EOF
       fi
     } > "$dir/.env"
     echo "$shared/bin:$shared/cargo/bin:/usr/local/bin:/usr/bin:/bin" > "$dir/.path"
-    slice=horizon-ci.slice
-    [ "$label" = playhorizon-ci ] && slice=horizon-ci-checks.slice
-    cat > "$units/horizon-runner-${name#horizon-}.service" <<EOF
+    slice=apex-ci.slice
+    [ "$label" = playapex-ci ] && slice=apex-ci-checks.slice
+    cat > "$units/apex-runner-${name#apex-}.service" <<EOF
 [Unit]
-Description=GitHub Actions runner playhorizon-${name#horizon-} for $repo ($label, tools/ci/checks-runners.sh)
+Description=GitHub Actions runner playapex-${name#apex-} for $repo ($label, tools/ci/checks-runners.sh)
 After=network-online.target
 [Service]
 Slice=$slice
@@ -164,7 +164,7 @@ EOF
   done < <(runners)
   systemctl --user daemon-reload
   while read -r name label; do
-    local unit=horizon-runner-${name#horizon-}.service
+    local unit=apex-runner-${name#apex-}.service
     systemctl --user enable "$unit" > /dev/null 2>&1
     # The runner reads .env when it starts: restart only an idle one (a restart cancels its job).
     if pgrep -f "$base/$name/bin/Runner.Worker" > /dev/null; then echo "$name in a job: restart $unit after it"
@@ -174,9 +174,9 @@ EOF
 }
 
 status() {
-  systemctl --user --no-pager list-units 'horizon-runner-ci-*' 'horizon-runner-light-*'
+  systemctl --user --no-pager list-units 'apex-runner-ci-*' 'apex-runner-light-*'
   local dir
-  for dir in "$base"/horizon-ci-* "$base"/horizon-light-*; do
+  for dir in "$base"/apex-ci-* "$base"/apex-light-*; do
     [ -d "$dir" ] || continue
     printf '%-16s %s, target %s\n' "$(basename "$dir")" \
       "$(pgrep -f "$dir/bin/Runner.Worker" > /dev/null && echo busy || echo idle)" \
@@ -188,11 +188,11 @@ uninstall() {
   local token name label
   token=$(cat)
   while read -r name label; do
-    systemctl --user disable --now "horizon-runner-${name#horizon-}.service" 2>/dev/null || true
+    systemctl --user disable --now "apex-runner-${name#apex-}.service" 2>/dev/null || true
     [ -f "$base/$name/.runner" ] && (cd "$base/$name" && ./config.sh remove --token "$token" > /dev/null)
-    rm -f "$units/horizon-runner-${name#horizon-}.service"
+    rm -f "$units/apex-runner-${name#apex-}.service"
   done < <(runners)
-  rm -f "$units/horizon-ci-checks.slice"
+  rm -f "$units/apex-ci-checks.slice"
   systemctl --user daemon-reload
 }
 

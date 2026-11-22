@@ -3,7 +3,7 @@
 Status: proposal, for the authors of hook PRs to comment on. Nothing here is built yet. Checked against `native-hooks.json` on main
 (41 hooks, `NATIVE_HOOKS_API` 24) on 31 October 2026.
 
-Native mods hook empty functions in `crates/horizon-client/src/game/native_hooks.rs`, listed by name in
+Native mods hook empty functions in `crates/apex-client/src/game/native_hooks.rs`, listed by name in
 `native-hooks.json` ([native-mods.md](native-mods.md)). So far each hook was designed on its own, and open PRs
 number their API versions over each other. This proposes one
 reference for every new hook point: the NeoForge 26.3 event that does the same thing.
@@ -13,7 +13,7 @@ Why NeoForge:
 - Its events already answer the questions each of our hooks asks again: where exactly it fires, on which side,
   what it can cancel, what it is handed.
 - Mod authors know them. A Java mod's `@SubscribeEvent` methods map to hook names, which helps porting by
-  hand. [horizon-port-pack](modpacks.md) may suggest mappings for a human to review, not translate listeners
+  hand. [apex-port-pack](modpacks.md) may suggest mappings for a human to review, not translate listeners
   automatically.
 
 What we take is event names and their documented contracts, from NeoForge's public user documentation
@@ -60,14 +60,14 @@ Each `native-hooks.json` entry gains three optional fields:
 {
   "name": "server_tick_pre",
   "version": 1,
-  "target": "horizon_client::game::native_hooks::Game<'_>::native_server_tick_pre",
+  "target": "apex_client::game::native_hooks::Game<'_>::native_server_tick_pre",
   "neoforge": "ServerTickEvent.Pre",
   "side": "server",
   "cancellable": false
 }
 ```
 
-`neoforge` is absent for Apex-only hooks. horizon-mixins ignores fields it doesn't know, so this needs no
+`neoforge` is absent for Apex-only hooks. apex-mixins ignores fields it doesn't know, so this needs no
 tool change; the launcher and the docs can list them.
 
 ## The hooks we have

@@ -134,7 +134,7 @@ class Dashboard:
         done = sum(j['status'] == 'collected' for j in self.jobs)
         failed = sum(j['status'] == 'failed' for j in self.jobs)
         state = 'STOP AFTER CURRENT' if self.stopping else 'PAUSE AFTER CURRENT' if self.paused and self.current else 'PAUSED' if self.paused else 'RUNNING'
-        header = Text(f'HORIZON  /  ANDROID BENCHMARK     {self.device.upper()}     {state}', style='bold cyan')
+        header = Text(f'APEX  /  ANDROID BENCHMARK     {self.device.upper()}     {state}', style='bold cyan')
         progress = Progress(TextColumn('[bold]{task.description}'), BarColumn(bar_width=None), TextColumn('{task.completed:.0f}/{task.total:.0f}'))
         progress.add_task('Overall trials', total=len(self.jobs), completed=done+failed)
         if self.current:
@@ -234,15 +234,15 @@ def main():
         return
     if not sys.stdin.isatty():
         parser.error('Run in an interactive PowerShell terminal for P/Q controls.')
-    names = [f'Horizon-{v}-benchmark.apk' if v in ('0.7.3','0.7.7') else f'cpu-{v}.apk' for v in args.versions]
+    names = [f'Apex-{v}-benchmark.apk' if v in ('0.7.3','0.7.7') else f'cpu-{v}.apk' for v in args.versions]
     hashes = {name: hashlib.sha256((fixtures/name).read_bytes()).hexdigest() for name in names}
     old_hashes = read_json(output/'apks.json')
     if old_hashes and old_hashes != hashes:
         parser.error('APK identity changed. Use a new session instead of mixing builds.')
     save_json(output/'apks.json', hashes)
     serial = DEVICES[args.device][0]
-    env = dict(os.environ, HORIZON_BENCH_FIXTURES=str(fixtures), HORIZON_BENCH_SESSION=output.name,
-               HORIZON_BENCH_MANIFEST=str(output/'apks.json'), PYTHONIOENCODING='utf-8')
+    env = dict(os.environ, APEX_BENCH_FIXTURES=str(fixtures), APEX_BENCH_SESSION=output.name,
+               APEX_BENCH_MANIFEST=str(output/'apks.json'), PYTHONIOENCODING='utf-8')
     process = None
     log = None
     current_started = 0

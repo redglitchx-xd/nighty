@@ -3,11 +3,11 @@
 `/pregen` generates every chunk of a square or a circle ahead of the players, lights it and saves it, as
 Chunky does on a Java server. It is Apex's own command (vanilla has none), available in single player
 with cheats on and to operators (level 2) on a server, from the chat or the server console
-(`horizon-server cmd pregen start 2500`).
+(`apex-server cmd pregen start 2500`).
 
 It is off until you turn it on, so `/help` and the command tree stay vanilla's:
 
-- a server: `horizon-pregen = true` under `[properties]` in `server.toml` (or `horizon-pregen=true` in a
+- a server: `apex-pregen = true` under `[properties]` in `server.toml` (or `apex-pregen=true` in a
   vanilla folder's `server.properties`), then restart it;
 - single player and LAN: start the game with `--pregen`.
 
@@ -31,7 +31,7 @@ players see the pregenerated chunks past `view_distance` as well: that ring only
 
 ## How it works
 
-- `horizon_client::pregen::Pregen` cuts the area into strips at most 256 chunks wide and sweeps each
+- `apex_client::pregen::Pregen` cuts the area into strips at most 256 chunks wide and sweeps each
   north to south with a band of rows (`streaming::Band`) holding about a thousand chunks.
 - Streaming treats the band like a player's area: it generates its chunks and the rings around them that
   decoration and light need, and lights its own chunks. Once every chunk of the band's first row is lit

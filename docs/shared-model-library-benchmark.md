@@ -14,14 +14,14 @@ Use real prepared resources; no game files belong in Git. Build the baseline
 at `89b58991bbc02eb79b6965fc4ca56357fe2297d9` with the benchmark example copied in
 and `ItemRenderer::load(root)` in its item stage. Save that binary, then build
 this branch with `ItemRenderer::load_with_library(root, assets.model_library.clone())`.
-Both builds use `cargo build --locked --profile fast -p horizon-client --example
+Both builds use `cargo build --locked --profile fast -p apex-client --example
 model_library_bench` with `APEX_BENCH_COUNT_ALLOCATIONS` unset (`opt-level=3`, LTO disabled, 16 codegen units). Set
 `CARGO_BUILD_JOBS=2`. On the optimization machine, hold
-`/tmp/horizon-optimizations-20261015-heavy.lock` for each entire build or paired
+`/tmp/apex-optimizations-20261015-heavy.lock` for each entire build or paired
 measurement session. Reuse a shared Cargo target only under that lock.
 
 ```sh
-flock /tmp/horizon-optimizations-20261015-heavy.lock \
+flock /tmp/apex-optimizations-20261015-heavy.lock \
   python3 tools/model_library_bench.py BASELINE_BINARY CANDIDATE_BINARY RESOURCE_ROOT
 BASELINE_BINARY RESOURCE_ROOT --parity
 CANDIDATE_BINARY RESOURCE_ROOT --parity

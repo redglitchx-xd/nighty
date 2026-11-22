@@ -1,30 +1,30 @@
 # Launch API
 
 What another launcher (Prism Launcher, MultiMC, ATLauncher, Modrinth App, HMCL or your own) needs to start Apex:
-the options `horizon-client` takes, how it hands over an account, and how it ends. `horizon-launcher` is the
-reference implementation. Proposed in horizon-rust/horizon#3545.
+the options `apex-client` takes, how it hands over an account, and how it ends. `apex-launcher` is the
+reference implementation. Proposed in apex-rust/apex#3545.
 
 ## Overview
 
 | | |
 | --- | --- |
-| Version | 0.1.0, printed by `horizon-client --launch-api` |
+| Version | 0.1.0, printed by `apex-client --launch-api` |
 | Level | experimental ([stability.md](stability.md)): preview once preparing and the guide are covered too |
-| Covers | starting `horizon-client`: its options, the session JSON, the exit codes, the crash report's path; preparing with `horizon-prepare`: `--output`, `--check`, `--complete`, `--progress json` |
+| Covers | starting `apex-client`: its options, the session JSON, the exit codes, the crash report's path; preparing with `apex-prepare`: `--output`, `--check`, `--complete`, `--progress json` |
 | Not yet | finding a build, asking the preparer what it supports (see Not there yet) |
 
 ## Guide
 
 1. Start Apex only for a player signed in with a Microsoft account that owns Minecraft: Java Edition, and
    hand over that account's session (`--session-stdin`, or `--session-file`), never on the command line. This
-   is the same owner gate `horizon-launcher` applies before every start. Apex never downloads Mojang's
+   is the same owner gate `apex-launcher` applies before every start. Apex never downloads Mojang's
    files; a launcher that does downloads them only for that owner.
-2. Ask the build what it takes: `horizon-client --launch-api` prints JSON with `launch_api` (the version) and
+2. Ask the build what it takes: `apex-client --launch-api` prints JSON with `launch_api` (the version) and
    `options`. Pass only options it lists: any other is refused with exit code 2.
 3. Start it with a folder per instance:
 
    ```sh
-   horizon-client --resources PREPARED --game-dir INSTANCE --home INSTANCE --width 1280 --height 720 --session-stdin
+   apex-client --resources PREPARED --game-dir INSTANCE --home INSTANCE --width 1280 --height 720 --session-stdin
    ```
 
 4. Watch the exit code. On 2, stderr names the refused option (`Apex: --width: …`). On 1 or 101, the last
@@ -32,7 +32,7 @@ reference implementation. Proposed in horizon-rust/horizon#3545.
 
 ## Reference
 
-[launch-reference.md](launch-reference.md), generated from `crates/horizon-client/src/game/launch_api.rs`: every
+[launch-reference.md](launch-reference.md), generated from `crates/apex-client/src/game/launch_api.rs`: every
 option, the `--launch-api` reply and the exit codes.
 
 ### The session JSON
@@ -53,13 +53,13 @@ The account the game joins online-mode servers with ([microsoft-account.md](../m
 
 ## Preparing
 
-`horizon-prepare` turns the player's own Minecraft files into the resources `horizon-client --resources` reads. It
+`apex-prepare` turns the player's own Minecraft files into the resources `apex-client --resources` reads. It
 downloads nothing: it reads the files of a Minecraft the player owns (Guide, step 1) and checks each against the
 pins in `research-lock.json`.
 
 ```sh
-horizon-prepare --prepare --output PREPARED --complete --progress json
-horizon-prepare --check --output PREPARED
+apex-prepare --prepare --output PREPARED --complete --progress json
+apex-prepare --check --output PREPARED
 ```
 
 - `--output DIR`: where the resources go; the preparer's scratch files stay in its own `.local/`. One
@@ -76,7 +76,7 @@ horizon-prepare --check --output PREPARED
   verified, it is reused and these files aren't read.
 - `--server-jar PATH`: the first `--prepare` needs the server jar, which no launcher keeps. Apex never
   downloads it; a launcher downloads it (the version JSON's `downloads.server`) only for a signed-in account
-  that owns Java Edition, as `horizon-launcher` does.
+  that owns Java Edition, as `apex-launcher` does.
 - `--java-home PATH`: a Java of the pinned version that the launcher manages, tried after `JAVA_HOME` and the
   `PATH`, before the official launcher's runtimes.
 - Exit codes: 0 done, 1 failed or gaps found, 2 a refused command line.
@@ -93,8 +93,8 @@ horizon-prepare --check --output PREPARED
 ## Examples
 
 ```sh
-horizon-client --launch-api
-printf '%s' "$SESSION_JSON" | horizon-client --resources ~/horizon/prepared --game-dir ~/instances/a --session-stdin --fullscreen
+apex-client --launch-api
+printf '%s' "$SESSION_JSON" | apex-client --resources ~/apex/prepared --game-dir ~/instances/a --session-stdin --fullscreen
 ```
 
 ## Stability
@@ -105,14 +105,14 @@ test keeps the contract and the code together.
 
 ## Not there yet
 
-- **Asking the preparer what it supports:** `horizon-prepare --launch-api`, with its output version, schema and
+- **Asking the preparer what it supports:** `apex-prepare --launch-api`, with its output version, schema and
   Java major.
 - **Finding a build:** a signed release index and builds kept longer than seven days.
 - **A guide**, "Running Apex from another launcher", from picking a build to playing.
 
 ## Changelog
 
-- 0.1.0 (not released yet, so still one version): `horizon-client`'s `--game-dir`, `--home`, `--fullscreen`,
-  `--session-stdin`, `--launch-api`, exit code 2 for a refused command line; `horizon-prepare`'s `--output`,
+- 0.1.0 (not released yet, so still one version): `apex-client`'s `--game-dir`, `--home`, `--fullscreen`,
+  `--session-stdin`, `--launch-api`, exit code 2 for a refused command line; `apex-prepare`'s `--output`,
   `--check`, `--complete`, `--progress json`, `--version-json`, `--client-jar`, `--libraries-dir`, `--assets-dir`
   and `--java-home`.

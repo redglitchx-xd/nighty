@@ -1,7 +1,7 @@
-<!-- Generated from crates/horizon-client/src/game/launch_api.rs; a test fails when this file is out of date. Update it with: APEX_WRITE_DOCS=1 cargo test -p horizon-client --bin horizon-client launch_api -->
+<!-- Generated from crates/apex-client/src/game/launch_api.rs; a test fails when this file is out of date. Update it with: APEX_WRITE_DOCS=1 cargo test -p apex-client --bin apex-client launch_api -->
 # Launch API reference
 
-What `horizon-client` promises a launcher that starts it, Launch API 0.1.0. The guide: [launch.md](launch.md); stability and versions: [stability.md](stability.md).
+What `apex-client` promises a launcher that starts it, Launch API 0.1.0. The guide: [launch.md](launch.md); stability and versions: [stability.md](stability.md).
 
 ## Options
 
@@ -9,9 +9,9 @@ Any other option is refused with exit code 2, so ask `--launch-api` before passi
 
 | Option | What it does |
 | --- | --- |
-| `--resources DIR` | The prepared resources (horizon-prepare's output). Default: `resources` beside the executable, else `.local/horizon-client/26.3`. |
-| `--game-dir DIR` | The game folder: `saves/`, `options.txt`, `resourcepacks/`, `horizon-mods/`, `screenshots/`. Created when missing. Default: the working directory. `--gameDir` is the same. |
-| `--home DIR` | Logs (`logs/latest.log`) and crash reports (`crash-reports/`). Default: `APEX_HOME`, else `horizon` in the platform data folder. |
+| `--resources DIR` | The prepared resources (apex-prepare's output). Default: `resources` beside the executable, else `.local/apex-client/26.3`. |
+| `--game-dir DIR` | The game folder: `saves/`, `options.txt`, `resourcepacks/`, `apex-mods/`, `screenshots/`. Created when missing. Default: the working directory. `--gameDir` is the same. |
+| `--home DIR` | Logs (`logs/latest.log`) and crash reports (`crash-reports/`). Default: `APEX_HOME`, else `apex` in the platform data folder. |
 | `--width N` | The window's starting width (default 1280). |
 | `--height N` | The window's starting height (default 720). |
 | `--fullscreen` | Opens the window fullscreen, whatever `options.txt` says; `options.txt` is not changed. |
@@ -23,7 +23,7 @@ Any other option is refused with exit code 2, so ask `--launch-api` before passi
 
 ## `--launch-api`
 
-Prints one JSON object on stdout and exits 0. `horizon` is the build's version; readers ignore fields they don't know.
+Prints one JSON object on stdout and exits 0. `apex` is the build's version; readers ignore fields they don't know.
 
 ```json
 {
@@ -34,7 +34,7 @@ Prints one JSON object on stdout and exits 0. `horizon` is the build's version; 
     2,
     101
   ],
-  "horizon": "<version>",
+  "apex": "<version>",
   "launch_api": "0.1.0",
   "minecraft": "26.3",
   "options": [

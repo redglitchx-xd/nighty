@@ -1,13 +1,13 @@
 //! Native mods (docs/native-mods.md): mixin bundles that
-//! levzzz5154's horizon-mixins (MIT, <https://github.com/horizon-rust/horizon-mixins>) applies to
-//! Horizon's source, which the launcher then compiles into a game of its own with its portable Rust
+//! levzzz5154's apex-mixins (MIT, <https://github.com/apex-rust/apex-mixins>) applies to
+//! Apex's source, which the launcher then compiles into a game of its own with its portable Rust
 //! ([`rust_toolchain`]). Unlike `.hmod` mods they are not sandboxed: their code runs with the
 //! player's rights.
 //!
 //! A native mod pins the Apex revision it was made for (a Nightly's or a release's commit).
 //! Mods pinning different ones build on the newest of them, once the player agreed to try (they
-//! often still apply and compile). A mod that hooks only Horizon's native hook points
-//! (`game/native_hooks.rs`) names the version it needs instead (`hooks`): it builds on any Horizon
+//! often still apply and compile). A mod that hooks only Apex's native hook points
+//! (`game/native_hooks.rs`) names the version it needs instead (`hooks`): it builds on any Apex
 //! whose hook points have that version or a later one (they are only ever added to), the player's own
 //! by default, so such mods always build together. The build compiles that revision's source, from
 //! GitHub, never a checkout on this computer, and installs as its own version,
@@ -28,15 +28,15 @@ use std::process::{Command, Stdio};
 mod crates;
 
 const PREFIX: &str = "native-";
-/// horizon-mixins, for bundles that don't name the revision they were tested with.
-const MIXINS_GIT: &str = "https://github.com/horizon-rust/horizon-mixins";
+/// apex-mixins, for bundles that don't name the revision they were tested with.
+const MIXINS_GIT: &str = "https://github.com/apex-rust/apex-mixins";
 pub const MIXINS_REV: &str = "a2af5c0dd4117d51ecd70066ba7a00b4a2c10dab";
 /// The features of the release's own game (game-build.yml).
-const FEATURES: &str = "horizon-client/mods";
+const FEATURES: &str = "apex-client/mods";
 
 /// The Cargo profile a native build compiles with. `Fast` (the workspace's `[profile.fast]`: no
 /// LTO, 16 codegen units, incremental) is the default, so changing a mod recompiles only
-/// `horizon-client`'s changed parts; `Release` is the release's own (thin LTO, one codegen unit):
+/// `apex-client`'s changed parts; `Release` is the release's own (thin LTO, one codegen unit):
 /// slower to build, slightly faster game. Each has its own folder under `native/target/` and its
 /// own key, so the two never mix.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -77,7 +77,7 @@ impl Profile {
 /// what the next build is compared with to say what changed.
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Record {
-    pub horizon: String,
+    pub apex: String,
     pub mixins: String,
     /// Each mod's id and the hash of its files.
     pub mods: std::collections::BTreeMap<String, String>,
@@ -126,12 +126,12 @@ pub fn classify(exists: bool, before: Option<&Record>, now: &Record) -> Plan {
         return Plan::First;
     };
     let mut changes = Vec::new();
-    if before.horizon != now.horizon {
+    if before.apex != now.apex {
         let short = |r: &str| r.chars().take(7).collect::<String>();
         changes.push(format!(
             "Apex commit {} to {}",
-            short(&before.horizon),
-            short(&now.horizon)
+            short(&before.apex),
+            short(&now.apex)
         ));
     }
     let changed: Vec<&str> = now
@@ -151,7 +151,7 @@ pub fn classify(exists: bool, before: Option<&Record>, now: &Record) -> Plan {
         changes.push(format!("mods {}", changed.join(", ")));
     }
     if before.mixins != now.mixins {
-        changes.push("horizon-mixins".into());
+        changes.push("apex-mixins".into());
     }
     if changes.is_empty() {
         changes.push("the build settings".into());
@@ -291,12 +291,12 @@ pub fn log_path() -> PathBuf {
     root().join("build.log")
 }
 
-const MANIFEST: &str = "horizon-mixin.toml";
-/// A registry download's manifest (`.hnmod`, `horizon_mods::index::native`), beside `mixins/<id>/`.
-const NATIVE_MANIFEST: &str = horizon_mods::index::native::MANIFEST;
+const MANIFEST: &str = "apex-mixin.toml";
+/// A registry download's manifest (`.hnmod`, `apex_mods::index::native`), beside `mixins/<id>/`.
+const NATIVE_MANIFEST: &str = apex_mods::index::native::MANIFEST;
 /// Where an instance keeps the native mods installed from the registry, `<id>.hnmod`, each on or
-/// off in `horizon-mods.txt` like any mod.
-pub const INSTALLED: &str = "horizon-native-mods";
+/// off in `apex-mods.txt` like any mod.
+pub const INSTALLED: &str = "apex-native-mods";
 
 /// The native mods turned on in the game folder `home`, unpacked into a folder [`build`] takes.
 /// Each `.hnmod` is checked again as the registry checks it (Rust and TOML under
@@ -311,7 +311,7 @@ pub fn installed_mods(home: &Path) -> Result<PathBuf, String> {
     paths.sort();
     let mut count = 0;
     for path in paths {
-        let bundle = horizon_mods::index::native::Bundle::read(&path)
+        let bundle = apex_mods::index::native::Bundle::read(&path)
             .map_err(|e| format!("{}: {e}", path.display()))?;
         if !crate::browser::java::is_enabled(home, &bundle.manifest.id) {
             continue;
@@ -333,23 +333,23 @@ pub fn installed_mods(home: &Path) -> Result<PathBuf, String> {
     Ok(out)
 }
 
-/// A mixin bundle: a folder with a `horizon-mixin.toml`, and the revisions it pins.
+/// A mixin bundle: a folder with a `apex-mixin.toml`, and the revisions it pins.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Bundle {
     pub id: String,
     pub version: String,
     pub dir: PathBuf,
-    /// The Horizon commit it builds on (`[compatibility] horizon_revision`, or its `.hnmod`'s).
-    pub horizon: Option<String>,
-    /// The horizon-mixins commit it was tested with (its `.hnmod`'s).
+    /// The Apex commit it builds on (`[compatibility] apex_revision`, or its `.hnmod`'s).
+    pub apex: Option<String>,
+    /// The apex-mixins commit it was tested with (its `.hnmod`'s).
     pub mixins: Option<String>,
-    /// The native hook points' version it needs (its `.hnmod`'s `hooks`): then `horizon` is the
+    /// The native hook points' version it needs (its `.hnmod`'s `hooks`): then `apex` is the
     /// revision it was tested on, and it builds on any with these hook points or later ones.
     pub hooks: Option<u32>,
 }
 
-/// The bundles in `folder`: the folder itself when it is one (a `horizon-mixin.toml`, or an
-/// unpacked `.hnmod`: `horizon-native.json` and `mixins/<id>/`), else each of its subfolders that is.
+/// The bundles in `folder`: the folder itself when it is one (a `apex-mixin.toml`, or an
+/// unpacked `.hnmod`: `apex-native.json` and `mixins/<id>/`), else each of its subfolders that is.
 pub fn bundles(folder: &Path) -> Result<Vec<Bundle>, String> {
     if let Some(found) = bundle_in(folder)? {
         return Ok(vec![found]);
@@ -388,12 +388,12 @@ pub(crate) fn bundle_in(dir: &Path) -> Result<Option<Bundle>, String> {
     let field = |name: &str| native_json[name].as_str().map(str::to_owned);
     let id = field("id").ok_or_else(|| format!("{} has no id.", path.display()))?;
     let found = bundle(&dir.join("mixins").join(&id), field("mixins"))?;
-    match (&found.horizon, field("horizon")) {
+    match (&found.apex, field("apex")) {
         (Some(pinned), Some(native)) if *pinned != native => Err(format!(
             "{id}: {NATIVE_MANIFEST} pins Apex {native}, its {MANIFEST} {pinned}."
         )),
         (_, native) => Ok(Some(Bundle {
-            horizon: found.horizon.clone().or(native),
+            apex: found.apex.clone().or(native),
             hooks: native_json["hooks"]
                 .as_u64()
                 .and_then(|v| u32::try_from(v).ok()),
@@ -422,7 +422,7 @@ fn bundle(dir: &Path, mixins: Option<String>) -> Result<Bundle, String> {
         id: need("id")?,
         version: need("version")?,
         dir: dir.to_owned(),
-        horizon: field("compatibility", "horizon_revision"),
+        apex: field("compatibility", "apex_revision"),
         mixins,
         hooks: None,
     })
@@ -468,7 +468,7 @@ fn agreed(
 }
 
 /// The revision `bundles` build on for `which` when their pins differ: the newest of the pins and
-/// `also` (the launcher's own horizon-mixins), by its commit's time (`date`), so no mod gets an
+/// `also` (the launcher's own apex-mixins), by its commit's time (`date`), so no mod gets an
 /// older one than it was made for. With one pin or none, it is [`agreed`]'s.
 fn newest(
     bundles: &[Bundle],
@@ -556,7 +556,7 @@ fn mismatch(mods: &[Bundle], revision: &str) -> Option<String> {
     let list: Vec<String> = mods
         .iter()
         .filter(|b| b.hooks.is_none())
-        .filter_map(|b| b.horizon.as_ref().map(|r| (b, r)))
+        .filter_map(|b| b.apex.as_ref().map(|r| (b, r)))
         .filter(|(_, r)| *r != revision)
         .map(|(b, r)| format!("{} → {}", b.id, &r[..r.len().min(7)]))
         .collect();
@@ -569,8 +569,8 @@ fn mismatch(mods: &[Bundle], revision: &str) -> Option<String> {
     })
 }
 
-/// Where Horizon declares its native hook points' version, and the line that does.
-const HOOKS_FILE: &str = "crates/horizon-client/src/game/native_hooks.rs";
+/// Where Apex declares its native hook points' version, and the line that does.
+const HOOKS_FILE: &str = "crates/apex-client/src/game/native_hooks.rs";
 const HOOKS_LINE: &str = "pub(crate) const NATIVE_HOOKS_API: u32 = ";
 
 /// The native hook points' version in `HOOKS_FILE`'s text.
@@ -579,7 +579,7 @@ fn hooks_in(source: &str) -> Option<u32> {
     line.trim_end().strip_suffix(';')?.parse().ok()
 }
 
-/// The native hook points' version of Horizon at `revision`, from GitHub (None: it has none).
+/// The native hook points' version of Apex at `revision`, from GitHub (None: it has none).
 fn hooks_at(revision: &str) -> Option<u32> {
     let url = format!(
         "https://raw.githubusercontent.com/{}/{revision}/{HOOKS_FILE}",
@@ -593,7 +593,7 @@ fn hooks_at(revision: &str) -> Option<u32> {
 /// when every mod naming a hook points' version finds it or a later one there (`at` reads a
 /// revision's). Else, when nothing pins it, the revision those mods were tested on. Else the
 /// revision of the release or Nightly the build starts from (`game`), when they find theirs
-/// there: a rebuild that stayed on an older Horizon, or mods pinning one, then move to the game
+/// there: a rebuild that stayed on an older Apex, or mods pinning one, then move to the game
 /// the player installed, and pinned mods wait for the player's Build anyway ([`mismatch`]).
 fn with_hooks(
     mods: &[Bundle],
@@ -614,7 +614,7 @@ fn with_hooks(
     let fallback = agreed(
         &tested,
         "Apex",
-        |b| b.horizon.as_ref(),
+        |b| b.apex.as_ref(),
         || Err(String::new()),
     );
     if let (true, Ok(revision)) = (free, fallback) {
@@ -640,7 +640,7 @@ fn with_hooks(
 }
 
 /// A bundle that names a hook points' version builds on another revision than the one it was
-/// tested on: its `horizon_revision` (which horizon-mixins checks) becomes the build's.
+/// tested on: its `apex_revision` (which apex-mixins checks) becomes the build's.
 fn repin(bundle: &Bundle, revision: &str) -> Result<(), String> {
     let path = bundle.dir.join(MANIFEST);
     let text = fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
@@ -648,16 +648,16 @@ fn repin(bundle: &Bundle, revision: &str) -> Result<(), String> {
         .parse()
         .map_err(|e| format!("{}: {e}", path.display()))?;
     if let Some(toml::Value::Table(compat)) = value.get_mut("compatibility") {
-        compat.insert("horizon_revision".into(), revision.into());
+        compat.insert("apex_revision".into(), revision.into());
     }
     let text = toml::to_string(&value).map_err(|e| e.to_string())?;
     fs::write(&path, text).map_err(|e| format!("{}: {e}", path.display()))
 }
 
-/// Whether Horizon's source at `source` has the `mods` feature (the WebAssembly mods' runtime,
+/// Whether Apex's source at `source` has the `mods` feature (the WebAssembly mods' runtime,
 /// gone from later revisions).
 fn has_mods_feature(source: &Path) -> bool {
-    let path = source.join("crates/horizon-client/Cargo.toml");
+    let path = source.join("crates/apex-client/Cargo.toml");
     let text = fs::read_to_string(path).unwrap_or_default();
     let value: toml::Table = text.parse().unwrap_or_default();
     value.get("features").and_then(|f| f.get("mods")).is_some()
@@ -680,7 +680,7 @@ fn profile_of(source: &Path, chosen: Profile) -> Profile {
     }
 }
 
-/// The Horizon commit `version` (an installed release or Nightly) was built from, from GitHub.
+/// The Apex commit `version` (an installed release or Nightly) was built from, from GitHub.
 pub fn revision_of(version: &str) -> Result<String, String> {
     let reference = match version.strip_prefix("nightly-") {
         // nightly-2026-10-28-0c02067: the commit is its last word.
@@ -704,8 +704,8 @@ pub fn revision_of(version: &str) -> Result<String, String> {
 pub struct About {
     /// The release or Nightly it started from.
     pub base: String,
-    /// The Horizon commit it compiled.
-    pub horizon: String,
+    /// The Apex commit it compiled.
+    pub apex: String,
 }
 
 /// What installed native build `version` was made from; None for any other version.
@@ -718,7 +718,7 @@ pub fn about(version: &str) -> Option<About> {
     let field = |name: &str| json[name].as_str().map(str::to_owned);
     Some(About {
         base: field("base")?,
-        horizon: field("horizon").filter(|r| is_revision(r))?,
+        apex: field("apex").filter(|r| is_revision(r))?,
     })
 }
 
@@ -730,7 +730,7 @@ fn newest_installed(installed: &[String]) -> Option<&String> {
 }
 
 /// The installed version a build for an instance that plays `current` starts from: `current`
-/// itself, so a rebuild stays on the Horizon it plays (a native build's own revision, [`about`]).
+/// itself, so a rebuild stays on the Apex it plays (a native build's own revision, [`about`]).
 /// With `update`, or when it plays nothing installed, the newest installed release or Nightly.
 pub fn base_for(current: Option<&str>, installed: &[String], update: bool) -> Option<String> {
     match current {
@@ -739,7 +739,7 @@ pub fn base_for(current: Option<&str>, installed: &[String], update: bool) -> Op
     }
 }
 
-/// The newer Horizon a build with `update` would move native build `version` to: the newest
+/// The newer Apex a build with `update` would move native build `version` to: the newest
 /// installed release or Nightly, when it is newer than the one the build started from.
 pub fn update_for(version: &str, installed: &[String]) -> Option<String> {
     newer_than(&about(version)?.base, installed)
@@ -752,7 +752,7 @@ pub fn newer_than(base: &str, installed: &[String]) -> Option<String> {
 }
 
 /// Every file under `dir`, by its path relative to `dir` (with `/`), sorted. A symlink is refused:
-/// horizon-mixins refuses them too.
+/// apex-mixins refuses them too.
 fn files(dir: &Path) -> Result<Vec<(String, PathBuf)>, String> {
     fn walk(root: &Path, dir: &Path, out: &mut Vec<(String, PathBuf)>) -> Result<(), String> {
         for entry in fs::read_dir(dir).map_err(|e| e.to_string())?.flatten() {
@@ -777,7 +777,7 @@ fn files(dir: &Path) -> Result<Vec<(String, PathBuf)>, String> {
     Ok(out)
 }
 
-/// The installed version `bundles` built on Horizon `revision` with horizon-mixins `mixins`
+/// The installed version `bundles` built on Apex `revision` with apex-mixins `mixins`
 /// become: `native-<7 digits of the revision>-<12 hex digits>`.
 pub fn version_for(
     revision: &str,
@@ -828,7 +828,7 @@ pub fn digest<'a>(files: impl Iterator<Item = (&'a str, &'a [u8])>) -> String {
 }
 
 /// The digest of a bundle's files as the Mods page reads it (`native_status::enabled`): an
-/// unpacked `.hnmod`'s whole folder, its `horizon-native.json` included, else the bundle's own
+/// unpacked `.hnmod`'s whole folder, its `apex-native.json` included, else the bundle's own
 /// folder. A build records it, so a build of the mods turned on reads as up to date.
 fn source_digest(bundle: &Bundle) -> Option<String> {
     let root = bundle
@@ -864,7 +864,7 @@ pub enum Step {
         name: String,
         profile: Profile,
     },
-    /// The mods' own crates checked against Horizon's `Cargo.lock`.
+    /// The mods' own crates checked against Apex's `Cargo.lock`.
     Crates,
     /// A mod's post-build step being built.
     PostBuildCompile(String),
@@ -889,7 +889,7 @@ impl Step {
                     ("done", &format!("{:.0}", done * 100.0)),
                 ],
             ),
-            Self::Tool => tr("Building horizon-mixins (once)").into(),
+            Self::Tool => tr("Building apex-mixins (once)").into(),
             Self::Source(revision) => trf(
                 "Downloading Apex's source at {revision}",
                 &[("revision", &revision[..7])],
@@ -993,7 +993,7 @@ fn failure(what: &str, status: &str, errors: &[String], tail: &[String]) -> Stri
     )
 }
 
-/// A horizon-mixins diagnostic (`{"code", "message", "file"}`) in one line.
+/// A apex-mixins diagnostic (`{"code", "message", "file"}`) in one line.
 fn diagnostic(text: &str) -> Option<String> {
     let start = text.find('{')?;
     let value: serde_json::Value = serde_json::from_str(&text[start..]).ok()?;
@@ -1008,13 +1008,13 @@ fn diagnostic(text: &str) -> Option<String> {
     Some(line)
 }
 
-/// horizon-mixins at commit `rev`, built once with the launcher's cargo (`cargo install --locked`);
+/// apex-mixins at commit `rev`, built once with the launcher's cargo (`cargo install --locked`);
 /// `progress` hears [`Step::Tool`] only when it is built.
 fn tool(rust: &Toolchain, rev: &str, progress: &impl Fn(Step)) -> Result<PathBuf, String> {
     let dir = root().join("tools").join(&rev[..12]);
     let bin = dir
         .join("bin")
-        .join(format!("horizon-mixins{}", std::env::consts::EXE_SUFFIX));
+        .join(format!("apex-mixins{}", std::env::consts::EXE_SUFFIX));
     if !bin.is_file() {
         progress(Step::Tool);
         let mut cmd = rust.command(&rust.cargo());
@@ -1023,13 +1023,13 @@ fn tool(rust: &Toolchain, rev: &str, progress: &impl Fn(Step)) -> Result<PathBuf
             "install", "--locked", "--git", MIXINS_GIT, "--rev", rev, "--root",
         ])
         .arg(&dir)
-        .arg("horizon-mixins-cli");
-        run(cmd, "Building horizon-mixins", |_| {})?;
+        .arg("apex-mixins-cli");
+        run(cmd, "Building apex-mixins", |_| {})?;
     }
     Ok(bin)
 }
 
-/// `horizon-mixins apply`: the mods in `mods` applied to `source`, into `out`. It runs
+/// `apex-mixins apply`: the mods in `mods` applied to `source`, into `out`. It runs
 /// `cargo metadata`, so it gets the launcher's toolchain like a build does: on a computer with no
 /// Rust of its own, a plain command found no cargo (E_METADATA).
 fn apply(rust: &Toolchain, tool: &Path, source: &Path, mods: &Path, out: &Path) -> Command {
@@ -1054,7 +1054,7 @@ fn compile(rust: &Toolchain, stage: &Path, target: &Path, profile: Profile) -> C
     if has_mods_feature(stage) {
         cmd.args(["--features", FEATURES]);
     }
-    cmd.args(["-p", "horizon-client", "--bin", "horizon-client"]);
+    cmd.args(["-p", "apex-client", "--bin", "apex-client"]);
     cmd
 }
 
@@ -1072,19 +1072,19 @@ fn cargo(rust: &Toolchain, dir: &Path, subcommand: &str) -> Command {
     cmd
 }
 
-/// Checks the mods' crates (`native-crates/`) against `source`'s `Cargo.lock`, Horizon's own.
-/// horizon-mixins already wrote them into `stage`'s lock (and refused a crate the lock lacks,
+/// Checks the mods' crates (`native-crates/`) against `source`'s `Cargo.lock`, Apex's own.
+/// apex-mixins already wrote them into `stage`'s lock (and refused a crate the lock lacks,
 /// `E_CRATE_DEPENDENCY`), leaving every other package as it was: this checks that again, a crate
-/// they name must be in Horizon's lock and every package downloaded exactly as there. Then the
+/// they name must be in Apex's lock and every package downloaded exactly as there. Then the
 /// crates are fetched, so a feature turning on a dependency the lock lacks fails here, readably.
 fn lock_crates(rust: &Toolchain, source: &Path, stage: &Path) -> Result<(), String> {
     let read = |dir: &Path| {
         let path = dir.join("Cargo.lock");
         fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))
     };
-    let horizon = crates::downloaded(&read(source)?)?;
+    let apex = crates::downloaded(&read(source)?)?;
     let staged = crates::downloaded(&read(stage)?)?;
-    if let Some(why) = crates::refused(&horizon, Some(&staged), &crates::wanted(stage)?) {
+    if let Some(why) = crates::refused(&apex, Some(&staged), &crates::wanted(stage)?) {
         return Err(why);
     }
     // Only this computer's crates: the build needs no others.
@@ -1099,8 +1099,8 @@ fn lock_crates(rust: &Toolchain, source: &Path, stage: &Path) -> Result<(), Stri
 /// Builds the mods' post-build programs with the game's profile in `target`; each step and its
 /// program, in mod order. A bin's file name doesn't include its package, so two mods' bins of the
 /// same name (or one named like the game) are the same file in `target`: each program is copied
-/// to `programs/<step>/` as soon as it is built. horizon-mixins refuses such names too
-/// (`E_POST_BUILD`, horizon-mixins#8); this keeps a bundle built by an older one safe.
+/// to `programs/<step>/` as soon as it is built. apex-mixins refuses such names too
+/// (`E_POST_BUILD`, apex-mixins#8); this keeps a bundle built by an older one safe.
 fn post_build_programs(
     rust: &Toolchain,
     stage: &Path,
@@ -1139,13 +1139,13 @@ fn post_build_programs(
     Ok(out)
 }
 
-/// Horizon's source at commit `revision`: GitHub's archive of it, unpacked once, with the commit in
-/// `.horizon-revision` (bundles pin it). A Nightly's commit stays downloadable after the Nightly
+/// Apex's source at commit `revision`: GitHub's archive of it, unpacked once, with the commit in
+/// `.apex-revision` (bundles pin it). A Nightly's commit stays downloadable after the Nightly
 /// is gone: its `nightly-source/…` tag keeps it (docs/release-flow.md). Links are left out:
-/// horizon-mixins refuses them, and none is needed to build.
+/// apex-mixins refuses them, and none is needed to build.
 fn source(revision: &str) -> Result<PathBuf, String> {
     let dir = root().join("source").join(revision);
-    if dir.join(".horizon-revision").is_file() {
+    if dir.join(".apex-revision").is_file() {
         return Ok(dir);
     }
     let archive = format!(
@@ -1154,7 +1154,7 @@ fn source(revision: &str) -> Result<PathBuf, String> {
     );
     let partial = root().join("source").join(format!(".{revision}.partial"));
     let top = unpack_archive(&archive, &partial, u64::MAX)?;
-    fs::write(top.join(".horizon-revision"), revision).map_err(|e| e.to_string())?;
+    fs::write(top.join(".apex-revision"), revision).map_err(|e| e.to_string())?;
     let _ = fs::remove_dir_all(&dir);
     fs::rename(&top, &dir).map_err(|e| e.to_string())?;
     let _ = fs::remove_dir_all(&partial);
@@ -1212,7 +1212,7 @@ fn sync(from: &Path, to: &Path) -> Result<(), String> {
 /// whose game files the build reuses: a native build's own revision when it is one, [`base_for`])
 /// and points `instance` at the build, the default one included. Returns the build's version; a
 /// build already made is used again. Mods pinning different revisions build on the newest one,
-/// with the newest horizon-mixins they name, only when the player agreed to try (`anyway`): else
+/// with the newest apex-mixins they name, only when the player agreed to try (`anyway`): else
 /// the error starts with [`MISMATCH`] and says which.
 pub fn build(
     base: &str,
@@ -1251,13 +1251,13 @@ pub fn build(
         .collect();
     // A mod naming a hook points' version doesn't pin: it follows the others, else the game.
     let pins: Vec<Bundle> = mods.iter().filter(|b| b.hooks.is_none()).cloned().collect();
-    let free = pins.iter().all(|b| b.horizon.is_none());
+    let free = pins.iter().all(|b| b.apex.is_none());
     let pinned = newest(
         &pins,
         "Apex",
-        |b| b.horizon.as_ref(),
+        |b| b.apex.as_ref(),
         || match &built_on {
-            Some(about) => Ok(about.horizon.clone()),
+            Some(about) => Ok(about.apex.clone()),
             None => revision_of(base),
         },
         None,
@@ -1271,7 +1271,7 @@ pub fn build(
     }
     for b in mods
         .iter()
-        .filter(|b| b.hooks.is_some() || b.horizon.as_ref().is_some_and(|r| *r != revision))
+        .filter(|b| b.hooks.is_some() || b.apex.as_ref().is_some_and(|r| *r != revision))
     {
         repin(b, &revision)?;
     }
@@ -1284,15 +1284,15 @@ pub fn build(
     };
     let mixins = newest(
         &mods,
-        "horizon-mixins",
+        "apex-mixins",
         |b| b.mixins.as_ref(),
         || Ok(MIXINS_REV.into()),
         Some(MIXINS_REV),
-        |r| committed("horizon-rust/horizon-mixins", r),
+        |r| committed("apex-rust/apex-mixins", r),
     )?;
     let version = version_for(&revision, &mixins, profile, &mods)?;
     let now = Record {
-        horizon: revision.clone(),
+        apex: revision.clone(),
         mixins: mixins.clone(),
         mods: mods
             .iter()
@@ -1309,14 +1309,14 @@ pub fn build(
         progress(Step::Source(revision.clone()));
         let source = source(&revision)?;
         progress(Step::Mixins);
-        // `root()` is already the form horizon-mixins and MinGW take: resolved (no link, which
+        // `root()` is already the form apex-mixins and MinGW take: resolved (no link, which
         // it refuses) and, on Windows, ASCII (which they can't read past), both by build_dir.
         let real = root();
         let fresh = real.join("stage.new");
         let _ = fs::remove_dir_all(&fresh);
         run(
             apply(&rust, &tool, &source, &incoming, &fresh),
-            "horizon-mixins",
+            "apex-mixins",
             |_| {},
         )
         .map_err(blame)?;
@@ -1374,8 +1374,8 @@ pub fn build(
         progress(Step::Install);
         let about = serde_json::json!({
             "base": origin,
-            "horizon": revision,
-            "horizon_mixins": mixins,
+            "apex": revision,
+            "apex_mixins": mixins,
             "hooks": mods.iter().find_map(|m| m.hooks),
             "rust": rust_toolchain::VERSION,
             "profile": profile.name(),
@@ -1445,8 +1445,8 @@ fn install(
         let copied = if entry.path().is_dir() {
             backend::copy_dir(&entry.path(), &to)
         } else {
-            // A clone is a new file: horizon-ctl and horizon-server keep their permissions.
-            horizon_prepare::clone_or_copy(&entry.path(), &to)
+            // A clone is a new file: apex-ctl and apex-server keep their permissions.
+            apex_prepare::clone_or_copy(&entry.path(), &to)
                 .and_then(|()| fs::set_permissions(&to, entry.metadata()?.permissions()))
         };
         copied.map_err(|e| format!("Could not copy {}: {e}", entry.path().display()))?;
@@ -1471,7 +1471,7 @@ fn carried_over(name: &std::ffi::OsStr) -> bool {
     ![
         backend::CLIENT,
         ".installed",
-        "Horizon.app",
+        "Apex.app",
         "native-mods.json",
         "native-data",
     ]
@@ -1536,13 +1536,13 @@ mod tests {
         ] {
             assert!(!carried_over(OsStr::new(own)), "{own}");
         }
-        for kept in ["horizon-ctl", "resources", "LICENSE"] {
+        for kept in ["apex-ctl", "resources", "LICENSE"] {
             assert!(carried_over(OsStr::new(kept)), "{kept}");
         }
     }
 
     fn dir(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("horizon-native-{name}-{}", std::process::id()));
+        let d = std::env::temp_dir().join(format!("apex-native-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&d);
         fs::create_dir_all(&d).unwrap();
         d
@@ -1556,13 +1556,13 @@ mod tests {
     }
 
     #[test]
-    fn horizon_mixins_finds_the_launchers_cargo() {
+    fn apex_mixins_finds_the_launchers_cargo() {
         let rust = Toolchain {
             dir: PathBuf::from("/rust/1.99.1-x"),
         };
         let cmd = apply(
             &rust,
-            Path::new("/tools/horizon-mixins"),
+            Path::new("/tools/apex-mixins"),
             Path::new("/src"),
             Path::new("/mods"),
             Path::new("/out"),
@@ -1611,13 +1611,13 @@ mod tests {
     const A: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     const B: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
-    /// An unpacked `.hnmod`, as the registry ships one (horizon_mods::index::native).
-    fn write_native(at: &Path, id: &str, horizon: &str, mixins: &str) {
+    /// An unpacked `.hnmod`, as the registry ships one (apex_mods::index::native).
+    fn write_native(at: &Path, id: &str, apex: &str, mixins: &str) {
         let manifest = serde_json::json!({"schema": 1, "id": id, "version": "0.3.0", "game": "26.3",
-            "horizon": horizon, "mixins": mixins});
+            "apex": apex, "mixins": mixins});
         fs::create_dir_all(at.join("mixins").join(id)).unwrap();
         fs::write(at.join(NATIVE_MANIFEST), manifest.to_string()).unwrap();
-        let toml = format!("[mod]\nid = \"{id}\"\nversion = \"0.3.0\"\n[compatibility]\nhorizon_revision = \"{horizon}\"\n");
+        let toml = format!("[mod]\nid = \"{id}\"\nversion = \"0.3.0\"\n[compatibility]\napex_revision = \"{apex}\"\n");
         fs::write(at.join("mixins").join(id).join(MANIFEST), toml).unwrap();
     }
 
@@ -1630,10 +1630,10 @@ mod tests {
         assert_eq!(found.len(), 2);
         assert_eq!(found[1].id, "veinminer");
         assert_eq!(found[1].dir, d.join("veinminer/mixins/veinminer"));
-        assert_eq!(found[1].horizon.as_deref(), Some(A));
+        assert_eq!(found[1].apex.as_deref(), Some(A));
         assert_eq!(found[1].mixins.as_deref(), Some(B));
         assert_eq!(
-            (found[0].horizon.as_ref(), found[0].mixins.as_ref()),
+            (found[0].apex.as_ref(), found[0].mixins.as_ref()),
             (None, None)
         );
     }
@@ -1648,7 +1648,7 @@ mod tests {
             let mut zip =
                 zip::ZipWriter::new(fs::File::create(home.join(INSTALLED).join(name)).unwrap());
             let options = zip::write::SimpleFileOptions::default();
-            for file in [NATIVE_MANIFEST, "mixins/veinminer/horizon-mixin.toml"] {
+            for file in [NATIVE_MANIFEST, "mixins/veinminer/apex-mixin.toml"] {
                 zip.start_file(file, options).unwrap();
                 zip.write_all(&fs::read(d.join(file)).unwrap()).unwrap();
             }
@@ -1664,7 +1664,7 @@ mod tests {
         let out = installed_mods(&home).unwrap();
         let found = bundles(&out).unwrap();
         assert_eq!(
-            (found[0].id.as_str(), found[0].horizon.as_deref()),
+            (found[0].id.as_str(), found[0].apex.as_deref()),
             ("veinminer", Some(A))
         );
         // What a build records of it is what the Mods page compares: up to date, not Needs rebuild.
@@ -1701,17 +1701,17 @@ mod tests {
 
     #[test]
     fn the_mods_of_one_build_pin_one_revision() {
-        let pinned = |id: &str, horizon: Option<&str>| Bundle {
+        let pinned = |id: &str, apex: Option<&str>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: horizon.map(str::to_owned),
+            apex: apex.map(str::to_owned),
             mixins: None,
             hooks: None,
         };
         let never = || -> Result<String, String> { panic!("a pin wins") };
         fn get(b: &Bundle) -> Option<&String> {
-            b.horizon.as_ref()
+            b.apex.as_ref()
         }
         let same = [
             pinned("a", Some(A)),
@@ -1733,11 +1733,11 @@ mod tests {
 
     #[test]
     fn mods_made_for_different_revisions_build_on_the_newest() {
-        let pinned = |id: &str, horizon: Option<&str>, mixins: Option<&str>| Bundle {
+        let pinned = |id: &str, apex: Option<&str>, mixins: Option<&str>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: horizon.map(str::to_owned),
+            apex: apex.map(str::to_owned),
             mixins: mixins.map(str::to_owned),
             hooks: None,
         };
@@ -1752,8 +1752,8 @@ mod tests {
             .into())
         };
         let never = || -> Result<String, String> { panic!("a pin wins") };
-        fn horizon(b: &Bundle) -> Option<&String> {
-            b.horizon.as_ref()
+        fn apex(b: &Bundle) -> Option<&String> {
+            b.apex.as_ref()
         }
         fn mixins(b: &Bundle) -> Option<&String> {
             b.mixins.as_ref()
@@ -1764,28 +1764,28 @@ mod tests {
             pinned("zoom", None, None),
         ];
         assert_eq!(
-            newest(&split, "Apex", horizon, never, None, date).unwrap(),
+            newest(&split, "Apex", apex, never, None, date).unwrap(),
             B
         );
-        // horizon-mixins: never older than a pin, and the launcher's own when it is newer.
+        // apex-mixins: never older than a pin, and the launcher's own when it is newer.
         assert_eq!(
-            newest(&split, "horizon-mixins", mixins, never, Some(B), date).unwrap(),
+            newest(&split, "apex-mixins", mixins, never, Some(B), date).unwrap(),
             c
         );
         let older = [pinned("a", None, Some(A)), pinned("b", None, Some(B))];
         assert_eq!(
-            newest(&older, "horizon-mixins", mixins, never, Some(&c), date).unwrap(),
+            newest(&older, "apex-mixins", mixins, never, Some(&c), date).unwrap(),
             c
         );
         // One pin, or the same one everywhere: that pin, and no date is asked for.
         let no_date = |_: &str| -> Result<String, String> { panic!("no date needed") };
         let same = [pinned("a", Some(A), None), pinned("b", Some(A), None)];
         assert_eq!(
-            newest(&same, "Apex", horizon, never, None, no_date).unwrap(),
+            newest(&same, "Apex", apex, never, None, no_date).unwrap(),
             A
         );
         let offline = |_: &str| -> Result<String, String> { Err("offline".into()) };
-        let err = newest(&split, "Apex", horizon, never, None, offline).unwrap_err();
+        let err = newest(&split, "Apex", apex, never, None, offline).unwrap_err();
         assert!(err.contains("offline"), "{err}");
         // What the player is shown: each mod made for another revision, and the build's.
         assert_eq!(
@@ -1836,11 +1836,11 @@ mod tests {
             Some(3)
         );
         assert_eq!(hooks_in("const NATIVE_HOOKS_API: u32 = 3;"), None);
-        let mod_ = |id: &str, horizon: &str, hooks: Option<u32>| Bundle {
+        let mod_ = |id: &str, apex: &str, hooks: Option<u32>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: Some(horizon.into()),
+            apex: Some(apex.into()),
             mixins: None,
             hooks,
         };
@@ -1887,16 +1887,16 @@ mod tests {
         );
     }
 
-    /// Players on launcher 0.2.31 (#5352): a rebuild that stayed on an older Horizon (A, hook
+    /// Players on launcher 0.2.31 (#5352): a rebuild that stayed on an older Apex (A, hook
     /// points v1), or a mod pinning it, met mods needing newer hook points, tested on different
     /// commits, and the build was refused although the installed game (B) has them all.
     #[test]
     fn mods_needing_newer_hook_points_move_the_build_to_the_installed_game() {
-        let mod_ = |id: &str, horizon: &str, hooks: Option<u32>| Bundle {
+        let mod_ = |id: &str, apex: &str, hooks: Option<u32>| Bundle {
             id: id.into(),
             version: "1".into(),
             dir: PathBuf::new(),
-            horizon: Some(horizon.into()),
+            apex: Some(apex.into()),
             mixins: None,
             hooks,
         };
@@ -1942,13 +1942,13 @@ mod tests {
         fs::write(d.join(NATIVE_MANIFEST), json).unwrap();
         let found = bundles(&d).unwrap();
         assert_eq!(
-            (found[0].hooks, found[0].horizon.as_deref()),
+            (found[0].hooks, found[0].apex.as_deref()),
             (Some(1), Some(A))
         );
         repin(&found[0], B).unwrap();
         let again = bundle(&found[0].dir, None).unwrap();
         assert_eq!(
-            (again.id.as_str(), again.horizon.as_deref()),
+            (again.id.as_str(), again.apex.as_deref()),
             ("zoom", Some(B))
         );
     }
@@ -2028,9 +2028,9 @@ mod tests {
         );
     }
 
-    fn record(horizon: &str, mods: &[(&str, &str)]) -> Record {
+    fn record(apex: &str, mods: &[(&str, &str)]) -> Record {
         Record {
-            horizon: horizon.into(),
+            apex: apex.into(),
             mixins: "m1".into(),
             mods: mods
                 .iter()
@@ -2173,10 +2173,10 @@ mod tests {
         assert!(!to.join("gone.rs").exists());
     }
 
-    /// levzzz5154's decision (2026-10-29): a rebuild stays on the Horizon the instance plays;
+    /// levzzz5154's decision (2026-10-29): a rebuild stays on the Apex the instance plays;
     /// only "Rebuild on Apex {version}" moves it to a newer one.
     #[test]
-    fn a_rebuild_stays_on_the_instances_horizon_until_an_update() {
+    fn a_rebuild_stays_on_the_instances_apex_until_an_update() {
         let installed: Vec<String> = [
             "nightly-2026-10-29-4baa571",
             "v2026.10.20",
@@ -2249,7 +2249,7 @@ mod tests {
             ]
         );
         assert!(
-            args.ends_with(&["-p", "horizon-client", "--bin", "horizon-client"].map(String::from))
+            args.ends_with(&["-p", "apex-client", "--bin", "apex-client"].map(String::from))
         );
         let dir = cmd.get_current_dir().expect("a folder of its own");
         assert!(
@@ -2319,7 +2319,7 @@ mod tests {
             "{e}"
         );
         // An error still among the last lines isn't said twice.
-        let e = failure("horizon-mixins", "exit status: 1", &errors, &errors);
+        let e = failure("apex-mixins", "exit status: 1", &errors, &errors);
         assert!(e.contains("The end of its output") && e.matches("alsa-sys").count() == 1);
     }
 }

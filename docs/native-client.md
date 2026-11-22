@@ -1,6 +1,6 @@
 # Apex native client
 
-`horizon-client` is the playable Rust client for Minecraft Java Edition 26.3.
+`apex-client` is the playable Rust client for Minecraft Java Edition 26.3.
 It streams a world around the player on worker threads, renders every vanilla
 block model with smooth lighting and biome tints, and runs the validated player
 physics, health and hunger at 20 ticks per second. You can mine with vanilla
@@ -21,32 +21,32 @@ client from your official launcher install, and the 26.3 server jar you
 downloaded yourself; see [Build from source](../README.md#build-from-source)),
 verifies it against the pinned checksums, runs vanilla's data generator and small
 exporters against those jars, and extracts the jar's assets and data into ignored
-`.local/horizon-client/26.3/`. Sounds (about 380 MB) are copied from your
-launcher's asset store by `horizon-prepare sounds`, each file checked against the asset
+`.local/apex-client/26.3/`. Sounds (about 380 MB) are copied from your
+launcher's asset store by `apex-prepare sounds`, each file checked against the asset
 index's SHA-1. Preparation also tries to replace the JAR's gray 1×1 title panorama
 placeholders with the full textures from that asset store. If the store is missing or
 incomplete, preparation logs a warning and keeps the placeholders. To import the panorama
-later without rerunning the Java exporters, run `horizon-prepare panorama` (or
-`cargo run --release -p horizon-prepare -- panorama` in a checkout). Pass
+later without rerunning the Java exporters, run `apex-prepare panorama` (or
+`cargo run --release -p apex-prepare -- panorama` in a checkout). Pass
 `--minecraft-dir PATH` when using a different Minecraft installation.
 Prepared resources are private; never commit them.
 
-Preparation is `horizon-prepare` (`crates/horizon-prepare`, Rust): it needs no Python, only
+Preparation is `apex-prepare` (`crates/apex-prepare`, Rust): it needs no Python, only
 the JDK, for the small exporters that call Mojang's own code. Release folders ship it beside
-`horizon-client`, and the launcher prepares with it and copies the sounds as part of preparing.
+`apex-client`, and the launcher prepares with it and copies the sounds as part of preparing.
 
 `--output DIR` puts the resources elsewhere (the exporters' scratch files stay in the version
-folder's `.local/`), for preparing and for the asset commands alike. `horizon-prepare --check`
+folder's `.local/`), for preparing and for the asset commands alike. `apex-prepare --check`
 exits 0 when the resources are complete and current for this preparer, and otherwise prints
 each gap with the command that fills it on stdout and exits 1. It also exits 1 when it can't
 check, with `error:` on stderr (no `research-lock.json`, say). It runs no Java and reads no game
 files: it tests which files are there and the versions they were made for, not their contents, so
 a launcher that suspects damage prepares again. A preparation stamps its resources with the
-preparer's `OUTPUT_VERSION` (`horizon-prepare.json`) when it finishes, and removes the stamp
+preparer's `OUTPUT_VERSION` (`apex-prepare.json`) when it finishes, and removes the stamp
 before it writes anything, so `--check` reports a folder being prepared, or whose preparation
 stopped, as not current. Resources prepared before the stamp existed report an unknown version
 until they are prepared again. One preparation at a time writes to a folder: each holds
-`.horizon-prepare.lock` in the resources and in the version folder's `.local/`, and a second one
+`.apex-prepare.lock` in the resources and in the version folder's `.local/`, and a second one
 waits for the first. `--complete` prepares, copies the sounds, and fails unless `--check` would
 then pass: one command for resources with nothing missing. `--progress json` prints one JSON
 object a line instead of plain text (its format is part of the Launch API:
@@ -61,18 +61,18 @@ checked against `research-lock.json`'s pins. When an earlier import beside `--ro
 verified, it is reused and the named files aren't read. Two things no such launcher keeps:
 - **The server jar.** The first `--prepare` needs `--server-jar`. Apex never downloads it; a
   launcher downloads it (the version JSON's `downloads.server`) only for a signed-in account that
-  owns Minecraft: Java Edition, as `horizon-launcher` does.
+  owns Minecraft: Java Edition, as `apex-launcher` does.
 - **Java 25.** `--java-home PATH` names a runtime the launcher manages. The preparer takes the first
   Java of the pinned version from `JAVA_HOME`, the `PATH`, `--java-home`, then the official
   launcher's runtimes.
 
 ```sh
-cargo run --release -p horizon-prepare -- --prepare --server-jar ~/Downloads/server.jar
-cargo run --release -p horizon-prepare -- sounds
-cargo run --release -p horizon-client -- --render-distance 12
+cargo run --release -p apex-prepare -- --prepare --server-jar ~/Downloads/server.jar
+cargo run --release -p apex-prepare -- sounds
+cargo run --release -p apex-client -- --render-distance 12
 ```
 
-Development builds that link quickly: `cargo build --profile fast -p horizon-client`.
+Development builds that link quickly: `cargo build --profile fast -p apex-client`.
 
 Optional Windows allocator build features are documented in
 [Windows allocator experiments](windows-allocators.md).
@@ -98,7 +98,7 @@ Optional Windows allocator build features are documented in
 | Esc | Pause menu (Save and Quit) |
 
 Worlds autosave every 6000 ticks (5 minutes), when chunks unload and on quit.
-On headless Linux use `vscreen start ./target/release/horizon-client` and
+On headless Linux use `vscreen start ./target/release/apex-client` and
 `vscreen shot`.
 
 Sound: the game prints the output it opened (`Apex: audio output ...`) or
@@ -107,20 +107,20 @@ why it has none (`Apex: no sound: ...`). It opens none with
 listening; `APEX_AUDIO=1` opens it there anyway, so send it to a null sink
 (`PIPEWIRE_PROPS='{ target.object=<sink> node.dont-fallback=true }'`). Don't
 mute a test run's stream in the mixer: PipeWire remembers the mute for every
-later `horizon-client`. The launcher starts the game as "Apex" for that
+later `apex-client`. The launcher starts the game as "Apex" for that
 reason.
 
-### Agent control (`horizon-ctl` and MCP)
+### Agent control (`apex-ctl` and MCP)
 
-AI agents and scripts play Apex through `horizon-ctl`, a command line that
-reads the game as JSON and acts like a player, and `horizon-ctl mcp`, an MCP
+AI agents and scripts play Apex through `apex-ctl`, a command line that
+reads the game as JSON and acts like a player, and `apex-ctl mcp`, an MCP
 server with the same commands. `--control` makes the game accept them on a
 local socket; under control, losing window focus does not pause the game or
 release held keys, so a script can play while you use other windows.
 
 ```sh
-cargo build --release -p horizon-client --bins
-C=target/release/horizon-ctl
+cargo build --release -p apex-client --bins
+C=target/release/apex-ctl
 $C launch --world Survival --seed 5 --wait   # start the game, open or create the world, wait for it
 $C state                                     # player, world, screen, crosshair target
 $C find-block birch_log                      # the 16 nearest loaded logs
@@ -136,8 +136,8 @@ $C screenshot /tmp/view.png                  # PNG of the next presented frame
 $C quit                                      # save and exit
 ```
 
-`horizon-ctl help` lists the commands by group and `horizon-ctl COMMAND --help`
-explains one with examples; `horizon-ctl help --game` lists what the running
+`apex-ctl help` lists the commands by group and `apex-ctl COMMAND --help`
+explains one with examples; `apex-ctl help --game` lists what the running
 game accepts, test hooks included.
 
 - **Observe:** `state` (position, rotation, velocity, health, food, saturation,
@@ -189,46 +189,46 @@ says whether it arrived, `break` what dropped and what was picked up, `place`
 the block placed. `stop` cancels the running action. Every reply is one JSON
 line; errors are `{"error": "..."}` objects, and the exit status is 0 on
 success, 1 when the game replied with an error, 2 for a usage error and 3 when
-the game cannot be reached or started. `horizon-ctl script FILE` (or stdin)
+the game cannot be reached or started. `apex-ctl script FILE` (or stdin)
 runs one command per line with shell-like quoting and stops at the first error
-(`--keep-going` doesn't); `sleep S` waits. `horizon-ctl -` is the older form
+(`--keep-going` doesn't); `sleep S` waits. `apex-ctl -` is the older form
 that reads stdin and keeps going.
 
-`launch` finds the game to start: `--game PATH`, else a `horizon-client` next
-to `horizon-ctl` (a build folder or a release folder), else the newest version
+`launch` finds the game to start: `--game PATH`, else a `apex-client` next
+to `apex-ctl` (a build folder or a release folder), else the newest version
 the launcher installed (`--version TAG` picks another), run with its prepared
 resources from the game home, where the saves are. So after installing with
-the launcher, `horizon-ctl launch --world X --wait` is all an agent needs.
+the launcher, `apex-ctl launch --world X --wait` is all an agent needs.
 Other arguments go to the game; its output goes to a `.log` file beside the
 socket.
 
 **Logs and crash reports.** Like vanilla, the game writes `logs/latest.log`
-in the game home (`$APEX_HOME`, else `~/.local/share/horizon`; the
+in the game home (`$APEX_HOME`, else `~/.local/share/apex`; the
 dedicated server in its own folder) with lines like
 `[12:04:31] [Render thread/INFO]: message`, and at start archives the last
 run's as `logs/<yyyy-mm-dd>-<n>.log.gz` (seven a day). Messages still print on
 stderr as before. A panic on the main thread or a fatal error writes
 `crash-reports/crash-<yyyy-mm-dd_HH.MM.SS>-client.txt` (the error, its stack,
 the machine, the GPU, render settings, resource packs, the open world and the
-last 50 log lines) and the game exits with a non-zero code. `horizon-ctl logs
-[--lines N]` prints the end of latest.log and `horizon-ctl logs --crash` the
+last 50 log lines) and the game exits with a non-zero code. `apex-ctl logs
+[--lines N]` prints the end of latest.log and `apex-ctl logs --crash` the
 newest report (the `logs` MCP tool returns the same). F3 + C held for ten
 seconds crashes the game on purpose, as in vanilla (the world is saved first);
 development builds also crash with `APEX_DEBUG_CRASH=SECONDS`, that long
 after the first frame.
 
-**MCP.** `horizon-ctl mcp` serves the Model Context Protocol over stdin and
+**MCP.** `apex-ctl mcp` serves the Model Context Protocol over stdin and
 stdout (JSON-RPC 2.0, one message per line), with one tool per command and a
 JSON schema for each; `screenshot` returns the frame as an image. Register it
-in an MCP client as a stdio server with the command `horizon-ctl` and the
+in an MCP client as a stdio server with the command `apex-ctl` and the
 argument `mcp` (`--socket PATH` before `mcp` to pick a socket).
 
 **Transport.** On Linux and macOS the endpoint is a Unix socket:
-`$APEX_CONTROL`, else `$XDG_RUNTIME_DIR/horizon-control.sock`, or
-`--control-socket PATH` (`horizon-ctl --socket PATH`). Windows has no Unix
+`$APEX_CONTROL`, else `$XDG_RUNTIME_DIR/apex-control.sock`, or
+`--control-socket PATH` (`apex-ctl --socket PATH`). Windows has no Unix
 sockets: there the game listens on a random `127.0.0.1` port and writes
 `{"transport":"tcp","port":N,"token":"..."}` to the endpoint path
-(`%TEMP%\horizon-control.json` by default), readable only by its user; the
+(`%TEMP%\apex-control.json` by default), readable only by its user; the
 client's first line must be `auth TOKEN`. Any endpoint path ending in `.json`
 selects that transport on Linux and macOS too.
 
@@ -250,9 +250,9 @@ While Discord runs on the same computer, the player's Discord profile shows
 ("In the Nether") and the time since they entered the world. It never shows a
 world's name or a server's address. Apex Settings has the switch
 (**Discord Rich Presence**, on by default; `discordPresence` in
-`horizon-extras.txt`), and `APEX_NO_DISCORD=1` turns it off for one run.
+`apex-extras.txt`), and `APEX_NO_DISCORD=1` turns it off for one run.
 
-`crates/horizon-client/src/discord_presence.rs` speaks Discord's local IPC
+`crates/apex-client/src/discord_presence.rs` speaks Discord's local IPC
 itself (the `discord-ipc-N` socket or named pipe, no SDK) from a thread of its
 own: the frame only hands it a status when it changes. It retries every 15 s
 while Discord isn't running and stays within Discord's 5 updates per 20 s.
@@ -261,7 +261,7 @@ only talk to a fake Discord: `lab.game_env` sets `APEX_NO_DISCORD=1`, and
 `tools/discord_presence_e2e.py` points games at a fake server with
 `APEX_DISCORD_IPC_DIR` (title, world, Nether and quit on both single-player
 paths; a LAN host and guest; the switch; a Discord started after the game).
-`DISCORD_APP_ID` is Discord's "Apex" application, whose `horizon` image is
+`DISCORD_APP_ID` is Discord's "Apex" application, whose `apex` image is
 the large one; there are no game-mode images yet.
 
 ### Play on another of your machines
@@ -271,14 +271,14 @@ are out of scope. To play on another Linux machine
 without Rust, JDK or prepared resources, package a release build where they exist:
 
 ```sh
-cargo build --release -p horizon-client
-python3 tools/package_native_client.py --out ~/builds/horizon
+cargo build --release -p apex-client
+python3 tools/package_native_client.py --out ~/builds/apex
 ```
 
-The archive holds the binary, the prepared resources and `horizon.sh`. Copy it
+The archive holds the binary, the prepared resources and `apex.sh`. Copy it
 to the target machine (same OS and architecture), unpack it and run
-`horizon/horizon.sh`; `horizon.sh --install` adds an application menu entry.
-Saves and `options.txt` go to `~/.local/share/horizon` (or `$APEX_HOME`), so
+`apex/apex.sh`; `apex.sh --install` adds an application menu entry.
+Saves and `options.txt` go to `~/.local/share/apex` (or `$APEX_HOME`), so
 unpacking an update keeps them. The archive contains Mojang assets: keep it
 private.
 
@@ -313,7 +313,7 @@ attribute. Sneaking invokes ledge backoff before collision resolution. The
 complete authoritative player tick remains unfinished.
 
 ```sh
-cargo run --release -p horizon-prepare
+cargo run --release -p apex-prepare
 python3 tools/test_native_scene_collision.py
 ```
 
@@ -372,7 +372,7 @@ The [renderer startup check](../benchmarks/rust-native-walking-2026-10-07/startu
 also passes after the movement integration.
 
 ```sh
-cargo run --release -p horizon-prepare
+cargo run --release -p apex-prepare
 python3 tools/test_native_scene_motion.py
 python3 tools/test_local_input_parity.py
 ```
@@ -415,7 +415,7 @@ enables F4, holds Shift to descend, verifies that the camera stops at the terrai
 surface, and exits with Ctrl+Q. The window was visually inspected on Vulkan
 llvmpipe; this is not a hardware performance measurement.
 
-The separate `horizon-assets` crate decodes the pinned 26.3 cuboid model format.
+The separate `apex-assets` crate decodes the pinned 26.3 cuboid model format.
 Its native comparison covers all **2,883 block-model JSON files** in the client
 JAR plus **2,457 synthetic cases**: element bounds, optional geometry, nullable
 children, face UVs and quarter turns, single-axis/Euler rotations, texture
@@ -455,7 +455,7 @@ It calls native `ModelDiscovery`, `ResolvedModel` and `TextureSlots` APIs.
 
 ```sh
 python3 tools/test_model_resolution_parity.py
-cargo +stable test --locked -p horizon-assets
+cargo +stable test --locked -p apex-assets
 ```
 
 Cuboid baking now produces positions in block units, normalized unit-atlas UVs,
@@ -517,7 +517,7 @@ cover every state, integer-property aliases, nested conditions and empty part
 selections. The controlled chunk renderer now uses this binder for its model
 catalog.
 
-The Java integer-property parser is shared by `horizon-core`, client binding and
+The Java integer-property parser is shared by `apex-core`, client binding and
 world-state decoding. Its [codec regression](../benchmarks/rust-blockstate-model-binding-2026-10-06/shared-integer-codec.json)
 matches 221,261 output lines against each authenticated client/server JAR.
 
@@ -565,7 +565,7 @@ checks the renderer using this shared implementation. Images, input
 fixtures and native traces stay private under `.local/`.
 
 ```sh
-cargo +stable test -p horizon-client
+cargo +stable test -p apex-client
 cargo +stable clippy --workspace --all-targets -- -D warnings
 python3 tools/test_native_client.py
 # Headless Linux alternative:
@@ -578,7 +578,7 @@ negative chunk origins and random surroundings. The startup runner launches a
 nine-chunk scene, requires 30 presented frames and a clean exit, verifies 3,169
 greedy cube rectangles and 179 other model faces across 18 sprite layers, and writes GPU,
 platform, binary and source information to ignored
-`.local/horizon-client/startup-smoke.json`. It has an external timeout as well as
+`.local/apex-client/startup-smoke.json`. It has an external timeout as well as
 the application's frame deadline. These checks do not establish gameplay or
 pixel parity with Java. Source and resource fingerprints must remain unchanged
 during the run. An animation test covers duration boundaries, wrapping and

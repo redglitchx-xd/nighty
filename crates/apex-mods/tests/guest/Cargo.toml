@@ -1,0 +1,16 @@
+[package]
+name = "apex-mods-test-guest"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "A mod that misbehaves on command, for apex-mods' sandbox tests"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+apex-mod-sdk = { path = "../../../apex-mod-sdk" }
+
+[lints]
+workspace = true

@@ -13,7 +13,7 @@ how the world is fed to the GPU.
 
 ## The design
 
-- **A pack** is a folder or a zip with `horizon-shaders.toml` (id, name, version, the `api` line, the stages it
+- **A pack** is a folder or a zip with `apex-shaders.toml` (id, name, version, the `api` line, the stages it
   uses, its options) and WGSL files. No preprocessor and no other shading language: WGSL is what wgpu validates and
   compiles for Vulkan, Metal and DirectX 12.
 - **Stages, not pipelines.** A stage is a function with a fixed signature that the renderer calls inside its own pass,
@@ -36,9 +36,9 @@ how the world is fed to the GPU.
 
 ## The pack format (schema 1)
 
-A pack is a folder, or the same files zipped as a `.hshader`, with `horizon-shaders.toml` at its root
-(crate `horizon-shader-api`; the sample with every key is
-`crates/horizon-shader-api/tests/samples/schema-1/`):
+A pack is a folder, or the same files zipped as a `.hshader`, with `apex-shaders.toml` at its root
+(crate `apex-shader-api`; the sample with every key is
+`crates/apex-shader-api/tests/samples/schema-1/`):
 
 ```toml
 schema = 1                 # the manifest's format; a reader refuses schemas newer than it knows
@@ -128,9 +128,9 @@ the same way every time (files in path order, fixed dates), so a pack's SHA-256 
 ## Guide, reference and examples
 
 - [shaders-reference.md](shaders-reference.md): every stage's signature, input and output structs, resources and
-  helpers, the frame's fields with their units, option types and limits, generated from `crates/horizon-shader-api`.
-- [The guide](../shaders.md): making a pack with `horizon-shader new`, `check` and `pack`; the templates and the
-  example pack (`crates/horizon-shader-api/packs/golden_hour`).
+  helpers, the frame's fields with their units, option types and limits, generated from `crates/apex-shader-api`.
+- [The guide](../shaders.md): making a pack with `apex-shader new`, `check` and `pack`; the templates and the
+  example pack (`crates/apex-shader-api/packs/golden_hour`).
 
 ## Stability
 
@@ -187,10 +187,10 @@ stages.
 - 2026-10-26: the material stage in the game: terrain's surfaces through the pack's `material`.
 - 2026-10-26: the sky stage in the game: the pack's `sky` gets vanilla's colour along each ray.
 - 2026-10-26: the post stage in the game (`APEX_SHADER_PACK`, hot reload with the last good pack kept).
-- 2026-10-25: `horizon-shader` (`new`, `check`, `pack`), three templates, the example pack and the guide.
+- 2026-10-25: `apex-shader` (`new`, `check`, `pack`), three templates, the example pack and the guide.
 - 2026-10-25: the check (naga validation, signatures, options, budgets, SPIR-V/Metal/HLSL translation).
 - 2026-10-25: the stages of API 0.1 (sky, material, post), their inputs and the generated reference.
-- 2026-10-25: the pack format, schema 1: `horizon-shaders.toml` and the `.hshader` package.
+- 2026-10-25: the pack format, schema 1: `apex-shaders.toml` and the `.hshader` package.
 - 2026-10-24: the earlier shader pack code was removed; this API is designed from scratch.
 - 2026-11-01: API 0.1 (additions): a stage's `files`.
 - 2026-11-01: API 0.1 (additions): `[material] fog`.

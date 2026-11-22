@@ -1,6 +1,6 @@
 //! CurseForge's API (api.curseforge.com/v1). It needs a key from CurseForge's developer console,
 //! so this source stays off until one is given (docs/mod-browser.md#curseforge):
-//! `HORIZON_CURSEFORGE_API_KEY` in the environment, else the same variable when the launcher was
+//! `APEX_CURSEFORGE_API_KEY` in the environment, else the same variable when the launcher was
 //! built (the release workflow passes the repository secret). Files carry SHA-1 and MD5; the
 //! download is checked against the SHA-1.
 use super::{FileRef, GAME, Kind, Project, Query, Source, SourceId, Version, modrinth::encode};
@@ -203,7 +203,7 @@ impl Source for CurseForge {
 
     fn search(&self, query: &Query) -> Result<Vec<Project>, String> {
         if query.kind == Kind::Shader {
-            return Err(super::SHADERS_ON_HORIZON.into());
+            return Err(super::SHADERS_ON_APEX.into());
         }
         let found = self.get(&search_url(query))?;
         Ok(found["data"]

@@ -3,7 +3,7 @@
 
 The Java oracle (VanillaMenuOracle) runs each case's clicks on the real menu
 class with a stand-in player and level; the Rust example (menu_fixture) runs
-horizon_client::menu. Cases are randomized slot contents with random click
+apex_client::menu. Cases are randomized slot contents with random click
 sequences covering every ContainerInput (pickup, quick move, swap, clone,
 throw, the three quick craft drags, pickup all, and the screens' Shift double
 click: QUICK_MOVE on every slot of the clicked slot's container holding the
@@ -47,7 +47,7 @@ DATA = {'furnace': 4, 'blast_furnace': 4, 'smoker': 4, 'brewing': 4, 'crafter': 
 DYES = ['white', 'orange', 'magenta', 'light_blue', 'yellow', 'lime', 'pink', 'gray', 'light_gray', 'cyan', 'purple',
         'blue', 'brown', 'green', 'red', 'black']
 PATTERNS = ['minecraft:' + p for p in ('base', 'square_bottom_left', 'stripe_bottom', 'cross', 'border', 'gradient',
-                                      'creeper', 'flower', 'globe', 'rhombus', 'small_stripes', 'half_horizontal')]
+                                      'creeper', 'flower', 'globe', 'rhombus', 'small_stripes', 'half_apextal')]
 COMMON = ['stone', 'dirt', 'cobblestone', 'oak_planks', 'stick', 'coal', 'iron_ingot', 'diamond', 'apple', 'bread',
           'oak_log', 'sand', 'bucket', 'water_bucket', 'lava_bucket', 'ender_pearl', 'snowball', 'egg', 'white_wool',
           'iron_helmet', 'diamond_chestplate', 'leather_leggings', 'iron_boots', 'shield', 'carved_pumpkin',
@@ -499,7 +499,7 @@ def main():
                       'ops': g.ops(size, menu, slots)})
     (work / 'cases.jsonl').write_text(''.join(json.dumps(c) + '\n' for c in cases))
     vanilla.run('VanillaMenuOracle', work / 'cases.jsonl', work / 'native.txt')
-    lib.cargo_example('horizon-client', 'menu_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
+    lib.cargo_example('apex-client', 'menu_fixture', lib.RESOURCES, work / 'cases.jsonl', work / 'rust.txt')
     native = (work / 'native.txt').read_text().split('\n')
     rust = (work / 'rust.txt').read_text().split('\n')
 

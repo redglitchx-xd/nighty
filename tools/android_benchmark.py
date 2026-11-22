@@ -142,9 +142,9 @@ def summarize(fixtures, output):
 
 
 def run_device(device, fixtures, output, repeats, smoke, selected_versions, selected_cases):
-    env = dict(os.environ, HORIZON_BENCH_FIXTURES=str(fixtures),
-               HORIZON_BENCH_SESSION=output.name,
-               HORIZON_BENCH_MANIFEST=str(output / "apks.json"), PYTHONIOENCODING="utf-8")
+    env = dict(os.environ, APEX_BENCH_FIXTURES=str(fixtures),
+               APEX_BENCH_SESSION=output.name,
+               APEX_BENCH_MANIFEST=str(output / "apks.json"), PYTHONIOENCODING="utf-8")
     driver = Path(__file__).with_name("android_benchmark_device.py")
     jobs = []
     cases = (("water", 16, 0),) if smoke else selected_cases
@@ -191,7 +191,7 @@ def main():
     output = fixtures / args.session
     output.mkdir(exist_ok=True)
     if not args.summarize:
-        names = [f"Horizon-{v}-benchmark.apk" if v in ("0.7.3", "0.7.7") else f"cpu-{v}.apk" for v in args.versions]
+        names = [f"Apex-{v}-benchmark.apk" if v in ("0.7.3", "0.7.7") else f"cpu-{v}.apk" for v in args.versions]
         manifest = {name: hashlib.sha256((fixtures / name).read_bytes()).hexdigest() for name in names}
         (output / "apks.json").write_text(json.dumps(manifest, indent=2), encoding="utf8")
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(args.devices)) as pool:

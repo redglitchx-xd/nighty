@@ -2240,7 +2240,7 @@ impl<'a, W: Write> Writer<'a, W> {
                     }
                     crate::GatherMode::QuadSwap(direction) => match direction {
                         crate::Direction::X => {
-                            write!(self.out, "subgroupQuadSwapHorizontal(")?;
+                            write!(self.out, "subgroupQuadSwapApextal(")?;
                         }
                         crate::Direction::Y => {
                             write!(self.out, "subgroupQuadSwapVertical(")?;

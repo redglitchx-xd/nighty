@@ -6,24 +6,24 @@ panel and a control API to manage it. At the same view and simulation distance a
 should beat vanilla, Paper and Fabric + Lithium on TPS/MSPT, RAM, CPU, chunk generation and start time.
 Gameplay stays vanilla: there are no Paper-style rule changes unless the owner turns one on.
 
-This page covers what the server does today (measured), the design of `horizon-server`, and what ships for the
+This page covers what the server does today (measured), the design of `apex-server`, and what ships for the
 first working version (2026-10-23). The owner's guide is docs/hosting.md, also at
-https://playhorizon.dev/server.
+https://playapex.dev/server.
 
 ## 1. Today
 
 ### How it runs
 
 The dedicated server is the game itself, run headless:
-`horizon-client --resources <prepared> --dedicated [--nogui] [--port N] [--world NAME] [--universe DIR]
-[--initSettings]`, started in the server folder (`crates/horizon-client/src/game/dedicated.rs`).
+`apex-client --resources <prepared> --dedicated [--nogui] [--port N] [--world NAME] [--universe DIR]
+[--initSettings]`, started in the server folder (`crates/apex-client/src/game/dedicated.rs`).
 
 - **Startup.** It follows vanilla's `Main.main` and `DedicatedServer.initServer`. It reads `server.properties`
-  and writes it straight back with vanilla's defaults filled in (`horizon_client::server`, byte-exact with
+  and writes it straight back with vanilla's defaults filled in (`apex_client::server`, byte-exact with
   vanilla's `Properties.store`), and refuses to start until `eula.txt` says `eula=true`. It then loads the
   operator, whitelist and ban lists in vanilla's order and format, and opens `<universe>/<level-name>` with
   the same `Game` as single player, minus the local player.
-- **Network.** Players join through the play-state hub that Open to LAN uses (`crates/horizon-client/src/lan`).
+- **Network.** Players join through the play-state hub that Open to LAN uses (`crates/apex-client/src/lan`).
   Status ping, legacy ping, compression, login gate (bans, whitelist, IP bans), operator permission levels,
   the player limit with `bypassesPlayerLimit`, MOTD and `server-icon.png` all follow `server.properties`.
 - **Main loop.** It ticks at 20 TPS on one thread, with chunk generation and lighting on the worker pool.
@@ -45,7 +45,7 @@ The dedicated server is the game itself, run headless:
 The server ran in a scratch folder with `online-mode=false`, `level-seed=12345` and view and simulation
 distance 10. The vanilla server was the pinned 26.3 `server.jar` on Java 25 with `-Xmx4G`.
 
-| | Apex (`horizon-client --dedicated`) | Vanilla 26.3 |
+| | Apex (`apex-client --dedicated`) | Vanilla 26.3 |
 |---|---|---|
 | Start, new world (wall clock, to `Done`) | 11.4 s (`Done (9.762s)`) | 12.5 s (`Done (2.066s)`, includes the bundler's first unpack) |
 | Start, existing world (wall clock) | **5.8 s** (resources load in 1.6 s) | 10.7 s (`Done (0.446s)`: the JVM and DataFixerUpper take the rest) |
@@ -56,7 +56,7 @@ distance 10. The vanilla server was the pinned 26.3 `server.jar` on Java 25 with
 | Crates linked | 384 (wgpu, winit, cpal, gilrs, arboard, naga…) | n/a |
 
 On Linux the full game loads `libasound.so.2` (cpal) and `libudev.so.1` (gilrs) at startup. wgpu, winit
-and the Wayland/X11 libraries are loaded only when a window opens. The server build (`horizon-engine`,
+and the Wayland/X11 libraries are loaded only when a window opens. The server build (`apex-engine`,
 section 3) is the same program built without its `audio` and `controllers` features, so it needs neither
 library, and a minimal server image runs it as it is.
 
@@ -77,7 +77,7 @@ not tick cost, so it is in scope here (see section 9).
   chunk bytes, chat, `/list`, failing commands, the console lines and the files left behind. Result on main:
   see "Harnesses on main" below.
 - **The real vanilla 26.3 client** (`tools/vanilla_client.py`, from the owner's own files, dev-only) joins
-  too. On 2026-10-18 it joined the server build of the game (`horizon-engine`, section 3) on the Mac mini:
+  too. On 2026-10-18 it joined the server build of the game (`apex-engine`, section 3) on the Mac mini:
   `python3 tools/vanilla_client.py --name Vanilla --join localhost:PORT`. It logged in, drew the terrain
   around spawn and stayed connected for four minutes, with no warning or error on the server. The tool
   runs on Linux under vscreen and on macOS from the logged-in screen session, even a locked one, with vsync
@@ -94,7 +94,7 @@ not tick cost, so it is in scope here (see section 9).
 | Gameplay for remote players | Checked against vanilla's server with a vanilla-codec client (#484, `tools/test_dedicated_server_parity.py`): a right click with an item on a block uses it once, a dead player's commands run, players on a team without friendly fire don't hurt each other, and a player's projectiles are theirs (their ender pearl takes them). The recipe book, status effects and block sync while digging (#500) work. Left: a player's projectiles don't hit other players (no bow PvP between guests), and a mob a guest kills counts in the host's statistics and advancements, not the guest's (`mob_died` runs as the host). |
 | Defaults that surprise owners | `white-list=true` is vanilla 26.3's default, so a fresh server refuses everyone until they are added. That matches vanilla, so the first-run flow (section 3) asks about the whitelist up front. |
 | Management | Only stdin. There is no service, no backups, no status beyond `list`, no restart after a crash, and a server can't be managed while it runs in the background. |
-| Packaging | The server is the full game client. Resources come from `horizon-prepare`, which needs a JDK and the official launcher's client install, both awkward on a headless VPS. |
+| Packaging | The server is the full game client. Resources come from `apex-prepare`, which needs a JDK and the official launcher's client install, both awkward on a headless VPS. |
 | Tick times | The dedicated loop never recorded its tick times in the game clock (only the windowed loop did), so `/tick query` on a dedicated server reported 0 ms. Fixed in PR 2b, which the benchmark needs (section 9). |
 | Scale | Measured against vanilla on equal work (section 9, `benchmarks/server-equal-work-2026-10-17/`): 20 TPS up to 50 bots, 9 to 11 TPS at 100, where vanilla's watchdog stops it. Apex is ahead with few players and when exploring; with 25 to 50 players near spawn vanilla's tick is shorter. |
 
@@ -109,20 +109,20 @@ space; CI runs it on every pull request.
 ## 2. Architecture: a supervisor and an engine
 
 ```
- owner ──► horizon-server (CLI, TUI)          browser ──► web panel           AI ──► MCP (stdio)
+ owner ──► apex-server (CLI, TUI)          browser ──► web panel           AI ──► MCP (stdio)
                  │                                │                               │
                  └────────── control API: HTTP + JSON on 127.0.0.1, token ────────┘
                                                   │
-                                   horizon-server run   (the supervisor: no GPU, no game code)
+                                   apex-server run   (the supervisor: no GPU, no game code)
                   server.toml ──► server.properties ──► │ ◄── stdout: the vanilla log
                   backups, updates, crash restart       │ ──► stdin: console commands
                                                         │ ◄─► engine endpoint: status, TPS/MSPT, players
                                                         ▼
-                                   the engine: horizon-client --dedicated   (the game, headless)
+                                   the engine: apex-client --dedicated   (the game, headless)
 ```
 
-`horizon-server` is a new crate and binary (`crates/horizon-server`). It is the only program an owner runs.
-It depends only on the light crates (`horizon-core`, `horizon-protocol`, `horizon-world`, `horizon-bench`)
+`apex-server` is a new crate and binary (`crates/apex-server`). It is the only program an owner runs.
+It depends only on the light crates (`apex-core`, `apex-protocol`, `apex-world`, `apex-bench`)
 plus `serde`, `toml`, `toml_edit` and `zip`, which are already in the lockfile. It doesn't link wgpu, winit,
 audio or controller crates. It runs the engine as a child process.
 
@@ -138,8 +138,8 @@ The supervisor/engine split stays even after the engine becomes headless, for th
 - **No conflicts.** The supervisor touches none of the game code that the tick and integrated-server work
   (perf-server-1, perf-ticks-2) are changing.
 
-**The engine today** is `horizon-client --dedicated`. It needs one small, additive change: a status endpoint.
-With `--control-socket <dir>/.horizon/engine.json` (the existing control protocol: TCP on 127.0.0.1 plus a token, on
+**The engine today** is `apex-client --dedicated`. It needs one small, additive change: a status endpoint.
+With `--control-socket <dir>/.apex/engine.json` (the existing control protocol: TCP on 127.0.0.1 plus a token, on
 every OS), the dedicated loop answers `server-status` with TPS, MSPT (average, P50/P95/P99 from the tick
 clock `/tick query` uses), players (name, UUID, address, ping), loaded chunks and uptime. It answers
 `console <line>` with the command's output.
@@ -151,37 +151,37 @@ game built in `Game::new`, the integrated server on its own thread. On that base
    entity models, panorama, fog, music, and mesh tables (perf-ticks-2 already stops server-side meshing).
    This is the RAM and start-time item.
 2. The game moves into a library crate, with the window parts behind a `client` feature, so
-   `horizon-engine` links no wgpu or winit either. Sound and controllers are already optional (the
-   `audio` and `controllers` features, on by default): `horizon-engine` today is the game built without
+   `apex-engine` links no wgpu or winit either. Sound and controllers are already optional (the
+   `audio` and `controllers` features, on by default): `apex-engine` today is the game built without
    them (section 3).
 
 ## 3. Packaging
 
-**Binaries.** The release archives hold `horizon-client`, `horizon-ctl`, `horizon-prepare` and
-`horizon-server`. On Linux the release also has `horizon-server-linux-x86_64.tar.gz`: `horizon-server`,
-`horizon-prepare` and `horizon-engine`, the game built with `--no-default-features` (no sound, no
+**Binaries.** The release archives hold `apex-client`, `apex-ctl`, `apex-prepare` and
+`apex-server`. On Linux the release also has `apex-server-linux-x86_64.tar.gz`: `apex-server`,
+`apex-prepare` and `apex-engine`, the game built with `--no-default-features` (no sound, no
 controllers), which links neither `libasound.so.2` nor `libudev.so.1`. `release.yml` builds it after the
 client archive (`xtask package-server`) and fails if `tools/check_imports.py --server` finds either library;
-CI lints the same build. `horizon-server` runs `horizon-engine` when it is beside it or on the PATH, else
-`horizon-client`. Build it yourself with `cargo build --release -p horizon-client --no-default-features`
-and copy `target/release/horizon-client` as `horizon-engine`. macOS and Windows have no such libraries to
+CI lints the same build. `apex-server` runs `apex-engine` when it is beside it or on the PATH, else
+`apex-client`. Build it yourself with `cargo build --release -p apex-client --no-default-features`
+and copy `target/release/apex-client` as `apex-engine`. macOS and Windows have no such libraries to
 avoid, so they keep the one archive.
 
 **Game files: the owner's own copy, as with `prepare`.** Nothing of Mojang's is redistributed and nothing is
-downloaded on the owner's behalf. `horizon-server` looks for prepared resources in this order:
+downloaded on the owner's behalf. `apex-server` looks for prepared resources in this order:
 
 1. `[engine] resources` in `server.toml`;
 2. `resources/` in the server folder;
-3. `.local/horizon-client/26.3` beside the engine or up to four folders above it: a release folder, the
+3. `.local/apex-client/26.3` beside the engine or up to four folders above it: a release folder, the
    installer's `game-files` (below), or a checkout.
 
-If none is found, `init` says where it looked. Today the owner runs `horizon-prepare --prepare --server-jar
+If none is found, `init` says where it looked. Today the owner runs `apex-prepare --prepare --server-jar
 PATH` from the release folder (it needs a JDK and the client files, as for playing), or copies a folder
 prepared on their own computer to the server (`scp -r`). Planned wrappers:
 
-- **On this machine:** `horizon-server prepare --server-jar PATH` runs `horizon-prepare` on the owner's own
+- **On this machine:** `apex-server prepare --server-jar PATH` runs `apex-prepare` on the owner's own
   server jar plus their launcher install.
-- **Prepared elsewhere:** `horizon-server import-resources DIR` copies a folder prepared on the owner's own
+- **Prepared elsewhere:** `apex-server import-resources DIR` copies a folder prepared on the owner's own
   computer, for example by the launcher, to a headless machine.
 
 A server-only `prepare` (from `server.jar` alone, without the client jar or a JDK) is the follow-up that
@@ -191,11 +191,11 @@ comes out of the headless-engine work.
 **One-command install** (`packaging/server/`):
 
 - Linux and macOS:
-  `curl -fsSL https://raw.githubusercontent.com/horizon-rust/horizon/main/packaging/server/install.sh | sh`
+  `curl -fsSL https://raw.githubusercontent.com/apex-rust/apex/main/packaging/server/install.sh | sh`
   The script picks the release archive for the OS and architecture (on Linux x86_64 the server archive,
   on macOS arm64 the game's), downloads it from GitHub Releases, and checks it against the SHA-256 GitHub
   publishes for each asset. It never asks for sudo. Options: `--version vX.Y.Z`, `--dir` (default
-  `~/.local/share/horizon`), `--bin` (default `~/.local/bin`), and `--archive FILE` to install an archive
+  `~/.local/share/apex`), `--bin` (default `~/.local/bin`), and `--archive FILE` to install an archive
   already on the machine (a build of your own; no download and no checksum).
   A Linux release from before the server archive installs the full game, which links ALSA's and udev's
   libraries (`libasound.so.2`, `libudev.so.1`); minimal server images often lack them (Debian and Ubuntu:
@@ -203,20 +203,20 @@ comes out of the headless-engine work.
   any that are missing, `init` warns, and `run` stops at once with what to install, rather than restarting
   a game that can't load.
 - Windows:
-  `irm https://raw.githubusercontent.com/horizon-rust/horizon/main/packaging/server/install.ps1 | iex`
+  `irm https://raw.githubusercontent.com/apex-rust/apex/main/packaging/server/install.ps1 | iex`
   The script does the same into `%LOCALAPPDATA%\Apex` (`-Version`, `-Dir`), with junctions instead of
   links (no admin rights), and adds `bin` to the user's PATH.
 - **Layout.** Each release goes to `<dir>/releases/<tag>` and `<dir>/current` points at the one in use, so an
-  update or a rollback is one link. `<bin>/horizon-server` and `<bin>/horizon-prepare` are two-line launchers
-  that run `current`. The prepared game files live in `<dir>/game-files/horizon-client` and each release's
-  `.local/horizon-client` links there, so updates keep them. The script then prints the next steps
-  (`horizon-prepare`, `horizon-server init`).
+  update or a rollback is one link. `<bin>/apex-server` and `<bin>/apex-prepare` are two-line launchers
+  that run `current`. The prepared game files live in `<dir>/game-files/apex-client` and each release's
+  `.local/apex-client` links there, so updates keep them. The script then prints the next steps
+  (`apex-prepare`, `apex-server init`).
 
 **Docker** (`packaging/server/Dockerfile`, built the same way as the relay's image): a multi-stage build that
-ends on `debian:bookworm-slim` as user `horizon`, with the server build as `horizon-engine`, so the image needs
+ends on `debian:bookworm-slim` as user `apex`, with the server build as `apex-engine`, so the image needs
 no ALSA or udev. It uses volume `/data` for the server folder, takes the owner's prepared game files as a read-only
-mount on `/opt/horizon/.local/horizon-client/26.3`, exposes port `25565/tcp`, and keeps the control API (and
-later the panel) on 127.0.0.1 inside the container: `docker exec <name> horizon-server status|cmd|backup`.
+mount on `/opt/apex/.local/apex-client/26.3`, exposes port `25565/tcp`, and keeps the control API (and
+later the panel) on 127.0.0.1 inside the container: `docker exec <name> apex-server status|cmd|backup`.
 On the first start, `APEX_EULA=true` and `APEX_WORLD`, `APEX_SEED`, `APEX_PORT`,
 `APEX_WHITELIST`, `APEX_PLAYERS` and `APEX_OP` answer `init`'s questions; without the EULA answer
 the container exits and says why. `docker stop` sends SIGTERM, which saves and stops cleanly (give it
@@ -224,15 +224,15 @@ the container exits and says why. `docker stop` sends SIGTERM, which saves and s
 
 **Services.**
 
-- `horizon-server service install` writes and enables a systemd unit (`--user`, or a system unit with
-  `--system`) on Linux, a launchd agent (`~/Library/LaunchAgents/dev.horizon.server.<name>.plist`) on
+- `apex-server service install` writes and enables a systemd unit (`--user`, or a system unit with
+  `--system`) on Linux, a launchd agent (`~/Library/LaunchAgents/dev.apex.server.<name>.plist`) on
   macOS, or a Scheduled Task at logon on Windows (a real Windows service needs a wrapper and comes later).
-- Each runs `horizon-server run --dir <folder>` through the installer's launcher, so an update applies at the
+- Each runs `apex-server run --dir <folder>` through the installer's launcher, so an update applies at the
   next restart. The supervisor restarts the engine itself, and the service manager restarts the supervisor.
   `service uninstall` stops and removes it and leaves the server folder alone.
 - `service print` shows the unit or agent it would write, for owners who'd rather install it by hand.
 
-**First run (`horizon-server init`, interactive on a terminal):**
+**First run (`apex-server init`, interactive on a terminal):**
 
 1. **EULA.** It shows the link to https://aka.ms/MinecraftEULA and asks "Do you agree? [y/N]". Only a yes
    writes `eula=true`.
@@ -243,7 +243,7 @@ the container exits and says why. `docker stop` sends SIGTERM, which saves and s
    offers to make the first player an operator.
 5. **Game files.** It finds or explains the prepared resources (see above).
 6. It writes `server.toml`, shows the panel address and the commands to start it in the background
-   (`horizon-server start`) or as a service.
+   (`apex-server start`) or as a service.
 
 Every question has a flag (`--eula`, `--world`, `--seed`, `--port`, `--whitelist`/`--no-whitelist`,
 `--player NAME`, `--op NAME`, `--yes`) and an environment variable for Docker (`APEX_EULA`, …; flags win).
@@ -281,7 +281,7 @@ hardcore = false
 [properties]
 
 [engine]
-path = ""                    # the game program; empty: the one installed beside horizon-server
+path = ""                    # the game program; empty: the one installed beside apex-server
 resources = ""               # the prepared game files; empty: resources/ here, else the usual places
 restart_on_crash = true
 
@@ -298,7 +298,7 @@ false`, section 6). The defaults are vanilla 26.3's (a test checks each one). Un
 a typed key set again under `[properties]` and values vanilla would refuse. Planned: `backups.before_update`
 (section 7).
 
-- **Import.** `horizon-server init` in a folder with a `server.properties`, or `horizon-server import
+- **Import.** `apex-server init` in a folder with a `server.properties`, or `apex-server import
   server.properties`, reads it with vanilla's own parser (`ServerProperties`). Keys with typed fields go into
   their sections; any other key that differs from vanilla's default goes into `[properties]`. Keys left at
   their defaults are dropped, so the TOML stays short. The original file is kept as
@@ -307,7 +307,7 @@ a typed key set again under `[properties]` and values vanilla would refuse. Plan
   After it stops, the supervisor compares the file with what it wrote and copies any changed keys back into
   `server.toml`, so an in-game change survives the next start. Edits go through `toml_edit`, so the owner's
   comments and order are kept.
-- **Changes without opening the file.** `horizon-server config set KEY=VALUE...` (the launcher's Servers
+- **Changes without opening the file.** `apex-server config set KEY=VALUE...` (the launcher's Servers
   page uses it) writes through `toml_edit`, checks the result as `server.toml` is checked, and writes nothing
   if a value is wrong. On a running server it sends what vanilla changes live through its console:
   `difficulty`, `defaultgamemode` and `whitelist on|off`; the backup settings apply at once because the
@@ -319,35 +319,35 @@ a typed key set again under `[properties]` and values vanilla would refuse. Plan
 ## 5. CLI and TUI
 
 ```
-horizon-server init                      first run (section 3)
-horizon-server run                       supervisor + engine in the foreground; the console on stdin
-horizon-server start | stop | restart    in the background (detached `run`); each waits for the game
-horizon-server status [--json]           up?, uptime, TPS, MSPT, players, RAM, CPU, crashes
-horizon-server cmd <command…>            one console command, with its output
-horizon-server console                   attach: the live log, and send commands (Ctrl-D detaches)
-horizon-server logs [-f] [-n N]
-horizon-server op|deop <player>
-horizon-server whitelist on|off|list|add|remove [player]
-horizon-server players [--json]          who is online, operators, whitelist, bans
-horizon-server kick|ban <player> [reason]   pardon <player>   ban-ip <address|player> [reason]   pardon-ip <address>
-horizon-server backup [NAME]             backups             restore <backup> [--yes]
-horizon-server import <server.properties>
-horizon-server config [--json]           config set KEY=VALUE... [--json]
-horizon-server service install|uninstall|print [--system]
-horizon-server panel                     the panel's address and a one-time login link
-horizon-server update [--check] [--version vX.Y.Z] [--timeout S]     rollback [--timeout S]
-horizon-server update --archive FILE --version NAME     an archive you have (your own build)
-horizon-server mcp                       MCP server on stdio (section 8)
+apex-server init                      first run (section 3)
+apex-server run                       supervisor + engine in the foreground; the console on stdin
+apex-server start | stop | restart    in the background (detached `run`); each waits for the game
+apex-server status [--json]           up?, uptime, TPS, MSPT, players, RAM, CPU, crashes
+apex-server cmd <command…>            one console command, with its output
+apex-server console                   attach: the live log, and send commands (Ctrl-D detaches)
+apex-server logs [-f] [-n N]
+apex-server op|deop <player>
+apex-server whitelist on|off|list|add|remove [player]
+apex-server players [--json]          who is online, operators, whitelist, bans
+apex-server kick|ban <player> [reason]   pardon <player>   ban-ip <address|player> [reason]   pardon-ip <address>
+apex-server backup [NAME]             backups             restore <backup> [--yes]
+apex-server import <server.properties>
+apex-server config [--json]           config set KEY=VALUE... [--json]
+apex-server service install|uninstall|print [--system]
+apex-server panel                     the panel's address and a one-time login link
+apex-server update [--check] [--version vX.Y.Z] [--timeout S]     rollback [--timeout S]
+apex-server update --archive FILE --version NAME     an archive you have (your own build)
+apex-server mcp                       MCP server on stdio (section 8)
 
 Planned:
-horizon-server import-resources <dir>      prepare --server-jar PATH
+apex-server import-resources <dir>      prepare --server-jar PATH
 ```
 
 - Every command takes `--dir` (the server folder; default: the current folder).
 - While the server runs, management commands go through the control API, so the engine applies them as
   vanilla's console would and its lists stay right. While it's stopped, they edit the vanilla files directly
-  with the same code the engine uses (`horizon_server_files::user_lists`).
-- **The TUI** is `horizon-server console` (built, `console.rs`): the recent log and then the live one (the
+  with the same code the engine uses (`apex_server_files::user_lists`).
+- **The TUI** is `apex-server console` (built, `console.rs`): the recent log and then the live one (the
   control API's event stream), a one-line header (TPS, MSPT, players, RAM) that updates
   every second, and a command line. It uses plain ANSI with no TUI framework, and falls back to plain lines
   when stdout isn't a terminal.
@@ -361,13 +361,13 @@ the supervisor, so it is up exactly when the server is: starting a stopped serve
 service manager's job). Whitelist and bans go through the console for now.
 
 **Updates:** when a newer release is out, the panel says so with an Update button, which runs the same
-path as `horizon-server update` (section 7) and then shows how it went.
+path as `apex-server update` (section 7) and then shows how it went.
 
 **Later:** bans and IP bans, worlds, `server.properties` import, logs and crash reports, and modpacks (with
 the modpack work).
 
-**Tech:** one HTML page with plain JS and CSS (`crates/horizon-server/panel/`), embedded in the binary with
-`include_str!`. No build step, no framework, no CDN. It uses Apex's design system tokens (`horizon-theme`'s
+**Tech:** one HTML page with plain JS and CSS (`crates/apex-server/panel/`), embedded in the binary with
+`include_str!`. No build step, no framework, no CDN. It uses Apex's design system tokens (`apex-theme`'s
 colours, light and dark) and draws charts on a canvas. It polls the control API's routes once a second
 (`status`, `metrics?since=`, `logs?since=`), served by the same small HTTP code on `std::net`, with no async
 runtime or new dependency. Server-sent events can replace the polling later if a tab ever costs too much.
@@ -378,8 +378,8 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   (100.64.0.0/10 or Tailscale's fd7a:115c:a1e0::/48) or another loopback address. Any other address, such as
   0.0.0.0 or a public IP, is refused unless `panel.allow_public = true` is set, and even then the panel logs
   a warning at every start.
-- **Who may act.** The API token in `.horizon/api.json` (file mode 0600) is what the CLI and MCP use. Browsers
-  get a one-time login link from `horizon-server panel`: a code good for 10 minutes, swapped for an
+- **Who may act.** The API token in `.apex/api.json` (file mode 0600) is what the CLI and MCP use. Browsers
+  get a one-time login link from `apex-server panel`: a code good for 10 minutes, swapped for an
   `HttpOnly; SameSite=Strict` session cookie. Anyone who can read the server folder can manage the server,
   and no one else can. Sessions end when the supervisor stops.
 - **Protection.** The `Host` header must name the panel itself: its address, `localhost` on loopback, or a
@@ -406,7 +406,7 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   lines and the engine's crash report (`crash-reports/`), restarts it after 5 s, and doubles the wait up to
   5 minutes. It gives up after 5 crashes in 10 minutes, so it doesn't loop on a broken world, and shows the
   reason in `status` and the panel.
-- **Updates** (`crates/horizon-server/src/update.rs`), for a `horizon-server` installed by `install.sh` or
+- **Updates** (`crates/apex-server/src/update.rs`), for a `apex-server` installed by `install.sh` or
   `install.ps1`. Releases ship often (release-flow.md), so updates stay opt-in: a running server looks for a
   newer release a minute after it starts and then every 6 hours, and only says so, in its log, in `status`
   and in the panel (`APEX_NO_UPDATE_CHECK=1` turns the check off). `update --check` asks GitHub once.
@@ -414,7 +414,7 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   1. downloads the current Nightly's archive for this computer (the only build Apex ships since 2026-10-28;
      GitHub's latest release while there is none; on Linux the server build; `--version` picks another: a
      `vX.Y.Z` release, or a `nightly-<date>` of the last 7 days) and checks it against its SHA256SUMS, whose Ed25519
-     signature must check with a key built into `horizon-server` (docs/release-flow.md, "Signed checksums"),
+     signature must check with a key built into `apex-server` (docs/release-flow.md, "Signed checksums"),
      signed for the Nightly channel: an unsigned or tampered build is refused. A Nightly installs as
      `nightly-<date>-<commit>`, newer than every `vX.Y.Z`; another build of the same day is an update too;
   2. unpacks it into `<dir>/releases/<tag>`, beside the others, with its game files linked to
@@ -428,12 +428,12 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   points at the release before, `previous` is left as it was, the world is put back from the backup (the
   one the new game left is kept in `backups/replaced-<time>/`), and the game starts again on the old
   release. `rollback` switches to `previous` by hand, through the same path (the world is backed up first
-  and kept as it is). The supervisor keeps running as it was: the new `horizon-server` itself takes over
+  and kept as it is). The supervisor keeps running as it was: the new `apex-server` itself takes over
   the next time the server starts (`stop` and `start`, or the service's restart). A stopped server is
   switched and its new game checked to load; it starts on the new release next time. One install serves
   every server folder on the machine, so each one runs the new release from its next start. Once the new
   game is up (or a stopped server is switched), old releases are deleted from `<dir>/releases/`: the one in
-  use, the one `previous` names (where `rollback` goes), the one the running `horizon-server` itself came
+  use, the one `previous` names (where `rollback` goes), the one the running `apex-server` itself came
   from, and the `updates.keep` newest of the others (1 by default) stay. A release that can't be deleted (a
   program still running from it on Windows) is left for the next update.
 
@@ -441,7 +441,7 @@ runtime or new dependency. Server-sent events can replace the polling later if a
 
 - **Control API.** The control API is the panel's HTTP API, documented as stable (`/api/v1/...`). The
   supervisor serves it on `127.0.0.1` at a port of the system's choosing, written with the token to
-  `.horizon/api.json`. It's plain HTTP/1.1 on `std::net` (`crates/horizon-server/src/http.rs`), no runtime.
+  `.apex/api.json`. It's plain HTTP/1.1 on `std::net` (`crates/apex-server/src/http.rs`), no runtime.
   - built (PR 2b, 2c): `GET status` (phase, uptime, crashes, RSS, CPU, and the engine's TPS, MSPT
     average/P50/P95/P99, players, chunks), `GET logs?since=`, `POST command {line}` (returns the output),
     `POST stop`, `POST restart`, `GET backups`, `POST backups {name}`, `POST restore {name}`, `POST update
@@ -458,16 +458,16 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   - built (server-admin): `GET events` (server-sent events: log lines, the phase, and the engine's typed join,
     leave, kick, chat and death events, which the supervisor fetches with `server-events SINCE` on the
     engine's control endpoint every 250 ms; JSON when the client doesn't ask for a stream).
-- **Auth.** Every call needs `Authorization: Bearer <token from .horizon/api.json>` (file mode 0600), and the
+- **Auth.** Every call needs `Authorization: Bearer <token from .apex/api.json>` (file mode 0600), and the
   `Host` header must name the address it listens on (as the panel's). `[api] bind` and `[api] token` fix the
   address and the token for a program that runs elsewhere (a moderation bot); `bind` takes loopback or a
   tailnet address unless `allow_public = true`, which drops the Host check and warns at every start.
-- **MCP** (built, `mcp.rs`). `horizon-server mcp` is an MCP server on stdio, for Claude Code or any MCP client
+- **MCP** (built, `mcp.rs`). `apex-server mcp` is an MCP server on stdio, for Claude Code or any MCP client
   run as the same OS user. It reads the token itself, and its tools map one to one onto the API: `status`,
   `players`, `run_command`, `logs`, `events`, `kick`, `ban`, `pardon`, `ban_ip`, `pardon_ip`, `op`, `deop`,
   `whitelist`, `list_backups`, `backup`, `delete_backup` and `restore` (both need `confirm: true`), `get_config`,
   `set_config`, `start`, `restart` and `stop` (needs `confirm: true`). Tools that send someone away or can't be
-  undone carry MCP's `destructiveHint`. It's the same idea as the game's `horizon-ctl`
+  undone carry MCP's `destructiveHint`. It's the same idea as the game's `apex-ctl`
   (docs/agent-control.md): an AI can run and diagnose a server, and every action it takes shows in the log.
 - **RCON.** `enable-rcon`, `rcon.port` and `rcon.password` turn on vanilla's remote console, for the hosting panels,
   Discord bridges and scripts written for it. The supervisor serves it (`rcon.rs`, std only like `http.rs`), so it
@@ -475,7 +475,7 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   `RconThread.create` does: no password or a port outside 1 to 65535 leaves it off with vanilla's warning. The
   packets are `RconClient`'s: login (3), command (2), the output in packets of 4096 characters, `-1` for a refused
   login, `Unknown request <hex>` for another type, `Error executing: <command> (<reason>)` for a command that failed.
-  A command goes to the game as `horizon-server cmd` sends it (`console <line>` on the control endpoint), so the
+  A command goes to the game as `apex-server cmd` sends it (`console <line>` on the control endpoint), so the
   output is what the console prints, its messages joined as `RconConsoleSource` joins them. Differences, each one
   named in `rcon.rs`: the packets are read from the stream, the password is compared in constant time, a
   connection that hasn't logged in within 30 seconds is closed and at most 16 are open. Not yet: the sender
@@ -503,7 +503,7 @@ The goal is the published claim: "runs 50–100 players on hardware where vanill
 reproducible by anyone, and show the same gameplay on both sides.
 
 - **Servers:**
-  - Apex (`horizon-server`);
+  - Apex (`apex-server`);
   - vanilla 26.3 (the owner's `server.jar`);
   - Paper (a jar the owner downloads; Paper's defaults are kept, and noted as non-vanilla);
   - optionally Fabric + Lithium (via the pinned `tools/benchmark-deps/mods.lock.json`).
@@ -516,7 +516,7 @@ reproducible by anyone, and show the same gameplay on both sides.
   - `online-mode=false` and the same `server.properties`;
   - one server at a time on the same machine, with the bots on another machine on the LAN, or pinned to other
     cores when they share one (the report records which).
-- **Bots:** `horizon-bots` (PR 5), a small Rust load client on `horizon-protocol`. It handles handshake,
+- **Bots:** `apex-bots` (PR 5), a small Rust load client on `apex-protocol`. It handles handshake,
   offline login and configuration, accepts teleports, answers keep-alives and pings, acknowledges chunk
   batches as vanilla's client does, and sends movement at 20 Hz. The bots play in creative and fly 24 blocks
   above their spawn point: they never touch terrain, so they need no copy of the world, and no server can
@@ -536,14 +536,14 @@ reproducible by anyone, and show the same gameplay on both sides.
   - TPS and MSPT (average, P50/P95/P99), from each server's own `/tick query` (vanilla's
     `ServerTickRateManager`; Apex implements the same command and clock), so every server measures itself
     the same way;
-  - RSS and CPU (process tree, `horizon_bench::rss_bytes`/`cpu_seconds`);
+  - RSS and CPU (process tree, `apex_bench::rss_bytes`/`cpu_seconds`);
   - chunk generation: chunks per second while the `explore` bots run, and time until each new bot has its
     full view loaded;
   - start time: cold and warm, to `Done`;
   - bot-side: chunk arrival, keep-alive round trip, and disconnects (a run with disconnects is reported as
     failed).
 - **Output.** `tools/server_bench.py` drives it: a fresh server per run from the same `server.properties`,
-  `Done`, the bots, a warm-up, then the measurement. It writes a `horizon-server-benchmark` JSON report (the
+  `Done`, the bots, a warm-up, then the measurement. It writes a `apex-server-benchmark` JSON report (the
   machine, commit, Java version, settings and every run) and prints a comparison table. Results are
   published like the client benchmark, with the machine, the versions and the exact commands. TPS is derived
   from `/tick query`'s average (20 while it fits in 50 ms), since the command reports times, not the rate.
@@ -585,7 +585,7 @@ reproducible by anyone, and show the same gameplay on both sides.
   run with the load made equal. The explore bots fly at 0.8 blocks a second, so every bot follows the same
   path on both servers and none waits for terrain. A 300-second warm-up lets both finish the bots' first
   views before the measurement. `server_bench.py` now prints a work table that compares each count's chunks
-  a second across servers and flags a run that isn't equal. Apex ran as `horizon-engine`, the server
+  a second across servers and flags a run that isn't equal. Apex ran as `apex-engine`, the server
   build, installed from its archive. Results, on the ThinkPad again (the desktop didn't wake):
   - The work was equal at 1 and 10 bots. At 25 the chunks sent a second were equal (158.6 against 157.6),
     and vanilla still sent 2.5 more first-time chunks a second while it caught up.
@@ -614,26 +614,26 @@ reproducible by anyone, and show the same gameplay on both sides.
 
 ## 10. Working version for 2026-10-23
 
-Goal: `horizon-server` installs with one command, starts from a clean config, serves Apex and vanilla 26.3
+Goal: `apex-server` installs with one command, starts from a clean config, serves Apex and vanilla 26.3
 clients, backs up and restores, has a CLI and a basic web panel, and has a first published benchmark against
 vanilla.
 
 **In:**
 
-1. `horizon-server` crate and binary, `horizon-server-files` (the vanilla files, moved out of the client
+1. `apex-server` crate and binary, `apex-server-files` (the vanilla files, moved out of the client
    unchanged), `server.toml` with import, the CLI (`init`, `run`, `start`, `stop`, `status`, `cmd`, `op`,
    `whitelist`, `backup`, `backups`, `restore`, `logs`), crash restart, and the engine status endpoint.
 2. `install.sh` and `install.ps1`, the Dockerfile, systemd and launchd units, `service install`, and the server
    archive in the release.
 3. The web panel MVP: status, live TPS/MSPT/RAM/CPU, players, console, backups and login links.
-4. `horizon-bots` and `tools/server_bench.py`, with a first run against vanilla (1/10/25/50 bots, `mixed`)
+4. `apex-bots` and `tools/server_bench.py`, with a first run against vanilla (1/10/25/50 bots, `mixed`)
    published in `benchmarks/`: done, `benchmarks/server-mixed-2026-10-18/`, and with equal work
    `benchmarks/server-equal-mixed-2026-10-18/` (section 9).
 5. Small engine fixes found on the way: logging refused logins (vanilla's lines).
 
 **Where it stands (2026-10-16):** items 1 to 4 are built and in review (section 11). What's left for the 23rd:
 run the Dockerfile and `install.ps1` once on a machine that has Docker and on Windows; publish a release
-that holds `horizon-server`, so the installers have something to install; a clean benchmark run on a quiet
+that holds `apex-server`, so the installers have something to install; a clean benchmark run on a quiet
 machine, then published in `benchmarks/`; and item 5.
 
 **Out (next):**
@@ -651,8 +651,8 @@ LAN, a tailnet, or behind a whitelist.
 In order, each one small and shippable alone:
 
 1. **This design** (docs only).
-2. **`horizon-server`**, stacked in three parts:
-   - a. The crate, the vanilla files moved out of the client unchanged (`horizon-server-files`),
+2. **`apex-server`**, stacked in three parts:
+   - a. The crate, the vanilla files moved out of the client unchanged (`apex-server-files`),
      `server.toml` with import, `init`, `run` (crash restart, clean stop on Ctrl-C and SIGTERM), and `op`
      and `whitelist` for a stopped server: #551.
    - b. The control API on 127.0.0.1 with its token, `start`, `stop`, `restart`, `status`, `cmd` and
@@ -661,7 +661,7 @@ In order, each one small and shippable alone:
      `dedicated.rs` elsewhere (`listen: true`), so the edits don't overlap. It also makes the dedicated loop
      record its tick times, so `/tick query` reports them: #552.
    - c. Backups, restore and automatic backups: #553.
-3. **Install scripts, Docker and services** (`service install`), and `horizon-server` in the releases: #554.
+3. **Install scripts, Docker and services** (`service install`), and `apex-server` in the releases: #554.
 4. **Web panel MVP:** #555.
 5. **Bots and the first benchmark against vanilla:** #556.
 

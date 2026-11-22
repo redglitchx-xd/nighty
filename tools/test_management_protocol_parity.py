@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Vanilla's server management protocol (JSON-RPC over a WebSocket), Horizon's against vanilla's.
+"""Vanilla's server management protocol (JSON-RPC over a WebSocket), Apex's against vanilla's.
 
-The pinned vanilla server (`net.minecraft.server.Main nogui`) and Horizon's (`horizon-server run`, which
+The pinned vanilla server (`net.minecraft.server.Main nogui`) and Apex's (`apex-server run`, which
 serves the protocol beside the game it supervises) start in folders with the same lists (ops.json,
 whitelist.json, banned-players.json, banned-ips.json) and the same `management-server-*` settings (a fixed
 secret, one allowed origin, and TLS, vanilla's default, with a PKCS12 keystore `keytool` makes). Each is then
@@ -18,8 +18,8 @@ sent the same things over TLS, and every answer is compared exactly:
   `clear`; with no profile service, players named resolve to offline players on both), and `server/stop`;
 - the TLS version each server agrees on.
 
-A parse error's `data` is Gson's message in vanilla and serde's in Horizon: left out. The notifications vanilla
-sends meanwhile (`server/started`, `server/saving`...) are set aside: Horizon doesn't send them yet.
+A parse error's `data` is Gson's message in vanilla and serde's in Apex: left out. The notifications vanilla
+sends meanwhile (`server/started`, `server/saving`...) are set aside: Apex doesn't send them yet.
 """
 import base64
 import json
@@ -298,15 +298,15 @@ def main():
     build = lab.LOCAL / NAME
     shutil.rmtree(build, ignore_errors=True)
     build.mkdir(parents=True)
-    oh.run_logged(['cargo', 'build', '--profile', 'fast', '-p', 'horizon-client', '--bin', 'horizon-client',
-                   '-p', 'horizon-server', '--bin', 'horizon-server'], build, 'compile-rust')
+    oh.run_logged(['cargo', 'build', '--profile', 'fast', '-p', 'apex-client', '--bin', 'apex-client',
+                   '-p', 'apex-server', '--bin', 'apex-server'], build, 'compile-rust')
     target = lab.cargo_target() / 'fast'
     work = Path(tempfile.mkdtemp(prefix='hz-management-'))
-    os.environ['HORIZON_API_DISCOVERY'] = NO_SERVICES
+    os.environ['APEX_API_DISCOVERY'] = NO_SERVICES
     try:
         keystore, context = make_keystore(work)
         sides = {}
-        for side in ('vanilla', 'horizon'):
+        for side in ('vanilla', 'apex'):
             folder = work / side
             folder.mkdir()
             write_lists(folder)
@@ -326,10 +326,10 @@ def main():
                 (folder / 'server.toml').write_text(
                     f'[server]\nport = {port}\nonline_mode = false\nview_distance = 3\nsimulation_distance = 3\n\n'
                     f'[properties]\n{toml}\n'
-                    f'[engine]\npath = {json.dumps(str(target / f"horizon-client{EXE}"))}\n'
+                    f'[engine]\npath = {json.dumps(str(target / f"apex-client{EXE}"))}\n'
                     f'resources = {json.dumps(str(lab.RESOURCES.resolve()))}\nrestart_on_crash = false\n\n'
                     '[backups]\nevery = "0"\n\n[panel]\nbind = ""\n')
-                command = [target / f'horizon-server{EXE}', '--dir', folder, 'run']
+                command = [target / f'apex-server{EXE}', '--dir', folder, 'run']
             server = Server(command, folder, build / f'{side}.log')
             try:
                 server.wait_for(DONE, 600)
@@ -338,16 +338,16 @@ def main():
                 server.process.wait(timeout=180)
             finally:
                 server.stop()
-        vanilla, horizon = sides['vanilla'], sides['horizon']
+        vanilla, apex = sides['vanilla'], sides['apex']
         failures = []
         for key in ('no secret', 'wrong secret', 'origin not allowed', 'subprotocol', 'tls', 'stop'):
-            if vanilla[key] != horizon[key]:
-                failures.append(f'{key}: vanilla {vanilla[key]!r}, Horizon {horizon[key]!r}')
-        for message, v, h in zip(MESSAGES, vanilla['answers'], horizon['answers']):
+            if vanilla[key] != apex[key]:
+                failures.append(f'{key}: vanilla {vanilla[key]!r}, Apex {apex[key]!r}')
+        for message, v, h in zip(MESSAGES, vanilla['answers'], apex['answers']):
             if v != h:
-                failures.append(f'{message}\n  vanilla {json.dumps(v)[:400]}\n  Horizon {json.dumps(h)[:400]}')
+                failures.append(f'{message}\n  vanilla {json.dumps(v)[:400]}\n  Apex {json.dumps(h)[:400]}')
         report = lab.LOCAL / 'datagen/out/reports/json-rpc-api-schema.json'
-        discovered = horizon['answers'][MESSAGES.index('{"jsonrpc":"2.0","id":12,"method":"rpc.discover"}')]
+        discovered = apex['answers'][MESSAGES.index('{"jsonrpc":"2.0","id":12,"method":"rpc.discover"}')]
         if json.loads(report.read_text()) != discovered.get('result'):
             failures.append(f'rpc.discover differs from {report}')
         (build / 'report.json').write_text(json.dumps(sides, indent=1))

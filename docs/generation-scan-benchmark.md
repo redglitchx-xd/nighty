@@ -12,8 +12,8 @@ those auxiliary ranges when present.
 Reproduce from the repository root:
 
 ```sh
-CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=/home/bob/Documents/horizon/target \
-  cargo test -p horizon-client --lib --profile fast generation_scan_benchmark \
+CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=/home/bob/Documents/apex/target \
+  cargo test -p apex-client --lib --profile fast generation_scan_benchmark \
   -- --ignored --nocapture
 ```
 

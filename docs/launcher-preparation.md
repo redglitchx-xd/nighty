@@ -12,11 +12,11 @@ pinned jars. The release job also compares two fresh isolated preparations with 
 batched preparation using a runtime-only Java home:
 
 ```sh
-cargo build --release -p horizon-prepare
+cargo build --release -p apex-prepare
 # Requires already imported Minecraft files in .local/minecraft/<version>.
-target/release/horizon-prepare compile-exporters
+target/release/apex-prepare compile-exporters
 # Copy server/, client/ and manifest.json from the printed folder into exporters/.
-python3 tools/check_prepare_exporters.py --binary target/release/horizon-prepare
+python3 tools/check_prepare_exporters.py --binary target/release/apex-prepare
 ```
 
 Development checkouts and changed sources compile on demand, into
@@ -69,7 +69,7 @@ file: the worker peaks at about 480 MB instead of 1.25 GB, and a fresh preparati
 JVM). Threads reading one jar share its parsed member list.
 
 A repeat run starts no JVM when nothing changed: each exporter is skipped by the hashes of its
-sources, its jar and its outputs. Most of those are in `horizon-resources.json`; the block
+sources, its jar and its outputs. Most of those are in `apex-resources.json`; the block
 behaviour and structure-block exporters keep a `stamp.json` beside their working files in
 `.local/` (the exporter bundle's key, the server jar, this preparer's sources, and the
 outputs' sha256), so the prepared files stay the same.

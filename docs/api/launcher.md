@@ -1,6 +1,6 @@
 # Launcher API
 
-What a player's agent, a script or a pack maker can do with `horizon-launcher`: install and run versions, manage
+What a player's agent, a script or a pack maker can do with `apex-launcher`: install and run versions, manage
 accounts, settings, mods, modpacks and hosted servers, from a terminal or over MCP. The launcher itself:
 [launcher/README.md](../../launcher/README.md).
 
@@ -18,10 +18,10 @@ the MCP server is off.
 
 ## Guide
 
-1. `horizon-launcher versions`, `horizon-launcher install latest`, `horizon-launcher play`.
-2. Modpacks: `horizon-launcher modpack import <file>`, then `modpack port` and `modpack play`
+1. `apex-launcher versions`, `apex-launcher install latest`, `apex-launcher play`.
+2. Modpacks: `apex-launcher modpack import <file>`, then `modpack port` and `modpack play`
    ([modpacks.md](../modpacks.md)).
-3. For an agent: `horizon-launcher agent-config` prints how to connect a client to `horizon-launcher mcp`.
+3. For an agent: `apex-launcher agent-config` prints how to connect a client to `apex-launcher mcp`.
 
 ## Reference
 
@@ -31,9 +31,9 @@ and its MCP tool.
 ## Examples
 
 ```sh
-horizon-launcher versions --installed --json
-horizon-launcher mods search minimap --kind mod --json
-horizon-launcher servers create --name "Weekend" --player Alex --json
+apex-launcher versions --installed --json
+apex-launcher mods search minimap --kind mod --json
+apex-launcher servers create --name "Weekend" --player Alex --json
 ```
 
 ## Stability
@@ -46,7 +46,7 @@ output shapes are not yet described in the reference.
 - **A Apex modpack manifest.** A pack made for Apex (not a port of a Java pack) needs its own file: the pack's
   id, name and version; the Apex API lines and the release line it needs; its `.hmod` mods (id, version, SHA-256,
   where to download it, client, server or both); resource packs; default settings; and whether it has a server side.
-  One manifest serves the launcher, `horizon-server` (a server installs the server side of the same pack) and the mod
+  One manifest serves the launcher, `apex-server` (a server installs the server side of the same pack) and the mod
   browser. Designed from what a pack maker does, versioned per [stability.md](stability.md), with a schema test.
 - **JSON output schemas** for every command, in the generated reference, so MCP tools declare their output.
 - **A version** in MCP `serverInfo` and `--json` output, as for agent control.

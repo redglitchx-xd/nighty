@@ -7,7 +7,7 @@ Pull requests never receive the signing key or trigger this workflow.
 
 These APKs use the optimized Rust `release` profile (including ThinLTO), public
 payload checks and official resource downloads. The package is
-`dev.horizon.android.dev`, separate from the normal release, and the visible
+`dev.apex.android.dev`, separate from the normal release, and the visible
 version contains the run number and source commit. Test data is separate;
 worlds and accounts are not automatically copied from the release app.
 The workflow does not publish GitHub Releases or send Discord messages.
@@ -17,8 +17,8 @@ The workflow does not publish GitHub Releases or send Discord messages.
 Create a **new, dedicated dev key**, not the release signing key. In PowerShell:
 
 ```powershell
-keytool -genkeypair -keystore "$env:TEMP/horizon-ci-dev.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -validity 10000 -dname "CN=Apex Android Dev CI"
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:TEMP/horizon-ci-dev.keystore")) | Set-Clipboard
+keytool -genkeypair -keystore "$env:TEMP/apex-ci-dev.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -validity 10000 -dname "CN=Apex Android Dev CI"
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:TEMP/apex-ci-dev.keystore")) | Set-Clipboard
 ```
 
 In repository Settings → Secrets and variables → Actions, add

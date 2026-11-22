@@ -16,15 +16,15 @@ are in that folder (`LICENSE.MIT`, `LICENSE.APACHE`).
 
 ## Pixelify Sans
 
-`crates/horizon-theme/fonts/PixelifySans-*.ttf` is [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)
+`crates/apex-theme/fonts/PixelifySans-*.ttf` is [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)
 by The Pixelify Sans Project Authors, licensed under the SIL Open Font License 1.1
-(`crates/horizon-theme/fonts/OFL-PixelifySans.txt`).
+(`crates/apex-theme/fonts/OFL-PixelifySans.txt`).
 
 ## Pixelarticons
 
-`crates/horizon-theme/icons/pixel/*.svg` are icons from
+`crates/apex-theme/icons/pixel/*.svg` are icons from
 [Pixelarticons](https://github.com/halfmage/pixelarticons) by Gerrit Halfmann, under the MIT
-license (`crates/horizon-theme/icons/pixel/LICENSE-pixelarticons.txt`). `star.svg` is Horizon's own, drawn on
+license (`crates/apex-theme/icons/pixel/LICENSE-pixelarticons.txt`). `star.svg` is Apex's own, drawn on
 the same grid.
 
 ## winit
@@ -35,7 +35,7 @@ has local mouse and modifier-event fixes described in `third_party/winit/PATCHES
 
 ## AMD FidelityFX SDK (FSR 3.1 frame generation)
 
-`crates/horizon-client-render/src/gfx/frame_gen/optical_flow.wgsl` and `interpolation.wgsl` are
+`crates/apex-client-render/src/gfx/frame_gen/optical_flow.wgsl` and `interpolation.wgsl` are
 ports to WGSL of the optical flow and frame interpolation shaders of the
 [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) 1.1.4
 (`sdk/include/FidelityFX/gpu/{opticalflow,frameinterpolation}`, at commit
@@ -43,7 +43,7 @@ ports to WGSL of the optical flow and frame interpolation shaders of the
 and `optical_flow.rs` follows the SDK's `sdk/src/components/opticalflow/ffx_opticalflow.cpp`
 (its passes, their order and their dispatch sizes). Copyright (C) 2024 Advanced Micro Devices,
 Inc., under the MIT license, whose text heads each file. AMD and FidelityFX are AMD's
-trademarks; Horizon is not affiliated with AMD.
+trademarks; Apex is not affiliated with AMD.
 
 ## Mod loader logos
 
@@ -62,7 +62,7 @@ The launcher shows the logo of the mod loader an instance plays with.
   [files.minecraftforge.net's](https://files.minecraftforge.net/)).
 
 Each logo belongs to its project. Showing it says which loader an instance runs; it does not mean
-the project endorses Horizon.
+the project endorses Apex.
 
 ## Sign in with Microsoft
 
@@ -71,7 +71,7 @@ with Microsoft accounts
 ([Sign in with Microsoft branding](https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps)).
 The four-square Microsoft symbol in `launcher/src/microsoft.rs` reproduces the squares, positions and
 colours of Microsoft's official `ms-symbollockup_mssymbol_19.svg` from that page, unmodified. Microsoft
-and its logo are trademarks of the Microsoft group of companies; Horizon is not endorsed by Microsoft.
+and its logo are trademarks of the Microsoft group of companies; Apex is not endorsed by Microsoft.
 
 
 ## Statically bundled Android mods
@@ -80,7 +80,7 @@ Zoom, Minimap and Recipes are adapted from [horizon-rust/horizon-mods](https://g
 copyright 2026 Ludovic Marie and the Horizon contributors, MIT.
 SmartF3 is adapted from [d3grando/smartf3](https://github.com/d3grando/smartf3),
 copyright 2026 d3grando, MIT. Exact revisions and adaptation notes are recorded in
-`crates/horizon-client/src/game/android_bundled/PROVENANCE.json`; each bundled
+`crates/apex-client/src/game/android_bundled/PROVENANCE.json`; each bundled
 module retains its full MIT LICENSE. Changes provide static Android hook
 adapters, opt-in configuration, profile-state reset and compatibility guards.
 These are a fixed compiled set, not support for loading arbitrary native mods.

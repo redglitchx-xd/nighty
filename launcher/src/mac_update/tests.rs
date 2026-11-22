@@ -9,7 +9,7 @@ impl Scratch {
         let mut nonce = [0; 16];
         getrandom::fill(&mut nonce).unwrap();
         let root = std::env::temp_dir().join(format!(
-            "horizon-mac-update-{}-{:x?}",
+            "apex-mac-update-{}-{:x?}",
             std::process::id(),
             nonce
         ));
@@ -17,10 +17,10 @@ impl Scratch {
         Self(root)
     }
     fn app(&self) -> PathBuf {
-        self.0.join("Horizon.app")
+        self.0.join("Apex.app")
     }
     fn retired(&self, generation: u32) -> PathBuf {
-        self.0.join(format!(".Horizon.app.old-1-{generation:032x}"))
+        self.0.join(format!(".Apex.app.old-1-{generation:032x}"))
     }
 }
 impl Drop for Scratch {
@@ -31,7 +31,7 @@ impl Drop for Scratch {
 
 fn bundle(app: &Path, version: &str) {
     fs::create_dir_all(app.join("Contents/MacOS")).unwrap();
-    fs::write(app.join("Contents/MacOS/horizon-launcher"), b"fixture").unwrap();
+    fs::write(app.join("Contents/MacOS/apex-launcher"), b"fixture").unwrap();
     fs::write(app.join("Contents/version"), version).unwrap();
 }
 
@@ -43,7 +43,7 @@ fn retired(work: &Scratch) -> Vec<PathBuf> {
     let mut paths: Vec<_> = fs::read_dir(&work.0)
         .unwrap()
         .map(|e| e.unwrap().path())
-        .filter(|p| is_retired(p.file_name().unwrap().to_str().unwrap(), "Horizon.app"))
+        .filter(|p| is_retired(p.file_name().unwrap().to_str().unwrap(), "Apex.app"))
         .collect();
     paths.sort();
     paths
@@ -88,8 +88,8 @@ fn cleanup_names_are_exactly_our_app_positive_pid_and_lowercase_nonce() {
     let hex = "0123456789abcdef0123456789abcdef";
     for pid in ["1", "4294967295"] {
         assert!(is_retired(
-            &format!(".Horizon.app.old-{pid}-{hex}"),
-            "Horizon.app"
+            &format!(".Apex.app.old-{pid}-{hex}"),
+            "Apex.app"
         ));
     }
     for suffix in [
@@ -106,17 +106,17 @@ fn cleanup_names_are_exactly_our_app_positive_pid_and_lowercase_nonce() {
         "123".into(),
     ] {
         assert!(
-            !is_retired(&format!(".Horizon.app.old-{suffix}"), "Horizon.app"),
+            !is_retired(&format!(".Apex.app.old-{suffix}"), "Apex.app"),
             "{suffix}"
         );
     }
     assert!(!is_retired(
         &format!(".Other.app.old-1-{hex}"),
-        "Horizon.app"
+        "Apex.app"
     ));
     assert!(!is_retired(
-        &format!(".Horizon.app.update-1-{hex}"),
-        "Horizon.app"
+        &format!(".Apex.app.update-1-{hex}"),
+        "Apex.app"
     ));
 }
 
@@ -133,8 +133,8 @@ fn cleanup_preserves_unknown_names_incomplete_bundles_and_every_symlink_componen
         (4, "Contents/MacOS", outside.join("Contents/MacOS")),
         (
             5,
-            "Contents/MacOS/horizon-launcher",
-            outside.join("Contents/MacOS/horizon-launcher"),
+            "Contents/MacOS/apex-launcher",
+            outside.join("Contents/MacOS/apex-launcher"),
         ),
     ] {
         let root = work.retired(n);
@@ -145,10 +145,10 @@ fn cleanup_preserves_unknown_names_incomplete_bundles_and_every_symlink_componen
     let missing = work.retired(6);
     fs::create_dir_all(missing.join("Contents/MacOS")).unwrap();
     let directory = work.retired(7);
-    fs::create_dir_all(directory.join("Contents/MacOS/horizon-launcher")).unwrap();
+    fs::create_dir_all(directory.join("Contents/MacOS/apex-launcher")).unwrap();
     for name in [
-        ".Horizon.app.old-123",
-        ".Horizon.app.old-1-not-a-nonce",
+        ".Apex.app.old-123",
+        ".Apex.app.old-1-not-a-nonce",
         ".Other.app.old-1-00000000000000000000000000000000",
     ] {
         bundle(&work.0.join(name), "keep");
@@ -160,7 +160,7 @@ fn cleanup_preserves_unknown_names_incomplete_bundles_and_every_symlink_componen
         queried.push(exe.to_path_buf());
         true
     });
-    assert_eq!(queried, [safe.join("Contents/MacOS/horizon-launcher")]);
+    assert_eq!(queried, [safe.join("Contents/MacOS/apex-launcher")]);
     assert_eq!(fs::read_dir(&work.0).unwrap().count(), before - 1);
     assert!(!safe.exists());
     assert_eq!(version(&outside), "keep");
@@ -212,9 +212,9 @@ fn repeated_updates_retain_distinct_generations_and_query_their_actual_executabl
     let second = both.iter().find(|p| **p != first[0]).unwrap();
     assert_eq!(version(second), "v2");
     cleanup_with(&app, |exe| {
-        assert_eq!(exe.file_name().unwrap(), "horizon-launcher");
+        assert_eq!(exe.file_name().unwrap(), "apex-launcher");
         assert_eq!(exe.parent().unwrap().file_name().unwrap(), "MacOS");
-        exe == second.join("Contents/MacOS/horizon-launcher")
+        exe == second.join("Contents/MacOS/apex-launcher")
     });
     assert_eq!(retired(&work), first);
     assert_eq!(version(&first[0]), "v1");
@@ -231,7 +231,7 @@ fn failed_signature_before_or_after_swap_keeps_the_original_and_cleans_only_its_
         let new = work.0.join("release.app");
         bundle(&app, "original");
         bundle(&new, "replacement");
-        let unrelated = work.0.join(".Horizon.app.update-someone-elses-work");
+        let unrelated = work.0.join(".Apex.app.update-someone-elses-work");
         bundle(&unrelated, "preserve");
         let previous = work.retired(1);
         bundle(&previous, "previous generation still in use");
@@ -277,8 +277,8 @@ fn a_concurrent_cleanup_during_final_signature_cannot_destroy_the_rollback() {
             .join(".Other.app.old-1-00000000000000000000000000000000");
         let quarantine = work
             .0
-            .join(".Horizon.app.rollback-1-00000000000000000000000000000000");
-        let other_staging = work.0.join(".Horizon.app.update-another-transaction");
+            .join(".Apex.app.rollback-1-00000000000000000000000000000000");
+        let other_staging = work.0.join(".Apex.app.update-another-transaction");
         for path in [&foreign, &quarantine, &other_staging] {
             bundle(path, "unrelated");
         }
@@ -341,7 +341,7 @@ fn a_concurrent_cleanup_during_final_signature_cannot_destroy_the_rollback() {
         );
         assert!(!is_retired(
             quarantine.file_name().unwrap().to_str().unwrap(),
-            "Horizon.app"
+            "Apex.app"
         ));
         assert_eq!(version(&new), "v3");
         for path in [&foreign, &quarantine, &other_staging] {

@@ -14,26 +14,26 @@ def run(server, bots, sent, new, waited=0.0, behaviour="mixed"):
 
 class ServerBenchWorkTests(unittest.TestCase):
     def test_shares_of_the_busiest_server(self):
-        [row] = work([run("horizon", 10, 98.2, 36.5), run("vanilla", 10, 24.3, 19.1, 12.0)])
+        [row] = work([run("apex", 10, 98.2, 36.5), run("vanilla", 10, 24.3, 19.1, 12.0)])
         self.assertFalse(row["equal"])
-        self.assertEqual(row["servers"]["horizon"]["chunks_per_second"], {"value": 98.2, "share": 1.0})
+        self.assertEqual(row["servers"]["apex"]["chunks_per_second"], {"value": 98.2, "share": 1.0})
         self.assertEqual(row["servers"]["vanilla"]["chunks_per_second"]["share"], 0.247)
         self.assertEqual(row["servers"]["vanilla"]["waited_ticks_per_second"], 12.0)
 
     def test_equal_within_ten_percent_or_a_chunk(self):
-        [row] = work([run("horizon", 25, 236, 28.9), run("vanilla", 25, 252, 28.9)])
+        [row] = work([run("apex", 25, 236, 28.9), run("vanilla", 25, 252, 28.9)])
         self.assertTrue(row["equal"])
         # One bot: 0.3 against 1.1 new chunks a second is within a chunk.
-        [row] = work([run("horizon", 1, 9.9, 0.3), run("vanilla", 1, 9.9, 1.1)])
+        [row] = work([run("apex", 1, 9.9, 0.3), run("vanilla", 1, 9.9, 1.1)])
         self.assertTrue(row["equal"])
 
     def test_only_counts_run_on_several_servers(self):
         failed = dict(run("vanilla", 50, 0, 0), error="watchdog")
-        self.assertEqual(work([run("horizon", 50, 450, 10), failed, run("horizon", 1, 9, 0.3)]), [])
+        self.assertEqual(work([run("apex", 50, 450, 10), failed, run("apex", 1, 9, 0.3)]), [])
 
     def test_each_round_is_compared_on_its_own(self):
-        rows = work([dict(run("horizon", 20, 236, 111), round=0), dict(run("pumpkin", 20, 190, 69), round=0),
-                     dict(run("horizon", 20, 237, 112), round=1), dict(run("pumpkin", 20, 237, 112), round=1)])
+        rows = work([dict(run("apex", 20, 236, 111), round=0), dict(run("pumpkin", 20, 190, 69), round=0),
+                     dict(run("apex", 20, 237, 112), round=1), dict(run("pumpkin", 20, 237, 112), round=1)])
         self.assertEqual([(r["round"], r["equal"]) for r in rows], [(0, False), (1, True)])
 
 

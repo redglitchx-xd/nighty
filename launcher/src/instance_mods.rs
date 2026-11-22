@@ -1,7 +1,7 @@
 //! Home's Mods tab (docs/design-system.md, "Night"; plan R0, screens 5 and 6): every mod of the
 //! selected instance, the browser's and those put in its folder by hand, with its version, where
 //! it comes from, an update when the browser found one, and a switch. A Java instance turns a mod
-//! off by renaming its jar (`.disabled`, as `java_instance` does); a Horizon instance's mods are
+//! off by renaming its jar (`.disabled`, as `java_instance` does); a Apex instance's mods are
 //! the registry's, switched as the game's Options > Mods does. Adding mods is the Mods page's.
 //!
 //! Each row shows the mod's own icon: Modrinth's for what the browser installed from it (the URLs
@@ -10,8 +10,8 @@
 use super::*;
 use crate::plate::alpha;
 use crate::shell::{c, Action};
-use horizon_launcher::browser::{
-    horizon, images, installed, java, modrinth, Kind as PackKind, SourceId,
+use apex_launcher::browser::{
+    apex, images, installed, java, modrinth, Kind as PackKind, SourceId,
 };
 use servers_page::Field;
 use std::collections::{HashMap, HashSet};
@@ -65,7 +65,7 @@ pub(super) struct InstanceMods {
     fingerprint: String,
 }
 
-/// The mods of the instance at `home`: a Java one's jars in `mods/` (on or off), a Horizon one's
+/// The mods of the instance at `home`: a Java one's jars in `mods/` (on or off), a Apex one's
 /// registry mods. Each jar names itself (`fabric.mod.json`, `quilt.mod.json`...), else its file.
 fn read(home: &Path, java_instance: bool) -> Vec<ModRow> {
     let entries: Vec<installed::Entry> = installed::Installed::load(home)
@@ -87,7 +87,7 @@ fn read(home: &Path, java_instance: bool) -> Vec<ModRow> {
                     let entry = entries.iter().find(|e| e.file == file).cloned();
                     let (name, version) = match &entry {
                         Some(e) => (e.title.clone(), e.number.clone()),
-                        None => horizon_port_pack::jar::read(&f.path())
+                        None => apex_port_pack::jar::read(&f.path())
                             .map(|j| (j.name, j.version))
                             .unwrap_or_else(|_| {
                                 (jar.trim_end_matches(".jar").into(), String::new())
@@ -114,7 +114,7 @@ fn read(home: &Path, java_instance: bool) -> Vec<ModRow> {
                 file: e.file.clone(),
                 name: e.title.clone(),
                 version: e.number.clone(),
-                on: horizon::mod_id(&e).is_some_and(|id| java::is_enabled(home, id)),
+                on: apex::mod_id(&e).is_some_and(|id| java::is_enabled(home, id)),
                 entry: Some(e),
                 icon: None,
                 native: None,
@@ -153,7 +153,7 @@ impl Launcher {
         self.instance_mods.cull.reset();
     }
 
-    /// Whether the selected instance has mods to show: Horizon's always, a Java one with a loader.
+    /// Whether the selected instance has mods to show: Apex's always, a Java one with a loader.
     pub(super) fn has_mods_tab(&self) -> bool {
         self.selected_instance()
             .is_some_and(|i| i.java.as_ref().is_none_or(|j| j.loader.is_some()))
@@ -541,7 +541,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn horizon_mods_include_local_native_files_without_duplicating_registry_rows() {
+    fn apex_mods_include_local_native_files_without_duplicating_registry_rows() {
         let home =
             std::env::temp_dir().join(format!("instance-native-mods-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&home);
@@ -554,7 +554,7 @@ mod tests {
             )
             .unwrap();
         }
-        let entry: installed::Entry = serde_json::from_value(serde_json::json!({"source":"horizon","project":"registry","slug":"registry","title":"Registry mod","kind":"mod","version":"1","number":"1","file":"horizon-native-mods/registry.hnmod","checksum":"","page":""})).unwrap();
+        let entry: installed::Entry = serde_json::from_value(serde_json::json!({"source":"apex","project":"registry","slug":"registry","title":"Registry mod","kind":"mod","version":"1","number":"1","file":"apex-native-mods/registry.hnmod","checksum":"","page":""})).unwrap();
         installed::Installed {
             entries: vec![entry],
         }

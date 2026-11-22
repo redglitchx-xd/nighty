@@ -1,14 +1,14 @@
 //! Native mods' own crates and post-build steps (docs/native-mods.md, "Crates" and
-//! "Post-build steps"). horizon-mixins stages a mod's `[[crate]]` as
+//! "Post-build steps"). apex-mixins stages a mod's `[[crate]]` as
 //! `native-crates/<mod>/<crate>/`, a workspace member, and lists its `[[post_build]]` steps in
-//! `native-post-build.json`. A mod's crate may use only what Horizon's own `Cargo.lock` has: the
-//! lock file is the allow list, so a build never downloads a crate Horizon doesn't already ship.
+//! `native-post-build.json`. A mod's crate may use only what Apex's own `Cargo.lock` has: the
+//! lock file is the allow list, so a build never downloads a crate Apex doesn't already ship.
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-/// Where horizon-mixins stages the mods' crates, in the workspace it writes.
+/// Where apex-mixins stages the mods' crates, in the workspace it writes.
 pub(super) const DIR: &str = "native-crates";
 /// The post-build steps it found, in mod order.
 const POST_BUILD: &str = "native-post-build.json";
@@ -115,11 +115,11 @@ fn manifests(dir: &Path) -> Result<Vec<(String, PathBuf)>, String> {
     Ok(out)
 }
 
-/// Why a mod's crates can't build with Horizon's lock file `horizon`: a crate they name that it
+/// Why a mod's crates can't build with Apex's lock file `apex`: a crate they name that it
 /// lacks (checked before Cargo, which would look for it online), or a package the updated lock
-/// `staged` has that Horizon's lacks or has in another version. None when they fit.
+/// `staged` has that Apex's lacks or has in another version. None when they fit.
 pub(super) fn refused(
-    horizon: &BTreeSet<Locked>,
+    apex: &BTreeSet<Locked>,
     staged: Option<&BTreeSet<Locked>>,
     wanted: &[Wanted],
 ) -> Option<String> {
@@ -128,11 +128,11 @@ pub(super) fn refused(
     };
     if let Some(w) = wanted
         .iter()
-        .find(|w| !horizon.iter().any(|l| l.name == w.name))
+        .find(|w| !apex.iter().any(|l| l.name == w.name))
     {
         return Some(why(&w.mod_id, &w.name, &w.version));
     }
-    let added = staged?.difference(horizon).next()?;
+    let added = staged?.difference(apex).next()?;
     // A crate asked for by name is that mod's; one pulled in by another names every mod with crates.
     let mut mods: Vec<&str> = wanted
         .iter()
@@ -147,7 +147,7 @@ pub(super) fn refused(
 }
 
 /// A Cargo error (`run`'s) said plainly when it is `--locked` refusing to change the lock file:
-/// a mod's crate turned on, with a feature, a dependency Horizon's `Cargo.lock` lacks.
+/// a mod's crate turned on, with a feature, a dependency Apex's `Cargo.lock` lacks.
 pub(super) fn locked(error: String) -> String {
     if !error.contains("--locked was passed") {
         return error;
@@ -166,8 +166,8 @@ pub(super) struct PostBuild {
     pub args: Vec<String>,
 }
 
-/// The post-build steps horizon-mixins listed in `stage` (none without the file: an older
-/// horizon-mixins, or no mod has one).
+/// The post-build steps apex-mixins listed in `stage` (none without the file: an older
+/// apex-mixins, or no mod has one).
 pub(super) fn post_builds(stage: &Path) -> Result<Vec<PostBuild>, String> {
     let path = stage.join(POST_BUILD);
     match fs::read_to_string(&path) {
@@ -176,7 +176,7 @@ pub(super) fn post_builds(stage: &Path) -> Result<Vec<PostBuild>, String> {
                 serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
             match steps
                 .iter()
-                .find(|s| !horizon_mods::index::valid_id(&s.mod_id))
+                .find(|s| !apex_mods::index::valid_id(&s.mod_id))
             {
                 Some(bad) => Err(format!(
                     "{}: invalid mod id {:?}",
@@ -199,9 +199,9 @@ pub(super) fn any(stage: &Path) -> bool {
 }
 
 /// Step `step`'s program `program` set up to run in the new build's version folder `version`,
-/// with the mod's folders in its environment: `HORIZON_NATIVE_DATA_DIR` (what the game reads at
-/// run time, in the version folder) and `HORIZON_NATIVE_CACHE_DIR` (kept across builds, under
-/// `cache`). Both are created. `HORIZON_NATIVE_BUNDLE_DATA_DIR` is the bundle's own `data/`
+/// with the mod's folders in its environment: `APEX_NATIVE_DATA_DIR` (what the game reads at
+/// run time, in the version folder) and `APEX_NATIVE_CACHE_DIR` (kept across builds, under
+/// `cache`). Both are created. `APEX_NATIVE_BUNDLE_DATA_DIR` is the bundle's own `data/`
 /// as staged in `stage` (`native-data/<mod id>/`), which the step may read.
 pub(super) fn post_build(
     program: &Path,
@@ -238,7 +238,7 @@ mod tests {
 version = 4
 
 [[package]]
-name = "horizon-client"
+name = "apex-client"
 version = "0.1.0"
 
 [[package]]
@@ -263,32 +263,32 @@ checksum = "def"
     }
 
     #[test]
-    fn a_mods_crate_may_use_only_what_horizons_lock_has() {
-        let horizon = downloaded(LOCK).unwrap();
+    fn a_mods_crate_may_use_only_what_apexs_lock_has() {
+        let apex = downloaded(LOCK).unwrap();
         assert_eq!(
-            horizon.len(),
+            apex.len(),
             2,
             "the workspace's own packages are left out"
         );
         let ok = [wants("bake", "serde_json", "1")];
-        assert_eq!(refused(&horizon, None, &ok), None);
-        assert_eq!(refused(&horizon, Some(&horizon), &ok), None);
+        assert_eq!(refused(&apex, None, &ok), None);
+        assert_eq!(refused(&apex, Some(&apex), &ok), None);
         // Asked for by name, and not in the lock: refused before Cargo looks online.
-        let err = refused(&horizon, None, &[wants("bake", "rand", "0.9")]).unwrap();
+        let err = refused(&apex, None, &[wants("bake", "rand", "0.9")]).unwrap();
         assert!(
             err.starts_with("bake needs rand 0.9, which isn't in Apex's Cargo.lock"),
             "{err}"
         );
         // In the lock, but the update had to change its version.
         let newer = LOCK.replace("1.0.140", "1.0.145");
-        let err = refused(&horizon, Some(&downloaded(&newer).unwrap()), &ok).unwrap();
+        let err = refused(&apex, Some(&downloaded(&newer).unwrap()), &ok).unwrap();
         assert!(err.starts_with("bake needs serde_json 1.0.145,"), "{err}");
         // Pulled in by another crate: every mod with crates is named.
         let added = format!(
             "{LOCK}\n[[package]]\nname = \"ryu\"\nversion = \"1.0.20\"\nsource = \"registry+x\"\n"
         );
         let two = [wants("bake", "serde_json", "1"), wants("zoom", "itoa", "1")];
-        let err = refused(&horizon, Some(&downloaded(&added).unwrap()), &two).unwrap();
+        let err = refused(&apex, Some(&downloaded(&added).unwrap()), &two).unwrap();
         assert!(err.starts_with("bake, zoom needs ryu 1.0.20,"), "{err}");
         // A feature that needs another crate: Cargo's --locked refusal, said plainly.
         let cargo = "error: cannot update the lock file /s/Cargo.lock because --locked was passed to prevent this".to_string();
@@ -297,13 +297,13 @@ checksum = "def"
         assert_eq!(locked("other".into()), "other");
         // Another checksum is another package.
         let other = LOCK.replace("\"abc\"", "\"abd\"");
-        assert!(refused(&horizon, Some(&downloaded(&other).unwrap()), &ok).is_some());
+        assert!(refused(&apex, Some(&downloaded(&other).unwrap()), &ok).is_some());
     }
 
     #[test]
     fn every_dependency_table_of_every_mod_crate_is_read() {
         let stage =
-            std::env::temp_dir().join(format!("horizon-native-crates-{}", std::process::id()));
+            std::env::temp_dir().join(format!("apex-native-crates-{}", std::process::id()));
         let _ = fs::remove_dir_all(&stage);
         let krate = stage.join(DIR).join("bake").join("engine");
         fs::create_dir_all(&krate).unwrap();
@@ -340,7 +340,7 @@ checksum = "def"
     fn post_build_steps_run_in_the_version_folder_with_the_mods_folders() {
         let json = r#"[{"mod":"bake","package":"bake-engine","bin":"bake","args":["--fast"]},
             {"mod":"zoom","package":"zoom-tables","bin":"tables"}]"#;
-        let root = std::env::temp_dir().join(format!("horizon-native-post-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!("apex-native-post-{}", std::process::id()));
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(&root).unwrap();
         fs::write(root.join(POST_BUILD), json).unwrap();

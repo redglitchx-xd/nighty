@@ -6,8 +6,7 @@
   <br>
   <p>
     <a href="https://github.com/tubers9999/apex/releases">Download APK</a> · 
-    <a href="docs/">Documentation</a> · 
-    <a href="https://github.com/horizon-rust/horizon">Upstream (PC)</a>
+    <a href="docs/">Documentation</a>
   </p>
 </div>
 
@@ -17,9 +16,8 @@
 
 Apex is an independent community project. It is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB.
 
-- **PC Edition:** Created and maintained upstream by [Ludovic Marie (horizon-rust)](https://github.com/horizon-rust/horizon).
 - **Android Port:** Maintained and optimized for ARM64 mobile hardware by [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
-- *Upstream team develops for PC; mobile optimizations and ARM64 tuning are ported and synchronized for Android players.*
+- *Apex Android is developed independently for mobile devices.*
 
 ---
 
@@ -98,7 +96,7 @@ Apex does not download or redistribute copyrighted Mojang assets. To build or ru
 3. **Install ARM64 Package**  
    Install the release package onto your ARM64 Android device:
    ```bash
-   adb install -r dist/horizon-arm64.apk
+   adb install -r dist/apex-arm64.apk
    ```
 
 ---
@@ -119,9 +117,8 @@ Apex does not download or redistribute copyrighted Mojang assets. To build or ru
 
 Apex este un proiect comunitar independent. Nu este afiliat, aprobat sau asociat cu Mojang Studios, Microsoft Corporation sau oricare dintre filialele acestora. Minecraft este o marcă înregistrată a Mojang Synergies AB.
 
-- **Ediția PC:** Creată și menținută upstream de [Ludovic Marie (horizon-rust)](https://github.com/horizon-rust/horizon).
 - **Portarea Android:** Menținută și optimizată pentru dispozitive mobile ARM64 de [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
-- Pentru sincronizare upstream, paritate și colaborare, consultați [repository-ul oficial](https://github.com/horizon-rust/horizon).
+- Apex Android este dezvoltat independent pentru dispozitive mobile.
 
 ### Caracteristici de bază
 
@@ -141,3 +138,8 @@ Doar **Minecraft Java Edition 26.3** este suportat și implementat conform speci
 Apex nu redistribuie resurse originale Mojang. Pentru a compila și rula clientul, este necesară propria copie licențiată de Minecraft Java Edition 26.3, verificată cu scriptul `tools/android_prepare.py`.
 
 </details>
+
+---
+
+Copyright (c) 2026 RedGlitchX. All rights reserved.
+Licensed under the MIT License. See [LICENSE](LICENSE).
