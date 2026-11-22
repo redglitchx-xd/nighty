@@ -1,8 +1,8 @@
 # Resource packs: what works
 
-Java Edition resource packs load in Horizon: put the folder or `.zip` in `resourcepacks/`, pick it on the Resource Packs
+Java Edition resource packs load in Apex: put the folder or `.zip` in `resourcepacks/`, pick it on the Resource Packs
 screen (the same screen as vanilla's) or in game, and every loader reloads from it. This page lists everything a
-26.3 resource pack can change and whether Horizon honours it, with the proof.
+26.3 resource pack can change and whether Apex honours it, with the proof.
 
 ## How it works
 
@@ -22,7 +22,7 @@ of them.
 
 ## The table
 
-**Works**: Horizon reads it from the pack and draws or plays it like vanilla. **Partly**: some of it.
+**Works**: Apex reads it from the pack and draws or plays it like vanilla. **Partly**: some of it.
 **No**: ignored (the vanilla version stays). Proof: a parity harness in `tools/` (compares with the pinned 26.3
 client), a unit test, or the loader reading the overlay (vanilla's files go through the same loader, and the
 harness named checks that loader against vanilla).
@@ -33,7 +33,7 @@ harness named checks that loader against vanilla).
 | Overlays per format | `pack.mcmeta` `overlays` | works | `test_resource_pack_parity` (an overlay for 26.3 applied, an older one not) |
 | Filters | `pack.mcmeta` `filter` | works | `test_resource_pack_parity` (`horizon-client-core/src/pattern.rs` regex subset) |
 | Folder and zip packs, order, built-in packs | `resourcepacks/` | works | `test_resource_pack_parity`, `test_pack_selection_parity` |
-| Server resource packs: the prompt, the server list's Server Resource Packs setting, download (250 MiB, SHA-1, `downloads/` keeps 20), download toasts, a progress screen while the packs reload, applied on top of the player's packs, removed on leaving | the server's `resource_pack_push`/`_pop` | works | `tools/server_pack_e2e.py` (against vanilla's server and Horizon's), unit tests in `server_packs.rs`; `test_server_resource_pack_parity` for Horizon's server |
+| Server resource packs: the prompt, the server list's Server Resource Packs setting, download (250 MiB, SHA-1, `downloads/` keeps 20), download toasts, a progress screen while the packs reload, applied on top of the player's packs, removed on leaving | the server's `resource_pack_push`/`_pop` | works | `tools/server_pack_e2e.py` (against vanilla's server and Apex's), unit tests in `server_packs.rs`; `test_server_resource_pack_parity` for Apex's server |
 | Other namespaces | `assets/<namespace>/` | works | `test_resource_pack_parity` |
 | Block states: variants, multipart, weights, rotations, uvlock | `blockstates/` | works | `test_blockstate_model_parity`, `test_model_choice_parity`, `test_blockstate_transform_parity` |
 | Block models: parents, elements, rotations, faces, cullface, tint, shade, light emission, ambient occlusion | `models/block/` | works | `test_model_resolution_parity`, `test_model_baking_parity`, `test_section_mesh_parity` |
@@ -55,7 +55,7 @@ harness named checks that loader against vanilla).
 | New languages | `pack.mcmeta` `language` | works | `lang.rs` reads every pack's `language` section into the language list |
 | Sounds and sound events (`replace`, weights, streams, event references) | `sounds.json`, `sounds/` | works | `test_resource_pack_parity`, `test_sound_event_parity`, `test_sound_engine_parity` |
 | Splashes | `texts/splashes.txt` | works | `title.rs` reads it from the overlay |
-| Credits, end poem | `texts/credits.json`, `end.txt`, `postcredits.txt` | **no** | Horizon has no credits screen yet (Options → *Credits & Attribution* opens nothing) |
+| Credits, end poem | `texts/credits.json`, `end.txt`, `postcredits.txt` | **no** | Apex has no credits screen yet (Options → *Credits & Attribution* opens nothing) |
 | Grass, foliage and dry foliage colours | `textures/colormap/` | works | `biome.rs` reads the overlay; `test_section_mesh_parity` checks the tints |
 | Entity textures and variants | `textures/entity/` | works | `test_entity_model_parity`, loaded from the overlay |
 | Block entities: chests, signs, beds, banners, shields, shulker boxes, decorated pots | `atlases/`, `textures/entity/` | works | `test_block_entity_render_parity` |
@@ -71,7 +71,7 @@ harness named checks that loader against vanilla).
 | Maps: background, decorations | `textures/map/`, `atlases/map_decorations.json` | works | loaded from the overlay |
 | Paintings, mob effect icons | `atlases/paintings.json`, `textures/mob_effect/` | works | loaded from the overlay |
 | Locator bar styles | `waypoint_style/` | **no** | the locator bar isn't drawn yet |
-| Post effects (spectating a creeper, spider or enderman; glowing outlines) | `post_effect/`, `shaders/post/` | **no** | Horizon's effects are WGSL; a pack's GLSL post chain isn't run |
+| Post effects (spectating a creeper, spider or enderman; glowing outlines) | `post_effect/`, `shaders/post/` | **no** | Apex's effects are WGSL; a pack's GLSL post chain isn't run |
 | Core shaders | `shaders/core/`, `shaders/include/` | partly | `core/text` draws the GUI's text (HUDs moved by its vertex shader, text effects), translated by naga (`horizon-shaders` `core_shader.rs`, `hud/pack_text.rs`); the other core shaders aren't run |
 | GPU warn list, regional compliance | `gpu_warnlist.json`, `regional_compliancies.json` | n/a | OpenGL driver warnings and play-time notices for some regions; not used |
 
@@ -96,5 +96,5 @@ shaders, the missing pieces are missing vanilla features too, and each vanilla p
 ## Testing a pack
 
 `tools/test_resource_pack_parity.py` builds small packs (folder and zip, overlays, a filter, textures, languages,
-sounds, fonts, atlases), and a Java oracle answers what vanilla's loaders read from them; Horizon's loaders must
+sounds, fonts, atlases), and a Java oracle answers what vanilla's loaders read from them; Apex's loaders must
 give the same answers. Never commit third-party packs: build test packs in the harness or the test.

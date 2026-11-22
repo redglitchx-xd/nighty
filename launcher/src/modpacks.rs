@@ -315,7 +315,7 @@ pub fn apply_profile(cmd: &mut Command, work: &Path) -> Result<(), String> {
     if !options.exists() && own.is_file() {
         let _ = fs::copy(own, &options);
     }
-    cmd.current_dir(&home).env("HORIZON_HOME", &home);
+    cmd.current_dir(&home).env("APEX_HOME", &home);
     for m in mods {
         cmd.arg("--dev-mod").arg(m);
     }
@@ -432,7 +432,7 @@ mod tests {
         assert_eq!(cmd.get_current_dir(), Some(home.as_path()));
         assert!(cmd
             .get_envs()
-            .any(|(k, v)| k == "HORIZON_HOME" && v == Some(home.as_os_str())));
+            .any(|(k, v)| k == "APEX_HOME" && v == Some(home.as_os_str())));
         assert!(home.join("resourcepacks/Look/pack.mcmeta").is_file());
         assert_eq!(
             fs::read(home.join("resourcepacks/look.zip")).unwrap(),

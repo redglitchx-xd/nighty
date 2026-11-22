@@ -1,7 +1,7 @@
 # Pregeneration: `/pregen`
 
 `/pregen` generates every chunk of a square or a circle ahead of the players, lights it and saves it, as
-Chunky does on a Java server. It is Horizon's own command (vanilla has none), available in single player
+Chunky does on a Java server. It is Apex's own command (vanilla has none), available in single player
 with cheats on and to operators (level 2) on a server, from the chat or the server console
 (`horizon-server cmd pregen start 2500`).
 

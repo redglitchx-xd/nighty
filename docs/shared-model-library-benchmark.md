@@ -6,7 +6,7 @@ binding, block model resolution/baking, sprite preparation, item definitions,
 entity parts and item registry setup. Timing stops before the optional parity
 probe. The Python driver's `wait4` resource accounting reports process peak RSS
 on Linux. For latency runs, allocation tracking is compiled out. For separate
-retained-memory runs, compile with `HORIZON_BENCH_COUNT_ALLOCATIONS=1`; the counting
+retained-memory runs, compile with `APEX_BENCH_COUNT_ALLOCATIONS=1`; the counting
 system allocator reports live requested bytes after both loads. A zero
 `retained_bytes` with tracking disabled is not a heap measurement.
 
@@ -15,7 +15,7 @@ at `89b58991bbc02eb79b6965fc4ca56357fe2297d9` with the benchmark example copied 
 and `ItemRenderer::load(root)` in its item stage. Save that binary, then build
 this branch with `ItemRenderer::load_with_library(root, assets.model_library.clone())`.
 Both builds use `cargo build --locked --profile fast -p horizon-client --example
-model_library_bench` with `HORIZON_BENCH_COUNT_ALLOCATIONS` unset (`opt-level=3`, LTO disabled, 16 codegen units). Set
+model_library_bench` with `APEX_BENCH_COUNT_ALLOCATIONS` unset (`opt-level=3`, LTO disabled, 16 codegen units). Set
 `CARGO_BUILD_JOBS=2`. On the optimization machine, hold
 `/tmp/horizon-optimizations-20261015-heavy.lock` for each entire build or paired
 measurement session. Reuse a shared Cargo target only under that lock.

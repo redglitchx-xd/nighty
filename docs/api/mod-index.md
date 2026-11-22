@@ -1,7 +1,7 @@
 # The registry index and `.hpack`
 
-Horizon's registry lists what is made for Horizon and reviewed: content mods (`.hmod`), native mods (`.hnmod`,
-[native-mods.md](../native-mods.md)), modpacks (`.hpack`), resource packs and Horizon shader packs (`.hshader`,
+Apex's registry lists what is made for Apex and reviewed: content mods (`.hmod`), native mods (`.hnmod`,
+[native-mods.md](../native-mods.md)), modpacks (`.hpack`), resource packs and Apex shader packs (`.hshader`,
 [shaders.md](../shaders.md)). A project is listed by a reviewed pull request in
 [horizon-rust/horizon-mods](https://github.com/horizon-rust/horizon-mods) that links its GitHub repository; its versions are
 the repository's GitHub releases, read and checked by the registry's CI with no pull request and no review per version. The launcher and the
@@ -19,7 +19,7 @@ Level: preview ([stability.md](stability.md)). Schema 1.
   "generated": "2026-10-24T18:00:00Z",
   "projects": [{
     "id": "coords_hud", "kind": "mod", "name": "Coordinates HUD", "summary": "One line.",
-    "description": "Markdown.", "authors": ["Horizon"], "owners": ["ludovic111"],
+    "description": "Markdown.", "authors": ["Apex"], "owners": ["ludovic111"],
     "license": "MIT", "source": "https://github.com/...", "icon": "https://...png", "key": "RWT...", "downloads": 1234,
     "versions": [{
       "version": "0.1.0", "published": "2026-10-24", "changelog": "",
@@ -34,9 +34,9 @@ Level: preview ([stability.md](stability.md)). Schema 1.
 
 | Field | Meaning |
 | --- | --- |
-| `schema` | 1. A reader refuses a higher number with "update Horizon" rather than misread it. |
+| `schema` | 1. A reader refuses a higher number with "update Apex" rather than misread it. |
 | `projects[].id` | `[a-z0-9_]{1,64}`, unique; a mod's is its manifest's `id`. |
-| `kind` | `mod` (content), `native-mod`, `modpack`, `resourcepack`, `shader` (Horizon's own shader packs, not Iris or OptiFine packs). Other kinds (data packs, worlds, themes) may come without a new schema: a reader keeps a kind it doesn't know and doesn't offer it. |
+| `kind` | `mod` (content), `native-mod`, `modpack`, `resourcepack`, `shader` (Apex's own shader packs, not Iris or OptiFine packs). Other kinds (data packs, worlds, themes) may come without a new schema: a reader keeps a kind it doesn't know and doesn't offer it. |
 | `summary`, `description` | One line for lists; Markdown for the project's page. |
 | `owners` | GitHub logins allowed to publish updates. |
 | `license`, `source` | An SPDX expression and an `https://` address of the source code: both required. |
@@ -64,10 +64,10 @@ changing what one means, makes schema 2.
 3. What the file says matches the entry: a mod's `horizon-mod.toml` (id, version, API, side, capabilities), its API
    level when the entry lists one, and its
    content's fence ([mods.md](../mods.md#content-mods-api-02)); a native mod's `horizon-native.json` and
-   `horizon-mixin.toml` (id, version, the pinned Horizon and horizon-mixins revisions); a modpack's manifest (id, version, format, game,
+   `horizon-mixin.toml` (id, version, the pinned Apex and horizon-mixins revisions); a modpack's manifest (id, version, format, game,
    mods); a resource pack's `pack.mcmeta`; a shader pack's `horizon_shader_api::check` and manifest (id, version,
    shader API).
-4. A kind this build can't install is refused with "this Horizon can't install a … yet".
+4. A kind this build can't install is refused with "this Apex can't install a … yet".
 
 ## `.hpack`
 
@@ -80,7 +80,7 @@ id = "cozy"                 # [a-z0-9_]{1,64}: the profile's folder
 name = "Cozy"
 version = "1.0.0"
 description = "Coordinates and a calm render distance."
-authors = ["Horizon"]
+authors = ["Apex"]
 game = "26.3"
 
 [[mods]]
@@ -114,7 +114,7 @@ icon = "icons/coords_hud.png"    # optional: a PNG of at most 256 KiB in the rep
 name = "Coordinates HUD"
 summary = "One line, at most 160 characters."
 description = """Markdown."""
-authors = ["Horizon"]
+authors = ["Apex"]
 license = "MIT"
 # source defaults to https://github.com/<repo>
 ```
@@ -136,7 +136,7 @@ does: a release deleted or an asset replaced later does not change the index (th
 `description`, `authors` and `license` (unknown keys, and anything about owners, key, kind or icon, are refused): they fill the
 page fields the entry leaves out. A listing that is incomplete without it is refused until it is.
 
-**`[[versions]]` in an entry are optional** and kept for projects listed before releases were read, and for Horizon's own
+**`[[versions]]` in an entry are optional** and kept for projects listed before releases were read, and for Apex's own
 mods built in the registry (`native/<name>/`):
 
 ```toml
@@ -191,7 +191,7 @@ How the repository runs (its workflows are in `.github/workflows/`):
 
 - **A pull request** (`check.yml`) runs `registry review`, downloads each new hosted file from the `staging` prerelease,
   runs `registry check` on it and builds the index it would publish; the report is the run's summary. The tool is
-  `cargo-horizon-mod` from Horizon at the commit in the repository variable `HORIZON_REV`.
+  `cargo-horizon-mod` from Apex at the commit in the repository variable `APEX_REV`.
 - **Every hour, and on a push to `main`** (`publish.yml`): read the new releases of every entry with a `repo` as above and
   keep the result on the `versions` branch, make each new hosted version a release `<id>-<version>`, and deploy
   `index.json` and `icons/` to GitHub Pages: `https://horizon-rust.github.io/horizon-mods/index.json`, served with

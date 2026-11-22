@@ -17,7 +17,7 @@ The workflow does not publish GitHub Releases or send Discord messages.
 Create a **new, dedicated dev key**, not the release signing key. In PowerShell:
 
 ```powershell
-keytool -genkeypair -keystore "$env:TEMP/horizon-ci-dev.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -validity 10000 -dname "CN=Horizon Android Dev CI"
+keytool -genkeypair -keystore "$env:TEMP/horizon-ci-dev.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -validity 10000 -dname "CN=Apex Android Dev CI"
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:TEMP/horizon-ci-dev.keystore")) | Set-Clipboard
 ```
 

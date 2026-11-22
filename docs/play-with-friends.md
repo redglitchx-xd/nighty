@@ -3,7 +3,7 @@
 A player opens their single-player world to friends with one click and gets an **invite code**.
 Friends paste the code (in game: the title screen's Friends button opens Join a Friend, and Direct
 Connection takes a full code too; or on the launcher's Play page) and join.
-There is no Horizon server in the middle and no account: the code itself says where the host is and
+There is no Apex server in the middle and no account: the code itself says where the host is and
 holds the key that encrypts the game between them.
 
 It is built on Open to LAN: the integrated server (`crates/horizon-client/src/lan`) listens on a local
@@ -28,7 +28,7 @@ with Friends** (`friends_screen.rs`); its **Start Sharing** opens the world to L
 LAN's defaults), then the host's game, on its own:
 
 1. listens on its **direct port**, TCP 25580 by default (the same port every time, so a port forwarded
-   by hand keeps working; another one if it is taken; `HORIZON_FRIENDS_PORT` picks it);
+   by hand keeps working; another one if it is taken; `APEX_FRIENDS_PORT` picks it);
 2. collects this computer's addresses: the LAN address, VPN addresses (Tailscale's `100.x`, ZeroTier
    and others), IPv6. Container and VM bridges are left out;
 3. asks the home router to open the direct port for an hour, renewed every half hour and deleted when
@@ -38,13 +38,13 @@ LAN's defaults), then the host's game, on its own:
    hour; a permanent one stays until it is removed in the router's settings);
 4. asks public **STUN** servers for its public IPv4 address (only the address: STUN sees UDP, the game
    is TCP). Defaults: `stun.cloudflare.com:3478` and `stun.l.google.com:19302`, two independent
-   operators of free STUN at a global scale, so one outage doesn't break discovery. `HORIZON_STUN_SERVERS`
+   operators of free STUN at a global scale, so one outage doesn't break discovery. `APEX_STUN_SERVERS`
    (a comma list, or `none`) changes them;
 5. builds the **invite code**: the endpoints (the router mapping, the public address on the direct
    port, the interface addresses) and a fresh 80-bit secret, in base32 with a checksum.
 
 **Joining.** The guest's game dials every endpoint in the code at once. The first that answers as a
-Horizon host gets the handshake, the others are dropped. On the same LAN, over a VPN, with IPv6, with a
+Apex host gets the handshake, the others are dropped. On the same LAN, over a VPN, with IPv6, with a
 router that opened the port, or with a forwarded port, that's it: no server took part.
 
 **Codes.** Crockford base32 (`0-9 A-Z` without `I L O U`; input ignores case, spaces and dashes and reads
@@ -91,13 +91,13 @@ run at once there, and each must finish within 10 seconds however slowly its byt
 - **Friends with the code** see the host's addresses in it (LAN, VPN, public), as with any server
   address. A guest's address is seen by the host, as on any server.
 - **STUN servers** see the host's public IP address and a 20-byte request, like any website it visits.
-  Turn them off with `HORIZON_STUN_SERVERS=none` (the code then lacks the public address unless the
+  Turn them off with `APEX_STUN_SERVERS=none` (the code then lacks the public address unless the
   router reported it).
-- **The router** gets a port mapping named "Horizon (play with friends)".
+- **The router** gets a port mapping named "Apex (play with friends)".
 - **A relay** (only if one is configured) sees the IP addresses of the host and the guests, the short
   code's first half, when sessions start and end and the size of encrypted frames. It can't see the
   secret, the key or the game (names, chat, the world). It logs counts every five minutes, nothing else.
-- **Horizon** runs no service for it. The game's anonymous "I'm playing" ping says only whether a
+- **Apex** runs no service for it. The game's anonymous "I'm playing" ping says only whether a
   LAN or friends world is open, never its address, code or name ([telemetry.md](telemetry.md)).
 
 ## Identity
@@ -122,7 +122,7 @@ There is no default relay. With one configured:
   simultaneous open from the direct port), and stays on the relay only if none connects.
 
 Configuring it: the **Relay** field on the Join a friend page (saved to `horizon.txt` as
-`friendsRelay:host:port`, used for hosting too), or `HORIZON_RELAY_URL`.
+`friendsRelay:host:port`, used for hosting too), or `APEX_RELAY_URL`.
 
 ### Running your own relay
 
@@ -201,7 +201,7 @@ host's version), `host_unreachable`, `full`, `rate_limited`, `bad_request`.
   machine with a public address, e.g. a VPS).
 - **"Couldn't reach your friend's game"** (guest): the host's note under the code says why. A firewall
   on the host computer can also block the direct port: allow `horizon-client` on private and public
-  networks (Windows asks the first time; on macOS answer "Allow" when asked whether Horizon may accept
+  networks (Windows asks the first time; on macOS answer "Allow" when asked whether Apex may accept
   incoming network connections).
 - **"The code has a typo"**: copy it again; codes are only letters and digits in groups of five.
 - **"This short code works through your friend's relay"**: enter the relay's address under Join a
@@ -220,7 +220,7 @@ host's version), `host_unreachable`, `full`, `rate_limited`, `bad_request`.
   self-hosted relay with the short code (relayed, then its direct race); dead endpoints falling back to
   the relay named in the code; wrong secrets (full and short codes, the short code retired after five);
   unknown and ended codes, version mismatch, rate limits, bandwidth caps, `/health`.
-- `tools/test_friends.py`: real games: a host Horizon sharing a world and a guest Horizon joining over
+- `tools/test_friends.py`: real games: a host Apex sharing a world and a guest Apex joining over
   plain LAN (`--baseline`), with the **code alone** (no relay running), and through a **locally run
   relay** with the short code; chat, movement and blocks both ways, then the ended invite.
 - Two machines over a tailnet with the code alone (`--role host` on one, `--role guest --code …` on the

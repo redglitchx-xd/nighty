@@ -1,6 +1,6 @@
-# Horizon mods
+# Apex mods
 
-Two kinds of mod run in Horizon:
+Two kinds of mod run in Apex:
 
 | Kind | File | What it is | Where it runs |
 |---|---|---|---|
@@ -8,7 +8,7 @@ Two kinds of mod run in Horizon:
 | **Native mod** | `.hnmod` | A [horizon-mixins](https://github.com/horizon-rust/horizon-mixins) bundle: Rust that changes the game's own source before it is compiled. | In a game the launcher builds for the player ([native-mods.md](native-mods.md)) |
 
 Fabric and NeoForge jars do **not** run as they are: their code calls and patches Minecraft's Java classes, and
-Horizon has none. What carries over is the data and assets inside a jar ([modpacks.md](modpacks.md)).
+Apex has none. What carries over is the data and assets inside a jar ([modpacks.md](modpacks.md)).
 
 Mods are **off by default**. A fresh install has no `horizon-mods` folder and plays exactly like vanilla 26.3.
 
@@ -44,7 +44,7 @@ cargo horizon-mod check target/horizon-mod/my_mod.hmod   # the registry's checks
 - `build` packs `horizon-mod.toml`, `assets/` and `data/` into `target/horizon-mod/<id>.hmod`, with the same checks
   the game makes when it reads the content. It refuses a folder with a `Cargo.toml` (code is native now) and a
   manifest without capability `registries`.
-- `run` builds, then starts `horizon-client` (on `PATH`, or `--game PATH`, or `HORIZON_CLIENT`) with
+- `run` builds, then starts `horizon-client` (on `PATH`, or `--game PATH`, or `APEX_CLIENT`) with
   `--dev-mod target/horizon-mod/<id>.hmod`, always on. Arguments after `--` go to the game. The game reads content once
   at start, so rebuild and run again after an edit.
 - `check <file>` runs what the registry runs: the file's size and SHA-256, its manifest and content, and a signature
@@ -121,7 +121,7 @@ Native mods can register component types before content loads. A content item
 can set a registered type with a JSON value, such as `"sample:charge": {"charge": 42}`.
 JSON values become NBT values. Values must fit the network NBT limits and
 round-trip through saved NBT; negative zero is not supported. A key such as
-`"!sample:charge": {}` removes the template's default. Unknown types fail when Horizon builds the content root;
+`"!sample:charge": {}` removes the template's default. Unknown types fail when Apex builds the content root;
 `cargo horizon-mod check` cannot check native registrations.
 
 A block's item takes the same `components`, over the components of its
@@ -218,9 +218,9 @@ It is the menu type `<id>:<name>`, with its network id after vanilla's. A mod bl
 its slots, then the player's 36. A shift-click from the inventory goes to the first slots with room, never a result
 slot, and one on the container goes to the inventory, as a chest's does. `results` fence players only: hoppers follow the
 container's faces and `inputs`, so leave result slots out of `inputs`. The data slots are the block entity's `data`
-(16-bit on the network, as vanilla's), all sent when it opens, then each change. A Horizon client shows it through the
+(16-bit on the network, as vanilla's), all sent when it opens, then each change. A Apex client shows it through the
 mod's own screen (`native_screen`); without one it closes again. Clients join a server only with the same mods' menu
-types, as with its blocks, and a client that isn't Horizon's is never sent one: the block opens nothing for it. Not
+types, as with its blocks, and a client that isn't Apex's is never sent one: the block opens nothing for it. Not
 yet: per-slot rules beyond `results`, hooks for shift-click routing and `stillValid`, opening with extra data, and
 client prediction of its clicks.
 
@@ -340,9 +340,9 @@ game, so it works from any hook, and makes the folder when missing. Settings kep
 
 ## Publish your mod
 
-Horizon's registry lists mods, modpacks (`.hpack`) and resource packs made for Horizon. **A project is reviewed
+Apex's registry lists mods, modpacks (`.hpack`) and resource packs made for Apex. **A project is reviewed
 once, when it is listed; its later releases are checked by machine, not read by a person.** Players find them at
-[playhorizon.dev/mods](https://playhorizon.dev/mods) and in the launcher (Mods, then **Horizon** beside Modrinth),
+[playhorizon.dev/mods](https://playhorizon.dev/mods) and in the launcher (Mods, then **Apex** beside Modrinth),
 which checks every file before it installs it.
 
 1. Run `cargo horizon-mod check` on the file (above): the registry runs the same checks.
@@ -382,9 +382,9 @@ words win. Its owners, key, kind and icon are the registry's, changed by a pull 
 - **Takedowns.** A file the registry takes down (`revoked.toml`) is refused by the launcher and turned off where
   installed.
 
-## Horizon's official mods
+## Apex's official mods
 
-Horizon's own mods are native. They live in
+Apex's own mods are native. They live in
 [horizon-rust/horizon-mods](https://github.com/horizon-rust/horizon-mods) under `native/<name>/`:
 
 | Mod | Folder | Replaces |

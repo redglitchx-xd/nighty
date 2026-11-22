@@ -108,7 +108,7 @@ const GREY: u32 = 0x9aa6b2;
 const ON_CYAN: u32 = 0x062330;
 
 /// The promo code: Sculk's, never translated.
-const CODE: &str = "HORIZON15";
+const CODE: &str = "APEX15";
 
 /// What the tall card needs of the sidebar's height, label included, with room for a third line of
 /// headline: below it the sidebar shows the compact card.
@@ -131,7 +131,7 @@ fn headline() -> StyledText {
     )])
 }
 
-/// "HORIZON15 · 15% off" in a dashed cyan frame, as on Sculk's banner.
+/// "APEX15 · 15% off" in a dashed cyan frame, as on Sculk's banner.
 fn code_chip(size: f32, height: f32) -> Div {
     div()
         .flex()

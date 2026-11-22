@@ -49,8 +49,8 @@ impl CurseForge {
     /// The source, when a key exists; else None and CurseForge isn't offered.
     pub fn from_env() -> Option<Self> {
         key(
-            std::env::var("HORIZON_CURSEFORGE_API_KEY").ok(),
-            option_env!("HORIZON_CURSEFORGE_API_KEY"),
+            std::env::var("APEX_CURSEFORGE_API_KEY").ok(),
+            option_env!("APEX_CURSEFORGE_API_KEY"),
         )
         .map(|key| Self { key })
     }
@@ -217,7 +217,7 @@ impl Source for CurseForge {
     fn project(&self, id: &str) -> Result<Project, String> {
         let m = self.get(&format!("{API}/mods/{}", encode(id)))?;
         parse_mod(&m["data"])
-            .ok_or_else(|| format!("CurseForge: {id} is not a pack Horizon loads."))
+            .ok_or_else(|| format!("CurseForge: {id} is not a pack Apex loads."))
     }
 
     fn versions(&self, project: &Project) -> Result<Vec<Version>, String> {

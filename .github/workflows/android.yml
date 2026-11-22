@@ -21,14 +21,14 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build & Release Horizon Android ARM64 APK
+    name: Build & Release Apex Android ARM64 APK
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     env:
       CARGO_BUILD_JOBS: '2'
       CARGO_PROFILE_DEV_DEBUG: '0'
       CARGO_TARGET_DIR: ${{ github.workspace }}/.local/ci-target
-      HORIZON_TELEMETRY_URL: 'off'
+      APEX_TELEMETRY_URL: 'off'
     steps:
       - uses: actions/checkout@v4
 
@@ -49,7 +49,7 @@ jobs:
           else:
               subprocess.run(['keytool', '-genkeypair', '-keystore', str(path), '-storepass', 'android',
                               '-keypass', 'android', '-alias', 'androiddebugkey', '-keyalg', 'RSA',
-                              '-validity', '3650', '-dname', 'CN=Horizon Android,O=Horizon,C=US'], check=True)
+                              '-validity', '3650', '-dname', 'CN=Apex Android,O=Apex,C=US'], check=True)
               print('Generated fresh debug keystore.')
           PY
 
@@ -113,7 +113,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat << 'EOF' > release_notes.md
-          ### [>] Horizon Android (ARM64)
+          ### [>] Apex Android (ARM64)
 
           Minecraft Java Edition 26.3 ultra-fast native Rust client for Android.
           High-performance mobile rendering, custom touch engine, instant PvP hitmarkers.
@@ -129,10 +129,10 @@ jobs:
           - [+] Visual PvP Hitmarker & "Ack" Sound: Razor-sharp crimson crosshair hitmarker visual feedback paired with instant punchy audio when striking hostile mobs or players in PvP.
           - [+] Live Keystrokes & CPS Overlay: WASD + Space key visualizer with 1-second sliding-window CPS counters for Left and Right clicks.
           - [+] 1-Tap Ultra FPS Booster: Instantly toggle entity culling, cave culling, animated textures, and LOD optimizations for smooth 60-120+ FPS.
-          - [+] Built-in Horizon Cyber Synthwave BGM: Looping high-octane 135 BPM soundtrack playing directly out of the box with quick Mute/Play controls.
-          - [+] Signature Horizon Theme: Deep crimson gradient with liquid glass sheen and glowing corner accents.
+          - [+] Built-in Apex Cyber Synthwave BGM: Looping high-octane 135 BPM soundtrack playing directly out of the box with quick Mute/Play controls.
+          - [+] Signature Apex Theme: Deep crimson gradient with liquid glass sheen and glowing corner accents.
           - [+] Custom Media Pickers: Import wallpapers, videos, or audio straight from phone storage.
-          - [+] Horizon Control Hub & Touch System: Pojav & Bedrock touch controls, full HUD editor, virtual mouse, customizable button shapes.
+          - [+] Apex Control Hub & Touch System: Pojav & Bedrock touch controls, full HUD editor, virtual mouse, customizable button shapes.
           - [+] Live Performance Stats Overlay: Real-time FPS, frame timings (ms), CPU/GPU usage graph right on screen.
           - [+] Shader Pack Support: Naga/WGSL shader engine tuned for Mali & Adreno mobile GPUs.
           - [+] Native Storage Access (SAF): Android DocumentsProvider integrated seamlessly.
@@ -142,5 +142,5 @@ jobs:
           git tag -d v0.1 2>/dev/null || true
           git push origin :refs/tags/v0.1 2>/dev/null || true
           gh release create v0.1 dist/horizon-arm64.apk \
-            --title "Horizon Android (ARM64)" \
+            --title "Apex Android (ARM64)" \
             --notes-file release_notes.md

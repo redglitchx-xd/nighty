@@ -1,7 +1,7 @@
 //! Instances: separate game folders, each with its own worlds, options and packs.
 //!
 //! Nothing that exists moves. The game's home (`backend::game_home`) stays the default instance,
-//! "Horizon", with its saves and options where they are. Imported modpacks (`ports/<pack>/home/`)
+//! "Apex", with its saves and options where they are. Imported modpacks (`ports/<pack>/home/`)
 //! and registry modpacks (`horizon-packs/<id>/home/`) are instances too, played from their own
 //! folders as before. New instances get `instances/<slug>/` in the game's home. What the player
 //! chooses about an instance (its name, icon, group) is kept in `instances.json` in the
@@ -257,7 +257,7 @@ impl Instance {
             None => Ok(()),
             Some(java) => Err(format!(
                 "{} plays Minecraft {} (Java Edition), not Horizon: Play starts it, without a \
-                 Horizon version.",
+                 Apex version.",
                 self.name, java.minecraft
             )),
         }
@@ -290,7 +290,7 @@ fn list_in(game_home: &Path, data: &Path) -> Vec<Instance> {
     let mut store = Store::load(data);
     let mut found = vec![(
         DEFAULT.to_string(),
-        "Horizon".to_string(),
+        "Apex".to_string(),
         Kind::Default,
         game_home.to_path_buf(),
         game_home.to_path_buf(),
@@ -654,7 +654,7 @@ pub fn apply(cmd: &mut Command, instance: &Instance) -> Result<(), String> {
             fs::create_dir_all(&instance.home)
                 .map_err(|e| format!("{}: {e}", instance.home.display()))?;
             cmd.current_dir(&instance.home)
-                .env("HORIZON_HOME", &instance.home);
+                .env("APEX_HOME", &instance.home);
         }
         Kind::Port | Kind::Pack => modpacks::apply_profile(cmd, &instance.work)?,
     }

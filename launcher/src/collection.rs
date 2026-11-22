@@ -188,10 +188,10 @@ impl Launcher {
             .child(
                 text(theme::HEADING)
                     .text_color(t.ink)
-                    .child(tr("Help make Horizon faster and steadier?")),
+                    .child(tr("Help make Apex faster and steadier?")),
             )
             .child(text(theme::UI).text_color(t.muted).child(tr(
-                "Horizon can send a few things to its developers. Each switch is off until you turn it on, and Settings can change it any time.",
+                "Apex can send a few things to its developers. Each switch is off until you turn it on, and Settings can change it any time.",
             )))
             .child(
                 div()
@@ -316,7 +316,7 @@ impl Launcher {
                 &[("count", &waiting.to_string())],
             )
         } else {
-            tr("Sending is turned off here (HORIZON_TELEMETRY_URL=off)").into()
+            tr("Sending is turned off here (APEX_TELEMETRY_URL=off)").into()
         };
         let confirm = self.collection.confirm_delete;
         let actions = div()

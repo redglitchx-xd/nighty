@@ -89,7 +89,7 @@ impl Build {
     }
 }
 
-/// A release or Nightly as a player reads it beside "Horizon": `v0.2.93` as it is,
+/// A release or Nightly as a player reads it beside "Apex": `v0.2.93` as it is,
 /// `nightly-2026-10-29-4baa571` as `Nightly 2026-10-29`.
 pub fn horizon_label(version: &str) -> String {
     match crate::nightly::date_of(version) {

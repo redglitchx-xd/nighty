@@ -213,7 +213,7 @@ const SWITCHING: Duration = Duration::from_secs(4);
 const SCROLLING: Duration = Duration::from_secs(3);
 const IDLE: Duration = Duration::from_secs(3);
 /// The environment variable that makes a launcher window measure itself into the file it names.
-const BENCH_ENV: &str = "HORIZON_LAUNCHER_BENCH";
+const BENCH_ENV: &str = "APEX_LAUNCHER_BENCH";
 
 /// A launcher window measuring itself: after its first frame it switches pages every tick for
 /// a few seconds (each switch animates, so the UI draws continuously), scrolls the longest list

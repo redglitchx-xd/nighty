@@ -1,11 +1,11 @@
-# Horizon Android 0.7.6
+# Apex Android 0.7.6
 
 This update targets touch controls, initial menu navigation and diagnostic recording.
 
 - Optional **Swap hands button**, off by default. Its factory position is beside Inventory in landscape and portrait, mirrored for left-handed controls. Customized placements are preserved. Swap, Shield and custom text buttons share the same default frame and visible held feedback; custom artwork remains supported.
 - **Raise shield with: Sneak / Button**. The separate button appears when a blocking item is available. Shield input selects the blocking hand without consuming the main-hand item or interacting with a targeted block.
 - Tap-control schemes show a crosshair for bows, crossbows, tridents and throwable items. Their use gestures aim through the center; other items retain touch targeting.
-- **Horizontal sensitivity** and **Vertical sensitivity** calibrate camera input independently. Equal physical drag distances now produce equal default turns on both axes, including portrait screens.
+- **Apextal sensitivity** and **Vertical sensitivity** calibrate camera input independently. Equal physical drag distances now produce equal default turns on both axes, including portrait screens.
 - Flint and steel, fire charges, bone meal, buckets and other surface actions use short taps. Food, charged weapons and throwable projectiles retain hold-to-use behavior. Ordinary building blocks keep tap-to-place / hold-to-mine.
 - Touch, gyro and controller camera movement count toward the look-around tutorial. Completed tutorial stages remain saved across worlds; an unfinished stage may appear again.
 - Hardware D-pad navigation works in the initial title menu before the full game loads. Focus acquisition retries after widgets become available.

@@ -493,7 +493,7 @@ fn a_version_file_that_is_not_the_pinned_one_is_refused() {
     let dir = s.launcher("PrismLauncher", "", jar);
     let linked = s.0.join("linked");
     let error = resolve_with(&dir, &[], &linked, &Mojang::new(b"{}")).unwrap_err();
-    assert!(error.contains("not the one Horizon pins"), "{error}");
+    assert!(error.contains("not the one Apex pins"), "{error}");
     assert!(!linked.join("versions/26.3/26.3.json").exists());
 }
 

@@ -1,4 +1,4 @@
-# Horizon native client
+# Apex native client
 
 `horizon-client` is the playable Rust client for Minecraft Java Edition 26.3.
 It streams a world around the player on worker threads, renders every vanilla
@@ -59,7 +59,7 @@ A launcher whose files are laid out its own way names them one by one instead of
 with `indexes/` and `objects/`); each replaces only what it names, and every file is still
 checked against `research-lock.json`'s pins. When an earlier import beside `--root` is still
 verified, it is reused and the named files aren't read. Two things no such launcher keeps:
-- **The server jar.** The first `--prepare` needs `--server-jar`. Horizon never downloads it; a
+- **The server jar.** The first `--prepare` needs `--server-jar`. Apex never downloads it; a
   launcher downloads it (the version JSON's `downloads.server`) only for a signed-in account that
   owns Minecraft: Java Edition, as `horizon-launcher` does.
 - **Java 25.** `--java-home PATH` names a runtime the launcher manages. The preparer takes the first
@@ -101,18 +101,18 @@ Worlds autosave every 6000 ticks (5 minutes), when chunks unload and on quit.
 On headless Linux use `vscreen start ./target/release/horizon-client` and
 `vscreen shot`.
 
-Sound: the game prints the output it opened (`Horizon: audio output ...`) or
-why it has none (`Horizon: no sound: ...`). It opens none with
-`HORIZON_NO_AUDIO` set, nor on a `vscreen`, where tests run beside someone
-listening; `HORIZON_AUDIO=1` opens it there anyway, so send it to a null sink
+Sound: the game prints the output it opened (`Apex: audio output ...`) or
+why it has none (`Apex: no sound: ...`). It opens none with
+`APEX_NO_AUDIO` set, nor on a `vscreen`, where tests run beside someone
+listening; `APEX_AUDIO=1` opens it there anyway, so send it to a null sink
 (`PIPEWIRE_PROPS='{ target.object=<sink> node.dont-fallback=true }'`). Don't
 mute a test run's stream in the mixer: PipeWire remembers the mute for every
-later `horizon-client`. The launcher starts the game as "Horizon" for that
+later `horizon-client`. The launcher starts the game as "Apex" for that
 reason.
 
 ### Agent control (`horizon-ctl` and MCP)
 
-AI agents and scripts play Horizon through `horizon-ctl`, a command line that
+AI agents and scripts play Apex through `horizon-ctl`, a command line that
 reads the game as JSON and acts like a player, and `horizon-ctl mcp`, an MCP
 server with the same commands. `--control` makes the game accept them on a
 local socket; under control, losing window focus does not pause the game or
@@ -203,7 +203,7 @@ Other arguments go to the game; its output goes to a `.log` file beside the
 socket.
 
 **Logs and crash reports.** Like vanilla, the game writes `logs/latest.log`
-in the game home (`$HORIZON_HOME`, else `~/.local/share/horizon`; the
+in the game home (`$APEX_HOME`, else `~/.local/share/horizon`; the
 dedicated server in its own folder) with lines like
 `[12:04:31] [Render thread/INFO]: message`, and at start archives the last
 run's as `logs/<yyyy-mm-dd>-<n>.log.gz` (seven a day). Messages still print on
@@ -214,7 +214,7 @@ last 50 log lines) and the game exits with a non-zero code. `horizon-ctl logs
 [--lines N]` prints the end of latest.log and `horizon-ctl logs --crash` the
 newest report (the `logs` MCP tool returns the same). F3 + C held for ten
 seconds crashes the game on purpose, as in vanilla (the world is saved first);
-development builds also crash with `HORIZON_DEBUG_CRASH=SECONDS`, that long
+development builds also crash with `APEX_DEBUG_CRASH=SECONDS`, that long
 after the first frame.
 
 **MCP.** `horizon-ctl mcp` serves the Model Context Protocol over stdin and
@@ -224,7 +224,7 @@ in an MCP client as a stdio server with the command `horizon-ctl` and the
 argument `mcp` (`--socket PATH` before `mcp` to pick a socket).
 
 **Transport.** On Linux and macOS the endpoint is a Unix socket:
-`$HORIZON_CONTROL`, else `$XDG_RUNTIME_DIR/horizon-control.sock`, or
+`$APEX_CONTROL`, else `$XDG_RUNTIME_DIR/horizon-control.sock`, or
 `--control-socket PATH` (`horizon-ctl --socket PATH`). Windows has no Unix
 sockets: there the game listens on a random `127.0.0.1` port and writes
 `{"transport":"tcp","port":N,"token":"..."}` to the endpoint path
@@ -245,28 +245,28 @@ presentation, so `bench` reports what is on screen.
 ### Discord Rich Presence
 
 While Discord runs on the same computer, the player's Discord profile shows
-"Playing Horizon" and what they are doing: "In the menus", "Singleplayer",
+"Playing Apex" and what they are doing: "In the menus", "Singleplayer",
 "Multiplayer" or "Hosting a world" (with the party size, of 8), the dimension
 ("In the Nether") and the time since they entered the world. It never shows a
-world's name or a server's address. Horizon Settings has the switch
+world's name or a server's address. Apex Settings has the switch
 (**Discord Rich Presence**, on by default; `discordPresence` in
-`horizon-extras.txt`), and `HORIZON_NO_DISCORD=1` turns it off for one run.
+`horizon-extras.txt`), and `APEX_NO_DISCORD=1` turns it off for one run.
 
 `crates/horizon-client/src/discord_presence.rs` speaks Discord's local IPC
 itself (the `discord-ipc-N` socket or named pipe, no SDK) from a thread of its
 own: the frame only hands it a status when it changes. It retries every 15 s
 while Discord isn't running and stays within Discord's 5 updates per 20 s.
 Dedicated servers never start it, and automated runs (offscreen, benchmarks)
-only talk to a fake Discord: `lab.game_env` sets `HORIZON_NO_DISCORD=1`, and
+only talk to a fake Discord: `lab.game_env` sets `APEX_NO_DISCORD=1`, and
 `tools/discord_presence_e2e.py` points games at a fake server with
-`HORIZON_DISCORD_IPC_DIR` (title, world, Nether and quit on both single-player
+`APEX_DISCORD_IPC_DIR` (title, world, Nether and quit on both single-player
 paths; a LAN host and guest; the switch; a Discord started after the game).
-`DISCORD_APP_ID` is Discord's "Horizon" application, whose `horizon` image is
+`DISCORD_APP_ID` is Discord's "Apex" application, whose `horizon` image is
 the large one; there are no game-mode images yet.
 
 ### Play on another of your machines
 
-Horizon targets Linux on x86-64 with an NVIDIA GPU (Vulkan); macOS and Windows
+Apex targets Linux on x86-64 with an NVIDIA GPU (Vulkan); macOS and Windows
 are out of scope. To play on another Linux machine
 without Rust, JDK or prepared resources, package a release build where they exist:
 
@@ -278,7 +278,7 @@ python3 tools/package_native_client.py --out ~/builds/horizon
 The archive holds the binary, the prepared resources and `horizon.sh`. Copy it
 to the target machine (same OS and architecture), unpack it and run
 `horizon/horizon.sh`; `horizon.sh --install` adds an application menu entry.
-Saves and `options.txt` go to `~/.local/share/horizon` (or `$HORIZON_HOME`), so
+Saves and `options.txt` go to `~/.local/share/horizon` (or `$APEX_HOME`), so
 unpacking an update keeps them. The archive contains Mojang assets: keep it
 private.
 

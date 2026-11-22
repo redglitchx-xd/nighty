@@ -1,4 +1,4 @@
-# Horizon scheduled ticks
+# Apex scheduled ticks
 
 The Rust scheduler targets the repository-pinned **Minecraft Java Edition
 26.3**. It implements scheduled block/fluid queue mechanics and saved tick

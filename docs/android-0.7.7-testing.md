@@ -22,7 +22,7 @@ Device observations recorded before that integration must be repeated on the res
 13. Touch crouch (PR #75): cancel the touch/controller toggle on entering water, flight or a mount; preserve held-key and vanilla-toggle handling.
 14. Connection diagnostics (PR #79): always record connection failures and departures without enabling per-frame network logging. Reports may contain player/server details.
 15. Fixed opt-in Android mods: Zoom, Minimap, Recipes and SmartF3 compiled into the APK, with local Enable/Disable in the Mods catalog and settings under Options > Mods. Defaults are off; choices persist per profile and runtime state resets between launches. Original MIT licenses and pinned source provenance are retained.
-16. Existing sandboxed `.hmod` execution remains available on compatible 64-bit builds. Arbitrary `.hnmod` compilation/loading is not added. Existing Horizon far terrain remains; Distant Horizons is not bundled.
+16. Existing sandboxed `.hmod` execution remains available on compatible 64-bit builds. Arbitrary `.hnmod` compilation/loading is not added. Existing Apex far terrain remains; Distant Apexs is not bundled.
 17. World transfer: selected-profile saves exposed as Worlds in Android Files. Complete folders can be copied for import/backup. Finish copying before Play; new world-file access is refused while playing. This does not add a ZIP-world wizard.
 18. Launcher Settings > Game files opens the provider root; World files opens saves directly. Private accounts, keys and internal traces are excluded.
 19. Upstream synchronization: 1,846 commits, including merge history, to the selected nightly. Areas include authoritative item use/prediction, server connection lifecycle, shared block-state storage, native hooks/content APIs, keyboard focus, shader options/LabPBR, graphics memory handling and rendering. Upstream deployment workflows remain disabled in the Android fork. Individual upstream commits are not all independently device-tested.
@@ -36,7 +36,7 @@ Profile 0 uses this directory; additional profiles use `profiles/profile-<id>` b
 The game keeps `saves`, `horizon-mods`, `resourcepacks`, `shaderpacks` and settings in that profile.
 Prepared engine resources and cache are application-managed; do not move them by hand.
 
-Use **Settings > Game files** or **Android Files > Horizon Android** for supported document access.
+Use **Settings > Game files** or **Android Files > Apex Android** for supported document access.
 The provider shows the selected profile's Mods, Resource Packs, Shader Packs and Worlds,
 plus Reports. It deliberately does not expose every private file in the physical directory.
 Screenshots remain under Pictures. Switching profiles must not mix world or mod choices.
@@ -92,7 +92,7 @@ render/simulation distance, enabled mods/shaders and whether diagnostics are on.
 
 ### Files, packs and mods
 
-- Game files opens Horizon Android root, World files opens the selected profile's saves.
+- Game files opens Apex Android root, World files opens the selected profile's saves.
 - Copy a complete disposable world out, import under a different name, open in a compatible client; verify inventory, location, entities and block edits.
 - Existing folder name does not silently overwrite a world; cancel copying; finish transfers before Play.
 - Accounts/credentials are not visible in provider; traversal/symlink access is rejected.

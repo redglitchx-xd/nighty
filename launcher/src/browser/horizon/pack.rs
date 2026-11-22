@@ -81,7 +81,7 @@ fn install_in(
 ) -> Result<Installed, String> {
     let p = index
         .project(id)
-        .ok_or_else(|| format!("{id} isn't in Horizon's registry."))?;
+        .ok_or_else(|| format!("{id} isn't in Apex's registry."))?;
     if p.kind != idx::Kind::Modpack {
         return Err(format!("{} is a {}, not a modpack.", p.name, p.kind.name()));
     }
@@ -171,7 +171,7 @@ pub fn apply(cmd: &mut Command, work: &Path) -> Result<(), String> {
         let _ = fs::copy(own, &options);
     }
     super::before_play(&home);
-    cmd.current_dir(&home).env("HORIZON_HOME", &home);
+    cmd.current_dir(&home).env("APEX_HOME", &home);
     Ok(())
 }
 

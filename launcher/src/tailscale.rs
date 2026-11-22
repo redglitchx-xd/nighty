@@ -36,7 +36,7 @@ pub const LINUX_LOGIN: &str = "sudo tailscale up --operator=$USER";
 
 /// The `tailscale` command, wherever the installer put it.
 pub fn cli() -> Option<PathBuf> {
-    if let Some(p) = std::env::var_os("HORIZON_LAUNCHER_TAILSCALE") {
+    if let Some(p) = std::env::var_os("APEX_LAUNCHER_TAILSCALE") {
         return Some(PathBuf::from(p)).filter(|p| p.is_file());
     }
     let mut places: Vec<PathBuf> = std::env::var_os("PATH")
@@ -240,7 +240,7 @@ pub struct Api {
 
 impl Api {
     pub fn new(token: &str) -> Self {
-        let base = std::env::var("HORIZON_TAILSCALE_API")
+        let base = std::env::var("APEX_TAILSCALE_API")
             .unwrap_or_else(|_| "https://api.tailscale.com".into());
         Self::at(&base, token)
     }

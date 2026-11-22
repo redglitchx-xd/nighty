@@ -1,4 +1,4 @@
-# Horizon Rust rewrite status
+# Apex Rust rewrite status
 
 The behavior target is the repository's pinned **Minecraft Java Edition 26.3**.
 One-to-one vanilla gameplay parity is the acceptance criterion. It has **not**
@@ -57,7 +57,7 @@ interpolation and game-loop synchronization remain unfinished.
 
 ## Completion criteria and playable builds
 
-The final deliverable is the complete Horizon Rust game with one-to-one parity
+The final deliverable is the complete Apex Rust game with one-to-one parity
 with pinned Java Edition 26.3, plus a playable **Linux** build that the user can
 download and test. The target platform is a Linux x86-64 desktop with an NVIDIA
 GPU (Vulkan) on Wayland. macOS and Windows are out of scope. The build must include a packaged native
@@ -1373,7 +1373,7 @@ expiry, the fade by age, the direction arrows and the box width. The overlay
 listens to the sound engine from the frame that renders it with the option on
 until one renders with it off, as vanilla's does.
 
-Not covered yet: the player's air supply (Horizon does not track drowning, so
+Not covered yet: the player's air supply (Apex does not track drowning, so
 the `air` criteria stays at 300); displays auto-updated with the player's name
 carry the team formatting but not the click, hover and insertion of
 `Player.getDisplayName`; there is no attack sweep for allies to be spared from;
@@ -1481,7 +1481,7 @@ held, from the local player and scoreboard in single player and from
 `PlayerInfoUpdate`, the tab list header and footer, `onlineMode` and the
 objective, score, display-slot and team packets on a server (checked live
 against the 26.3 server jar). Real skins are not downloaded: every head uses
-its default skin. Horizon has no "chat background only" option, so the row
+its default skin. Apex has no "chat background only" option, so the row
 background is vanilla's default.
 
 The client `WorldBorder` wraps `horizon_core::geometry::border` (checked by

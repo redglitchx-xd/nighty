@@ -14,9 +14,9 @@ pub mod library;
 #[path = "skins/preview.rs"]
 pub mod preview;
 
-pub const SKIN_ENV: &str = "HORIZON_OFFLINE_SKIN";
-pub const MODEL_ENV: &str = "HORIZON_OFFLINE_SKIN_MODEL";
-pub const CAPE_ENV: &str = "HORIZON_OFFLINE_CAPE";
+pub const SKIN_ENV: &str = "APEX_OFFLINE_SKIN";
+pub const MODEL_ENV: &str = "APEX_OFFLINE_SKIN_MODEL";
+pub const CAPE_ENV: &str = "APEX_OFFLINE_CAPE";
 pub const MAX_IMPORT_BYTES: usize = 1024 * 1024;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]

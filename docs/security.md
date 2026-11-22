@@ -1,6 +1,6 @@
 # Security
 
-How Horizon keeps its code and its downloads safe while most of the work is done by AI agents and releases go out
+How Apex keeps its code and its downloads safe while most of the work is done by AI agents and releases go out
 by themselves, including when Ludovic isn't at his computer. In plain words: what someone could have done before,
 what stops them now, and what still needs Ludovic.
 
@@ -57,7 +57,7 @@ and some are waiting for Ludovic:
   install by themselves, so the release run publishes it only after its smoke test passed (the game started and
   drew a world on the Mac mini) and only while no issue labelled `release-blocker` is open; otherwise nothing is
   published.
-- **Signed updates.** Each release carries a list of its files' checksums, signed with Horizon's release key. The
+- **Signed updates.** Each release carries a list of its files' checksums, signed with Apex's release key. The
   launcher (for the game and for itself) and `horizon-server update` check that signature against the public key
   built into them, then check the download against the list. Anything unsigned, signed with another key, signed
   for another version, or changed in any way is refused with a message saying why. Releases from before signing
@@ -87,7 +87,7 @@ and some are waiting for Ludovic:
 
 ## What this doesn't solve
 
-- **Code that merges is code that ships.** Signing proves a build came from Horizon's pipeline, not that the code
+- **Code that merges is code that ships.** Signing proves a build came from Apex's pipeline, not that the code
   is good. Against a bad change, the safety nets are the checks and harnesses, review, the release smoke test and
   the release-blocker label. Since the single channel there is no 6-hour beta: a change reaches every player
   within minutes of merging.

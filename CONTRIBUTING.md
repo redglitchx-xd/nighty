@@ -1,6 +1,6 @@
-# Contributing to Horizon
+# Contributing to Apex
 
-Thanks for helping. Horizon is Minecraft: Java Edition 26.3 rewritten in Rust, and the one rule that shapes
+Thanks for helping. Apex is Minecraft: Java Edition 26.3 rewritten in Rust, and the one rule that shapes
 everything is that **it plays exactly like vanilla**. This page is the short version of how we work; questions are
 welcome on [Discord](https://discord.gg/playhorizon).
 
@@ -15,7 +15,7 @@ queue (the hub, or `/suggest` on Discord) rather than to issues, which are for b
 ## Build it
 
 You need Rust (stable), Python 3.10+, JDK 25, and on Linux the ALSA and udev headers (`libasound2-dev libudev-dev`).
-Horizon never downloads the game: it prepares its resources from your own copy of Minecraft 26.3, as described in
+Apex never downloads the game: it prepares its resources from your own copy of Minecraft 26.3, as described in
 [Build from source](README.md#build-from-source).
 
 ```sh
@@ -28,16 +28,16 @@ The launcher is its own Cargo workspace in `launcher/` (`cd launcher && cargo ru
 ## Vanilla first
 
 Wherever vanilla has a feature, vanilla is the specification, down to the order of random calls. "Parity" here
-means Horizon gives the same results as the pinned 26.3 client and server for the same inputs, checked by a
+means Apex gives the same results as the pinned 26.3 client and server for the same inputs, checked by a
 **harness**: a `tools/test_*_parity.py` script that runs a small Java oracle against the real game and a Rust
-probe against Horizon, and compares their outputs. There are about 290 of them.
+probe against Apex, and compares their outputs. There are about 290 of them.
 
-- **Read the vanilla code before writing Horizon's.** `tools/rea_vanilla.py` queries the pinned game bytecode:
+- **Read the vanilla code before writing Apex's.** `tools/rea_vanilla.py` queries the pinned game bytecode:
   `python3 tools/rea_vanilla.py method net.minecraft.world.level.block.DispenserBlock dispenseFrom`.
   Say in your pull request which vanilla classes and methods you followed.
 - **Gameplay changes come with a harness**, new or extended, so the next change can't silently break them.
   [The parity workflow](docs/parity-workflow.md) shows how harnesses run; copy a nearby one.
-- **Horizon's own features** (the launcher, the new menus) follow [the design system](docs/design-system.md) and are
+- **Apex's own features** (the launcher, the new menus) follow [the design system](docs/design-system.md) and are
   off by default wherever they would change the vanilla look.
 - **Everything players run is Rust.** Python and Java are fine for dev tools and harness drivers in `tools/`, never
   for player-facing code.
@@ -49,7 +49,7 @@ The pre-push hook checks the full history reachable from the branches and tags b
 
 ## Only original code, or code whose license allows it
 
-Horizon is MIT. Its code is written from Minecraft 26.3 itself and from public documentation. Since 30 October 2026
+Apex is MIT. Its code is written from Minecraft 26.3 itself and from public documentation. Since 30 October 2026
 another project's source may also be read and used, **only when that project's license allows it**:
 
 - **Allowed:** MIT, MIT-0, BSD-2-Clause, BSD-3-Clause, 0BSD, ISC, zlib, Apache-2.0, Unlicense, and the CC0-1.0
@@ -117,15 +117,15 @@ it (edited on every push, never repeated): talk to its author in the thread befo
   replaces our commits with yours and erases the fixes we added (it happened on #5188 and #5203). Tell your agent
   too: `git merge origin/main`, never `git rebase` or `git push --force` on a branch a maintainer has touched. If
   our fixes get erased anyway, we finish the work in our own pull request that keeps your commits and credits you.
-- **Tick its kind** in the template: `parity` (Horizon now does what vanilla does), `bug` (a crash or breakage),
-  `perf`, `feature` (new for players), `extra` (Horizon-only, off by default), `tooling` or `docs`. A workflow sets
+- **Tick its kind** in the template: `parity` (Apex now does what vanilla does), `bug` (a crash or breakage),
+  `perf`, `feature` (new for players), `extra` (Apex-only, off by default), `tooling` or `docs`. A workflow sets
   that label, and area labels (`launcher`, `mobs`, `worldgen`, `rendering`...) from the paths you change.
   `label:parity` is the list of real progress toward vanilla.
 - **Release labels** (we set them if you can't): `feature` also puts it under "New" in the release notes,
   `skip-release` when players see no change (tooling, docs, tests), nothing for a fix.
   `release-now` is for crash fixes that shouldn't wait. pr_ready suggests one.
 
-Who reviews and merges: the Horizon Team, on CI for ordinary pull requests; risky ones (saves, network, world
+Who reviews and merges: the Apex Team, on CI for ordinary pull requests; risky ones (saves, network, world
 generation, the launcher's updates) wait for a local proof first ([merging](docs/release-flow.md#merging)).
 
 Every merge to main is released automatically ([release flow](docs/release-flow.md)), so main always stays playable.

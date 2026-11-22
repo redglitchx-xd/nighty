@@ -1,4 +1,4 @@
-<!-- Generated from crates/horizon-client/src/game/launch_api.rs; a test fails when this file is out of date. Update it with: HORIZON_WRITE_DOCS=1 cargo test -p horizon-client --bin horizon-client launch_api -->
+<!-- Generated from crates/horizon-client/src/game/launch_api.rs; a test fails when this file is out of date. Update it with: APEX_WRITE_DOCS=1 cargo test -p horizon-client --bin horizon-client launch_api -->
 # Launch API reference
 
 What `horizon-client` promises a launcher that starts it, Launch API 0.1.0. The guide: [launch.md](launch.md); stability and versions: [stability.md](stability.md).
@@ -11,7 +11,7 @@ Any other option is refused with exit code 2, so ask `--launch-api` before passi
 | --- | --- |
 | `--resources DIR` | The prepared resources (horizon-prepare's output). Default: `resources` beside the executable, else `.local/horizon-client/26.3`. |
 | `--game-dir DIR` | The game folder: `saves/`, `options.txt`, `resourcepacks/`, `horizon-mods/`, `screenshots/`. Created when missing. Default: the working directory. `--gameDir` is the same. |
-| `--home DIR` | Logs (`logs/latest.log`) and crash reports (`crash-reports/`). Default: `HORIZON_HOME`, else `horizon` in the platform data folder. |
+| `--home DIR` | Logs (`logs/latest.log`) and crash reports (`crash-reports/`). Default: `APEX_HOME`, else `horizon` in the platform data folder. |
 | `--width N` | The window's starting width (default 1280). |
 | `--height N` | The window's starting height (default 720). |
 | `--fullscreen` | Opens the window fullscreen, whatever `options.txt` says; `options.txt` is not changed. |
@@ -27,7 +27,7 @@ Prints one JSON object on stdout and exits 0. `horizon` is the build's version; 
 
 ```json
 {
-  "crash_report_line": "Horizon: crash report saved to ",
+  "crash_report_line": "Apex: crash report saved to ",
   "exit_codes": [
     0,
     1,
@@ -95,4 +95,4 @@ Prints one JSON object on stdout and exits 0. `horizon` is the build's version; 
 | 2 | The command line was refused: an unknown option, a missing or bad value. No crash report. |
 | 101 | The game panicked. A crash report was saved. |
 
-When a crash report is saved, the last line on stderr is `Horizon: crash report saved to` followed by the report's path.
+When a crash report is saved, the last line on stderr is `Apex: crash report saved to` followed by the report's path.

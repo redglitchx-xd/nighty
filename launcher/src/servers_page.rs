@@ -743,7 +743,7 @@ impl Launcher {
             Fix::Prepare => match self.selected().cloned() {
                 Some(tag) if backend::is_prepared(&tag) => {
                     self.server_job("Copying the game files", move |log| {
-                        log(format!("Copying the game files prepared for Horizon {tag}"));
+                        log(format!("Copying the game files prepared for Apex {tag}"));
                         servers::set_up(&tag)
                             .map(|_| "The game files are ready. Press Start again.".to_string())
                             .map_err(Problem::plain)
@@ -1271,7 +1271,7 @@ impl Launcher {
             let result = (|| {
                 if servers::program().is_none() {
                     let tag =
-                        tag.ok_or_else(|| Problem::plain("Install a Horizon version first."))?;
+                        tag.ok_or_else(|| Problem::plain("Install a Apex version first."))?;
                     servers::set_up(&tag).map_err(Problem::plain)?;
                 }
                 if !dir.join("server.toml").is_file() {
@@ -2414,7 +2414,7 @@ impl Launcher {
         }
         self.setting_row(
             "Delete server",
-            "Remove this server from Horizon and move its worlds, settings and backups to the trash.".into(),
+            "Remove this server from Apex and move its worlds, settings and backups to the trash.".into(),
             controls.into_any_element(),
         )
         .items_start()
@@ -2481,9 +2481,9 @@ impl Launcher {
                 "Update available: Horizon {tag} (this server runs {release}). Updating backs up \
                  the world first, and goes back by itself if the new version doesn't start."
             ),
-            (None, Some(_), _) => format!("Up to date: Horizon {release}."),
-            (None, None, Some((last, _))) => format!("Horizon {release}. {last}"),
-            (None, None, None) => format!("Horizon {release}."),
+            (None, Some(_), _) => format!("Up to date: Apex {release}."),
+            (None, None, Some((last, _))) => format!("Apex {release}. {last}"),
+            (None, None, None) => format!("Apex {release}."),
         };
         let control = match available {
             Some(tag) => {
@@ -2493,7 +2493,7 @@ impl Launcher {
                         this.servers.update = None;
                         if let Some(dir) = this.servers.open.clone() {
                             let done = format!(
-                                "Updated to Horizon {tag}. The world was backed up first (Backups)."
+                                "Updated to Apex {tag}. The world was backed up first (Backups)."
                             );
                             this.server_job(format!("Updating to {tag}"), move |log| {
                                 servers::run_streamed(&dir, &["update"], log).map(|_| done)
@@ -2537,7 +2537,7 @@ impl Launcher {
             .flex_col()
             .border_t_1()
             .border_color(t.rule)
-            .child(self.setting_row("This server's Horizon", about, control.into_any_element()));
+            .child(self.setting_row("This server's Apex", about, control.into_any_element()));
         if self.servers.setting("updates", "keep").is_some() {
             rows = rows.child(self.setting_row(
                 "Older versions kept",

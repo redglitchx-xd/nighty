@@ -18,10 +18,10 @@ use crate::desktop_seams;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub const DESKTOP_ENV: &str = "HORIZON_LAUNCHER_DESKTOP";
+pub const DESKTOP_ENV: &str = "APEX_LAUNCHER_DESKTOP";
 const MAC_ICON: &[u8] = include_bytes!("../../packaging/icons/horizon.icns");
 /// The key a Linux shortcut names its instance with.
-const INSTANCE_KEY: &str = "X-Horizon-Instance";
+const INSTANCE_KEY: &str = "X-Apex-Instance";
 /// And a macOS one, in its Info.plist.
 const MAC_KEY: &str = "<key>HorizonInstance</key>";
 
@@ -74,7 +74,7 @@ pub fn file_name(name: &str, system: System) -> String {
         .collect();
     let clean = clean.trim().trim_matches('.');
     let clean = if clean.is_empty() { "Instance" } else { clean };
-    format!("{clean} (Horizon).{}", system.extension())
+    format!("{clean} (Apex).{}", system.extension())
 }
 
 /// The id as a file name or bundle id part: letters, digits and `-`.
@@ -148,7 +148,7 @@ pub fn mac_app(exe: &Path, id: &str, name: &str) -> Vec<(&'static str, Vec<u8>, 
         xml(id),
     );
     let script = format!(
-        "#!/bin/sh\n# Plays the Horizon instance {}.\nexec {} play --instance {}\n",
+        "#!/bin/sh\n# Plays the Apex instance {}.\nexec {} play --instance {}\n",
         name.replace('\n', " "),
         sh_quote(&exe.to_string_lossy()),
         sh_quote(id),
@@ -328,7 +328,7 @@ pub fn make_in(
             &lnk(
                 &exe.to_string_lossy(),
                 &windows_args(id),
-                &format!("Play {name} in Horizon"),
+                &format!("Play {name} in Apex"),
             ),
             false,
         )?,

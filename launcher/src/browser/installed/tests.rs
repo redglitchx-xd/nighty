@@ -410,7 +410,7 @@ fn data_packs_go_into_a_world_when_something_in_them_runs() {
     assert_eq!(
         refused,
         "Pack terrain would change nothing in Horizon yet: it has no functions, predicates or \
-         item modifiers, and Horizon doesn't read its 1 worldgen yet."
+         item modifiers, and Apex doesn't read its 1 worldgen yet."
     );
     let jar = fake.project("jar").unwrap();
     assert!(install_datapack(&fake, &jar, false, &world, off).is_err());

@@ -1,6 +1,6 @@
-# Hosting a Horizon server: design
+# Hosting a Apex server: design
 
-Horizon's dedicated server should be the easiest and lightest Minecraft 26.3 server to host. It should be one
+Apex's dedicated server should be the easiest and lightest Minecraft 26.3 server to host. It should be one
 small native program with no Java and no Python, one command to install it, one config file, and a CLI, a web
 panel and a control API to manage it. At the same view and simulation distance and with the same players, it
 should beat vanilla, Paper and Fabric + Lithium on TPS/MSPT, RAM, CPU, chunk generation and start time.
@@ -45,7 +45,7 @@ The dedicated server is the game itself, run headless:
 The server ran in a scratch folder with `online-mode=false`, `level-seed=12345` and view and simulation
 distance 10. The vanilla server was the pinned 26.3 `server.jar` on Java 25 with `-Xmx4G`.
 
-| | Horizon (`horizon-client --dedicated`) | Vanilla 26.3 |
+| | Apex (`horizon-client --dedicated`) | Vanilla 26.3 |
 |---|---|---|
 | Start, new world (wall clock, to `Done`) | 11.4 s (`Done (9.762s)`) | 12.5 s (`Done (2.066s)`, includes the bundler's first unpack) |
 | Start, existing world (wall clock) | **5.8 s** (resources load in 1.6 s) | 10.7 s (`Done (0.446s)`: the JVM and DataFixerUpper take the rest) |
@@ -67,12 +67,12 @@ not tick cost, so it is in scope here (see section 9).
 
 ### Joining it
 
-- **Horizon client:** works. A headless Horizon client (`--server 127.0.0.1:PORT`, the harness mode) logged
+- **Apex client:** works. A headless Apex client (`--server 127.0.0.1:PORT`, the harness mode) logged
   in, received its 49 chunks at render distance 2, chatted, saw `/list`, and left. The server's log matched
   vanilla's lines (`logged in with entity id`, `joined the game`, `[Not Secure] <Tester> …`, `lost connection:
   Disconnected`, `left the game`).
 - **Vanilla 26.3 client:** checked by `tools/test_dedicated_server_parity.py`. VanillaProtocolClient, a
-  headless client built from vanilla's own codecs, pings and joins Horizon's server and vanilla's from the
+  headless client built from vanilla's own codecs, pings and joins Apex's server and vanilla's from the
   same world copy. It compares every login, configuration and play packet up to the first chunk batch, the
   chunk bytes, chat, `/list`, failing commands, the console lines and the files left behind. Result on main:
   see "Harnesses on main" below.
@@ -87,8 +87,8 @@ not tick cost, so it is in scope here (see section 9).
 
 | Area | Status |
 |---|---|
-| `online-mode=true` | **Works** (ServerLoginPacketListenerImpl): a 1024-bit RSA key pair at start ("Generating keypair"), the encryption request, the shared secret and challenge, AES/CFB8, and the session service's `hasJoined` check (with the address when `prevent-proxy-connections` is on), with vanilla's log lines and messages. `test_online_mode_parity.py` runs the same logins against vanilla's server and Horizon's with a mock session service. |
-| Secure chat | **Works** (`SignedMessageChain`, `LastSeenMessagesValidator`, `MessageSignatureCache`): the chat session update and its profile key, checked against the services' `playerCertificateKeys`; signed chat, `say`, `me` and `msg`, relayed with their signatures and last-seen lists; `enforce-secure-profile` (with `online-mode`) refuses unsigned chat; and vanilla's log lines (`[Not Secure]`, the decoder's warnings, the kicks). Offline servers and players without a chat session chat unsigned, as on vanilla. `test_secure_chat_parity.py` runs the same signed and unsigned players against vanilla's server and Horizon's, with test keys and a mock services server. |
+| `online-mode=true` | **Works** (ServerLoginPacketListenerImpl): a 1024-bit RSA key pair at start ("Generating keypair"), the encryption request, the shared secret and challenge, AES/CFB8, and the session service's `hasJoined` check (with the address when `prevent-proxy-connections` is on), with vanilla's log lines and messages. `test_online_mode_parity.py` runs the same logins against vanilla's server and Apex's with a mock session service. |
+| Secure chat | **Works** (`SignedMessageChain`, `LastSeenMessagesValidator`, `MessageSignatureCache`): the chat session update and its profile key, checked against the services' `playerCertificateKeys`; signed chat, `say`, `me` and `msg`, relayed with their signatures and last-seen lists; `enforce-secure-profile` (with `online-mode`) refuses unsigned chat; and vanilla's log lines (`[Not Secure]`, the decoder's warnings, the kicks). Offline servers and players without a chat session chat unsigned, as on vanilla. `test_secure_chat_parity.py` runs the same signed and unsigned players against vanilla's server and Apex's, with test keys and a mock services server. |
 | Nether and End | **Works**: the server holds a level per dimension, and each player is in its own (portals, `execute in … tp`, respawn). `test_server_dimension_players_parity.py` checks it against vanilla. How it works, its cost and what's left: [server-levels.md](server-levels.md). |
 | Refused logins | Logged as vanilla does: `Disconnecting <name> (/address): <reason>`, then `<name> (/address) lost connection: <reason>`, and the session errors (`Username '<name>' tried to join with an invalid session`, `Couldn't verify username because servers are unavailable`). |
 | Gameplay for remote players | Checked against vanilla's server with a vanilla-codec client (#484, `tools/test_dedicated_server_parity.py`): a right click with an item on a block uses it once, a dead player's commands run, players on a team without friendly fire don't hurt each other, and a player's projectiles are theirs (their ender pearl takes them). The recipe book, status effects and block sync while digging (#500) work. Left: a player's projectiles don't hit other players (no bow PvP between guests), and a mob a guest kills counts in the host's statistics and advancements, not the guest's (`mob_died` runs as the host). |
@@ -96,13 +96,13 @@ not tick cost, so it is in scope here (see section 9).
 | Management | Only stdin. There is no service, no backups, no status beyond `list`, no restart after a crash, and a server can't be managed while it runs in the background. |
 | Packaging | The server is the full game client. Resources come from `horizon-prepare`, which needs a JDK and the official launcher's client install, both awkward on a headless VPS. |
 | Tick times | The dedicated loop never recorded its tick times in the game clock (only the windowed loop did), so `/tick query` on a dedicated server reported 0 ms. Fixed in PR 2b, which the benchmark needs (section 9). |
-| Scale | Measured against vanilla on equal work (section 9, `benchmarks/server-equal-work-2026-10-17/`): 20 TPS up to 50 bots, 9 to 11 TPS at 100, where vanilla's watchdog stops it. Horizon is ahead with few players and when exploring; with 25 to 50 players near spawn vanilla's tick is shorter. |
+| Scale | Measured against vanilla on equal work (section 9, `benchmarks/server-equal-work-2026-10-17/`): 20 TPS up to 50 bots, 9 to 11 TPS at 100, where vanilla's watchdog stops it. Apex is ahead with few players and when exploring; with 25 to 50 players near spawn vanilla's tick is shorter. |
 
 ### Harnesses on main
 
 On the tip of the code PRs (2a to 3, rebased on b4ad6538), `tools/parity.py dedicated_server online_mode
 server_files server_player_combat server_player_damage` passed all five. That includes the vanilla protocol
-client joining Horizon's server and vanilla's from the same world. The full `--changed origin/main` set
+client joining Apex's server and vanilla's from the same world. The full `--changed origin/main` set
 (309 harnesses, since the PRs touch the client crate) had passed 60 of 60 when it was stopped for disk
 space; CI runs it on every pull request.
 
@@ -204,7 +204,7 @@ comes out of the headless-engine work.
   a game that can't load.
 - Windows:
   `irm https://raw.githubusercontent.com/horizon-rust/horizon/main/packaging/server/install.ps1 | iex`
-  The script does the same into `%LOCALAPPDATA%\Horizon` (`-Version`, `-Dir`), with junctions instead of
+  The script does the same into `%LOCALAPPDATA%\Apex` (`-Version`, `-Dir`), with junctions instead of
   links (no admin rights), and adds `bin` to the user's PATH.
 - **Layout.** Each release goes to `<dir>/releases/<tag>` and `<dir>/current` points at the one in use, so an
   update or a rollback is one link. `<bin>/horizon-server` and `<bin>/horizon-prepare` are two-line launchers
@@ -217,8 +217,8 @@ ends on `debian:bookworm-slim` as user `horizon`, with the server build as `hori
 no ALSA or udev. It uses volume `/data` for the server folder, takes the owner's prepared game files as a read-only
 mount on `/opt/horizon/.local/horizon-client/26.3`, exposes port `25565/tcp`, and keeps the control API (and
 later the panel) on 127.0.0.1 inside the container: `docker exec <name> horizon-server status|cmd|backup`.
-On the first start, `HORIZON_EULA=true` and `HORIZON_WORLD`, `HORIZON_SEED`, `HORIZON_PORT`,
-`HORIZON_WHITELIST`, `HORIZON_PLAYERS` and `HORIZON_OP` answer `init`'s questions; without the EULA answer
+On the first start, `APEX_EULA=true` and `APEX_WORLD`, `APEX_SEED`, `APEX_PORT`,
+`APEX_WHITELIST`, `APEX_PLAYERS` and `APEX_OP` answer `init`'s questions; without the EULA answer
 the container exits and says why. `docker stop` sends SIGTERM, which saves and stops cleanly (give it
 `--stop-timeout 180`). The image is published only with Ludovic's OK (it's hosted infrastructure).
 
@@ -246,7 +246,7 @@ the container exits and says why. `docker stop` sends SIGTERM, which saves and s
    (`horizon-server start`) or as a service.
 
 Every question has a flag (`--eula`, `--world`, `--seed`, `--port`, `--whitelist`/`--no-whitelist`,
-`--player NAME`, `--op NAME`, `--yes`) and an environment variable for Docker (`HORIZON_EULA`, …; flags win).
+`--player NAME`, `--op NAME`, `--yes`) and an environment variable for Docker (`APEX_EULA`, …; flags win).
 
 ## 4. One config file: `server.toml`
 
@@ -255,7 +255,7 @@ start, so the engine stays exactly vanilla. The file is short: typed sections fo
 a `[properties]` table that passes any other vanilla key through unchanged.
 
 ```toml
-# Horizon server settings (docs/server.md). The server writes them into server.properties before
+# Apex server settings (docs/server.md). The server writes them into server.properties before
 # every start: edit this file, not that one.
 
 [server]
@@ -367,7 +367,7 @@ path as `horizon-server update` (section 7) and then shows how it went.
 the modpack work).
 
 **Tech:** one HTML page with plain JS and CSS (`crates/horizon-server/panel/`), embedded in the binary with
-`include_str!`. No build step, no framework, no CDN. It uses Horizon's design system tokens (`horizon-theme`'s
+`include_str!`. No build step, no framework, no CDN. It uses Apex's design system tokens (`horizon-theme`'s
 colours, light and dark) and draws charts on a canvas. It polls the control API's routes once a second
 (`status`, `metrics?since=`, `logs?since=`), served by the same small HTTP code on `std::net`, with no async
 runtime or new dependency. Server-sent events can replace the polling later if a tab ever costs too much.
@@ -384,7 +384,7 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   and no one else can. Sessions end when the supervisor stops.
 - **Protection.** The `Host` header must name the panel itself: its address, `localhost` on loopback, or a
   tailnet name (a MagicDNS short name or `*.ts.net`). That stops DNS rebinding. Changes (POST, PATCH, DELETE) need
-  the `X-Horizon: 1` header, which stops CSRF. After 10 failed logins in a minute, logins are refused for a
+  the `X-Apex: 1` header, which stops CSRF. After 10 failed logins in a minute, logins are refused for a
   while. The page is served with a strict Content-Security-Policy (nothing from elsewhere) and can't be
   framed.
 - **Remote access** goes over Tailscale/SSH (`ssh -L 8130:127.0.0.1:8130 host`), with no TLS or passwords to
@@ -409,9 +409,9 @@ runtime or new dependency. Server-sent events can replace the polling later if a
 - **Updates** (`crates/horizon-server/src/update.rs`), for a `horizon-server` installed by `install.sh` or
   `install.ps1`. Releases ship often (release-flow.md), so updates stay opt-in: a running server looks for a
   newer release a minute after it starts and then every 6 hours, and only says so, in its log, in `status`
-  and in the panel (`HORIZON_NO_UPDATE_CHECK=1` turns the check off). `update --check` asks GitHub once.
+  and in the panel (`APEX_NO_UPDATE_CHECK=1` turns the check off). `update --check` asks GitHub once.
   `update`:
-  1. downloads the current Nightly's archive for this computer (the only build Horizon ships since 2026-10-28;
+  1. downloads the current Nightly's archive for this computer (the only build Apex ships since 2026-10-28;
      GitHub's latest release while there is none; on Linux the server build; `--version` picks another: a
      `vX.Y.Z` release, or a `nightly-<date>` of the last 7 days) and checks it against its SHA256SUMS, whose Ed25519
      signature must check with a key built into `horizon-server` (docs/release-flow.md, "Signed checksums"),
@@ -482,13 +482,13 @@ runtime or new dependency. Server-sent events can replace the polling later if a
   `Rcon` and `broadcast-rcon-to-ops` (a command shows as the console's).
 - **Vanilla's own management protocol.** Vanilla 26.3 has a server management protocol: JSON-RPC over a
   WebSocket, set up by the `management-server-*` keys in server.properties, so tools written for vanilla can
-  manage a Horizon server too. The supervisor serves it (`management.rs`, the WebSocket in `websocket.rs`, std
+  manage a Apex server too. The supervisor serves it (`management.rs`, the WebSocket in `websocket.rs`, std
   only like `http.rs`; TLS, on by default as in vanilla, through rustls in `management_tls.rs`, from a PKCS12
-  keystore, or a self-signed one Horizon makes when none is set), so it answers while the game restarts
+  keystore, or a self-signed one Apex makes when none is set), so it answers while the game restarts
   (`server/status` says `started: false` then); calls that change the game go through its console.
   Authentication, errors and replies follow vanilla's `net.minecraft.server.jsonrpc` (`AuthenticationHandler`,
   `Connection`, `methods/*Service`), and `rpc.discover` gives vanilla's OpenRPC document (`management_schema.rs`).
-  `tools/test_management_protocol_parity.py` sends vanilla's server and Horizon's the same messages over TLS
+  `tools/test_management_protocol_parity.py` sends vanilla's server and Apex's the same messages over TLS
   (one keystore for both) and compares the answers, and the document with the data generator's
   `json-rpc-api-schema.json`.
   - built: the WebSocket and its authentication, TLS, `rpc.discover`, `players`, `players/kick`,
@@ -503,7 +503,7 @@ The goal is the published claim: "runs 50–100 players on hardware where vanill
 reproducible by anyone, and show the same gameplay on both sides.
 
 - **Servers:**
-  - Horizon (`horizon-server`);
+  - Apex (`horizon-server`);
   - vanilla 26.3 (the owner's `server.jar`);
   - Paper (a jar the owner downloads; Paper's defaults are kept, and noted as non-vanilla);
   - optionally Fabric + Lithium (via the pinned `tools/benchmark-deps/mods.lock.json`).
@@ -534,7 +534,7 @@ reproducible by anyone, and show the same gameplay on both sides.
   on one machine.
 - **Measured** (once a second, for 5 minutes after the last bot joins, after a 1-minute warm-up):
   - TPS and MSPT (average, P50/P95/P99), from each server's own `/tick query` (vanilla's
-    `ServerTickRateManager`; Horizon implements the same command and clock), so every server measures itself
+    `ServerTickRateManager`; Apex implements the same command and clock), so every server measures itself
     the same way;
   - RSS and CPU (process tree, `horizon_bench::rss_bytes`/`cpu_seconds`);
   - chunk generation: chunks per second while the `explore` bots run, and time until each new bot has its
@@ -547,25 +547,25 @@ reproducible by anyone, and show the same gameplay on both sides.
   machine, commit, Java version, settings and every run) and prints a comparison table. Results are
   published like the client benchmark, with the machine, the versions and the exact commands. TPS is derived
   from `/tick query`'s average (20 while it fits in 50 ms), since the command reports times, not the rate.
-- **First run (PR 5,** on a busy shared Mac mini, so the numbers are noisy). With 1 bot Horizon ticks in
-  3.5 ms against vanilla's 11.2 ms and uses 1.6 GB against 3.6 GB. At 10 and 25 `mixed` bots Horizon falls
+- **First run (PR 5,** on a busy shared Mac mini, so the numbers are noisy). With 1 bot Apex ticks in
+  3.5 ms against vanilla's 11.2 ms and uses 1.6 GB against 3.6 GB. At 10 and 25 `mixed` bots Apex falls
   to about 10 TPS where vanilla keeps 20, and at 50 both land at about 15 TPS. The work isn't equal yet:
-  - Vanilla pulls fast players back when it lags (`moved too quickly`), which Horizon never does, so
+  - Vanilla pulls fast players back when it lags (`moved too quickly`), which Apex never does, so
     vanilla's `explore` bots generated less terrain.
   - Vanilla's chunk sending yields under load.
-  - Horizon sent each nearby `walk` bot 1.5–4 times as many chunks.
+  - Apex sent each nearby `walk` bot 1.5–4 times as many chunks.
 
-  Horizon sent 2–4 times the chunks per second in every multi-bot run.
+  Apex sent 2–4 times the chunks per second in every multi-bot run.
 - **Equal-work run (2026-10-17,** `benchmarks/server-equal-work-2026-10-17/`, on the ThinkPad with the bots
-  on the Mac mini). Horizon now checks moves and paces chunks as vanilla does (#586), the bots wait for the
+  on the Mac mini). Apex now checks moves and paces chunks as vanilla does (#586), the bots wait for the
   chunk they stand in, an `--explore-speed` pass keeps both servers at the same rate, and vanilla runs with
-  `gamerule locator_bar false` (Horizon has no locator bar yet). Results:
-  - Memory: Horizon's RSS is 1.9 to 2.6 times smaller in every run (vanilla's heap is fixed at 4 GB).
-  - Walking near spawn: Horizon's tick is shorter with 1 and 10 bots (5.5 against 18.3 ms, 11.5 against
+  `gamerule locator_bar false` (Apex has no locator bar yet). Results:
+  - Memory: Apex's RSS is 1.9 to 2.6 times smaller in every run (vanilla's heap is fixed at 4 GB).
+  - Walking near spawn: Apex's tick is shorter with 1 and 10 bots (5.5 against 18.3 ms, 11.5 against
     16.8), and longer with 25 and 50 (20.7 against 16.0, 31.4 against 20.5). Both keep 20 TPS up to 50.
-  - Exploring at the same rate: Horizon's tick is about half of vanilla's (13.5 against 29.2 ms at 10 bots,
+  - Exploring at the same rate: Apex's tick is about half of vanilla's (13.5 against 29.2 ms at 10 bots,
     20.2 against 37.0 at 25).
-  - At 100 bots: vanilla's watchdog stops it in every pass; Horizon runs at 9 to 11 TPS.
+  - At 100 bots: vanilla's watchdog stops it in every pass; Apex runs at 9 to 11 TPS.
 
   Two server costs were found and fixed on the way: every chunk section was encoded once per player (#623),
   and every packet woke its connection's writer thread (#649). Together they took the 50-bot walking tick
@@ -573,48 +573,48 @@ reproducible by anyone, and show the same gameplay on both sides.
   ticks, both of which grow with players (the README has the profile).
 - **Mixed bots, as installed (2026-10-18,** `benchmarks/server-mixed-2026-10-18/`, the first published
   run for the working version). It used the v2026.10.18.15 release as `install.sh` installs it, against
-  vanilla 26.3, with 1, 10, 25 and 50 `mixed` bots and vanilla's default game rules on both (Horizon has
+  vanilla 26.3, with 1, 10, 25 and 50 `mixed` bots and vanilla's default game rules on both (Apex has
   the locator bar now). The servers ran on the ThinkPad and the bots on the Mac mini. Results:
   - Both kept 20 TPS in every run.
-  - Horizon's RSS was 3.7 to 5.2 times smaller (1.0 GB against 4.0 GB at 50).
-  - Horizon's average tick was shorter with 1, 10 and 25 bots (2.4 against 17.9 ms, 12.4 against 34.5,
+  - Apex's RSS was 3.7 to 5.2 times smaller (1.0 GB against 4.0 GB at 50).
+  - Apex's average tick was shorter with 1, 10 and 25 bots (2.4 against 17.9 ms, 12.4 against 34.5,
     24.0 against 31.6) and longer with 50 (35.2 against 29.7). Its P99 was lower at every count.
-  - Horizon also did more work: it kept up with the exploring bots, so it generated 1.9 to 2.9 times
+  - Apex also did more work: it kept up with the exploring bots, so it generated 1.9 to 2.9 times
     the new terrain a second.
 - **Mixed bots, equal work (2026-10-18,** `benchmarks/server-equal-mixed-2026-10-18/`). This is the same
   run with the load made equal. The explore bots fly at 0.8 blocks a second, so every bot follows the same
   path on both servers and none waits for terrain. A 300-second warm-up lets both finish the bots' first
   views before the measurement. `server_bench.py` now prints a work table that compares each count's chunks
-  a second across servers and flags a run that isn't equal. Horizon ran as `horizon-engine`, the server
+  a second across servers and flags a run that isn't equal. Apex ran as `horizon-engine`, the server
   build, installed from its archive. Results, on the ThinkPad again (the desktop didn't wake):
   - The work was equal at 1 and 10 bots. At 25 the chunks sent a second were equal (158.6 against 157.6),
     and vanilla still sent 2.5 more first-time chunks a second while it caught up.
   - Tick: 1.8 against 11.3 ms at 1 bot, 4.7 against 34.3 at 10, 11.7 against 50.5 at 25 (vanilla 19.8 TPS).
-    At 50 Horizon ran at 23.8 ms. Vanilla's watchdog stopped its server 30 s after the last bot joined (a
+    At 50 Apex ran at 23.8 ms. Vanilla's watchdog stopped its server 30 s after the last bot joined (a
     60-second tick). This is one pass, to repeat on a bigger machine.
-  - Horizon's RSS was 4.1 to 4.9 times smaller (1.03 GB at 50).
+  - Apex's RSS was 4.1 to 4.9 times smaller (1.03 GB at 50).
   - Served in full, vanilla's walking bots got 5400 to 6100 chunks each, against 640 to 1100 in the first
     run. That is why vanilla held 50 bots there and not here.
 - **Four servers, equal work (2026-10-19,** `benchmarks/server-four-way-2026-10-19/`). The same load
   against vanilla, Paper (build 205, its defaults except the connection throttle, which refused bots that
-  share an address) and vanilla on Fabric with Lithium. Horizon was release v2026.10.19, which spawns mobs
+  share an address) and vanilla on Fabric with Lithium. Apex was release v2026.10.19, which spawns mobs
   and ticks blocks around every player as vanilla does (#950, #931), so it now does vanilla's work away
   from spawn too. Results, on the ThinkPad (the desktop didn't wake):
   - The work was equal on all four at every count (chunks a second within 4 %).
-  - Horizon's RSS was 3.8 to 4.8 times smaller (0.72 to 1.11 GB). It started in 8.2 to 8.5 s, against
+  - Apex's RSS was 3.8 to 4.8 times smaller (0.72 to 1.11 GB). It started in 8.2 to 8.5 s, against
     14.7 to 22.4 s for the Java servers. From 10 bots up it used the least CPU.
-  - Average tick: Paper was ahead of Horizon at every count (10.3 against 13.7 ms at 1 bot, 28.3 against
+  - Average tick: Paper was ahead of Apex at every count (10.3 against 13.7 ms at 1 bot, 28.3 against
     30.9 at 25, 46.9 against 47.8 at 50). Fabric + Lithium was ahead at 1 and 10 bots (12.5 and 20.2
     against 13.7 and 22.9), behind at 25, and fell to 17.2 TPS at 50. Vanilla was slowest, and its
     watchdog stopped it at 50.
-  - Horizon's P99 was the lowest from 10 bots up (73 ms at 50, against Paper's 110 and Fabric's 174), and
+  - Apex's P99 was the lowest from 10 bots up (73 ms at 50, against Paper's 110 and Fabric's 174), and
     its worst single P99 the lowest at every count.
 - **Ownership.** perf-server-1 owns making the tick faster. This work only measures it, files what it finds,
   and fixes startup, RAM and packaging.
 
 ## 10. Working version for 2026-10-23
 
-Goal: `horizon-server` installs with one command, starts from a clean config, serves Horizon and vanilla 26.3
+Goal: `horizon-server` installs with one command, starts from a clean config, serves Apex and vanilla 26.3
 clients, backs up and restores, has a CLI and a basic web panel, and has a first published benchmark against
 vanilla.
 

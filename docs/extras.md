@@ -1,4 +1,4 @@
-# Horizon extras
+# Apex extras
 
 Optional conveniences built into the client: fullbright, dynamic lights, your own name tag, auto-reconnect,
 Mouse Tweaks-style inventory controls and inventory sorting. **Every one is off by default**: a fresh
@@ -18,7 +18,7 @@ again restores vanilla's behaviour completely.
 | Game glue (input hooks, per-frame update) | `crates/horizon-client/src/game/extras.rs` |
 | Mouse Tweaks-style controls, sort buttons | `crates/horizon-client/src/game/tweaks.rs` |
 | Sort order and its clicks | `crates/horizon-client/src/inv_sort.rs` (pure, unit tested) |
-| The settings page | `options_ui.rs` (`Page::Extras`): **Options → Horizon Settings... → Extras...** |
+| The settings page | `options_ui.rs` (`Page::Extras`): **Options → Apex Settings... → Extras...** |
 
 The settings are grouped by extra, under a header each, two buttons to a row as
 vanilla's options lists are, and each says what it does in its tooltip. An
@@ -34,8 +34,8 @@ extras stay out of the way of other input and options work.
 `horizon-graphics.txt`. `options.txt` is untouched, so a vanilla client can share
 the folder. Unknown or broken lines fall back to the defaults.
 
-Extras' keys (the sort key) are Horizon settings stored in that file and bound on
-the Extras page, not in vanilla's Key Binds screen: Horizon has no Horizon category
+Extras' keys (the sort key) are Apex settings stored in that file and bound on
+the Extras page, not in vanilla's Key Binds screen: Apex has no Apex category
 in Controls, and adding one would put a non-vanilla mapping into `options.txt`.
 
 ## The extras

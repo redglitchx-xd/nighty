@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn selected_jdk_reaches_external_preparers() {
-    const CHILD: &str = "HORIZON_LAUNCHER_JAVA_TEST";
+    const CHILD: &str = "APEX_LAUNCHER_JAVA_TEST";
     if let Some(root) = std::env::var_os(CHILD) {
         let root = PathBuf::from(root);
         let home = java(25, true, &[], &root.join("missing.json"), &|_| {}).unwrap();

@@ -1,6 +1,6 @@
 # Decompilation and Rust research lab
 
-Horizon started as a decompilation and optimization lab. This page describes the local game inspection workspace and the first Rust research crates. For the playable client, see [the native client](native-client.md); for the rewrite as a whole, see [Rust rewrite status](rust-parity.md).
+Apex started as a decompilation and optimization lab. This page describes the local game inspection workspace and the first Rust research crates. For the playable client, see [the native client](native-client.md); for the rewrite as a whole, see [Rust rewrite status](rust-parity.md).
 
 ## Local game inspection
 
@@ -77,7 +77,7 @@ separate implementation. [Geometry and collision scope](collision-geometry.md).
 cargo test --workspace
 ```
 
-Public branding and new mod downloads use **Horizon**. The existing Fabric mod
+Public branding and new mod downloads use **Apex**. The existing Fabric mod
 ID and `dev.horizonlab` namespace remain stable for installed instances and
 measurement compatibility. The installer backs up both old `horizon-lab-*.jar`
 and new `horizon-*.jar` versions before installing an update.

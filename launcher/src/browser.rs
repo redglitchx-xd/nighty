@@ -84,7 +84,7 @@ pub enum SourceId {
     Modrinth,
     CurseForge,
     /// Horizon's own registry of reviewed mods, modpacks and resource packs ([`horizon`]).
-    Horizon,
+    Apex,
 }
 
 impl SourceId {
@@ -92,7 +92,7 @@ impl SourceId {
         match self {
             SourceId::Modrinth => "Modrinth",
             SourceId::CurseForge => "CurseForge",
-            SourceId::Horizon => "Horizon",
+            SourceId::Horizon => "Apex",
         }
     }
 }
@@ -278,7 +278,7 @@ pub trait Source: Send + Sync {
 pub const CURSEFORGE_SOON: &str = "CurseForge support is coming soon.";
 /// What another source answers for shader packs: Horizon's own are on its registry only.
 pub const SHADERS_ON_HORIZON: &str =
-    "Horizon's shader packs are on Horizon's registry: pick Horizon.";
+    "Apex's shader packs are on Apex's registry: pick Apex.";
 
 /// The sources this launcher uses: Modrinth and Horizon's registry. CurseForge support is coming
 /// soon: its API needs a paid key, so no search or install goes to it; `curseforge` is kept for

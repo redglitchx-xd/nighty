@@ -1,6 +1,6 @@
 # Section meshing parity
 
-`tools/test_section_mesh_parity.py` compares the vertices Horizon's section
+`tools/test_section_mesh_parity.py` compares the vertices Apex's section
 mesher (`crates/horizon-client-render/src/mesher.rs`, with `mesher/lighting.rs` and
 `mesher/fluid.rs`) emits with the vertices the pinned client's own renderers
 emit for the same scenes.
@@ -20,7 +20,7 @@ emit for the same scenes.
   `FluidRenderer.tesselate`, then `RenderShape.MODEL` blocks through
   `ModelBlockRenderer.tesselateBlock` with smooth lighting on, culling on,
   cutout leaves, `BlockColors.createDefault()` and `state.getSeed(pos)`.
-- **Horizon side**: `crates/horizon-client/examples/probe/section_mesh_fixture.rs`
+- **Apex side**: `crates/horizon-client/examples/probe/section_mesh_fixture.rs`
   loads the prepared resources (`Assets`, `BlockFacts`, `Biomes`,
   `load_visibility`, `MeshTables`), builds the same blocks and light in real
   client `Chunk`s (a 3x3 chunk region), sets every biome's colours to the
@@ -69,7 +69,7 @@ joins) and both together.
 With `biomeBlendRadius` 0 the client takes the resolver's colour as is. Biome
 colours given as plain RGB (all water colours, most grass/foliage overrides)
 have alpha 0 there, so the client's tinted vertices come out fully
-transparent, which the terrain shader would discard. Horizon keeps them
+transparent, which the terrain shader would discard. Apex keeps them
 opaque and the gate compares RGB for radius-0 scenes.
 
 ## Running
@@ -137,13 +137,13 @@ gate.
 - Changing `biomeBlendRadius`, `ao` or `cutoutLeaves` in the options does not
   remesh resident sections; new and edited sections use the new values.
 - Model variant seeds: `DoublePlantBlock`, `DoorBlock` and `AbstractBedBlock`
-  override `getSeed`; Horizon seeds every block from its own position. No
+  override `getSeed`; Apex seeds every block from its own position. No
   vanilla block among those has weighted variants, so output is unaffected.
 - Opaque leaves: the vertex layer carries a flag (`OPAQUE_LAYER`) that makes
   the terrain shader ignore the texture's alpha; the shader side is not
   compared (GPU pixels).
 - Layers: vanilla's solid and cutout layers are compared as one class because
-  Horizon draws both in its opaque pass.
+  Apex draws both in its opaque pass.
 - Not compared: block entities and their renderers, animated sprite frames,
   translucent sorting, chunk-border light outside loaded chunks and GPU
   pixels.

@@ -1,7 +1,7 @@
-# Horizon collision geometry
+# Apex collision geometry
 
 The version target is Minecraft Java Edition **26.3**. Geometry is a simulation
-foundation; Horizon has a native client for inspecting a controlled block scene.
+foundation; Apex has a native client for inspecting a controlled block scene.
 Live gameplay and entity simulation remain unfinished.
 
 `horizon-core::geometry` provides `Vec3`, `Aabb`, `Axis`, `Direction`, `BlockHit`,

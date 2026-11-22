@@ -50,7 +50,7 @@ mt.exe -manifest client.manifest -validate_manifest
 
 Check that the feature build contains `SegmentHeap` in the
 `http://schemas.microsoft.com/SMI/2020/WindowsSettings` namespace. The baseline
-must not contain this element. Confirm Explorer still shows Horizon's icon for
+must not contain this element. Confirm Explorer still shows Apex's icon for
 both builds. Inspecting the final executable matters: a valid source XML file
 alone does not prove that the linker embedded it.
 

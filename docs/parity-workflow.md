@@ -36,7 +36,7 @@ Every runner on the machine shares `PARITY_MACHINE_JOBS` slots (default: half th
 
 ### Harnesses that start the game
 
-The game logs into `HORIZON_HOME` and falls back to the player's own game folder when it is unset, so a harness that starts the game, `horizon-ctl`, the launcher or the dedicated server builds the environment with `lab.game_env(**extra)`: no audio, and fresh scratch folders for `HORIZON_HOME`, `HORIZON_LAUNCHER_HOME`, `XDG_DATA_HOME` and `XDG_CONFIG_HOME`, removed when the harness exits (a folder you pass, or that the environment already has, is kept). The runner also gives each harness its own `HORIZON_HOME` under `.local/parity-runner/game-home/`. `tests/test_game_home.py` fails for a script in `tools/` that starts the game without it.
+The game logs into `APEX_HOME` and falls back to the player's own game folder when it is unset, so a harness that starts the game, `horizon-ctl`, the launcher or the dedicated server builds the environment with `lab.game_env(**extra)`: no audio, and fresh scratch folders for `APEX_HOME`, `APEX_LAUNCHER_HOME`, `XDG_DATA_HOME` and `XDG_CONFIG_HOME`, removed when the harness exits (a folder you pass, or that the environment already has, is kept). The runner also gives each harness its own `APEX_HOME` under `.local/parity-runner/game-home/`. `tests/test_game_home.py` fails for a script in `tools/` that starts the game without it.
 
 ### Other machines
 
@@ -95,7 +95,7 @@ On ludodesktop, source `~/code/horizon-parity/env.sh` first: it sets the ALSA bu
 
 ## Server execution in game fixtures
 
-`HORIZON_COMMAND_SCRIPT` runs on the integrated server's `Server thread`, with the
+`APEX_COMMAND_SCRIPT` runs on the integrated server's `Server thread`, with the
 headless client joined through the normal memory connection. Commands use the connected
 owner's body and dimension. The script owns the clock: each `tick` calls `tick_server`,
 while login and portal arrival pump connection-only passes. The client acknowledges
@@ -103,7 +103,7 @@ terrain and teleports without predicting movement, matching the command oracle's
 player. Script and save errors return through server shutdown; output keeps the existing
 styled messages and `CommandResultCallback` schema. `--in-frame` is not needed.
 
-`HORIZON_DISPENSE_FIXTURE` and `HORIZON_SCULK_FIXTURE` are component probes. They construct
+`APEX_DISPENSE_FIXTURE` and `APEX_SCULK_FIXTURE` are component probes. They construct
 a server `Game` on a server thread and retain the oracles' synthetic levels, seeded random
 streams and explicit entity/block phases. A synthetic sculk player controls warning levels,
 not client input; dispenser probes call one activation without running unrelated world ticks.

@@ -38,7 +38,7 @@ const RATE: &str = "https://playhorizon.dev/api/mods/auth/login?back=/mods/";
 /// Where the index comes from: `HORIZON_MOD_INDEX` (a file or an `https://` address, for a
 /// test registry), else [`INDEX_URL`].
 fn location() -> String {
-    std::env::var("HORIZON_MOD_INDEX")
+    std::env::var("APEX_MOD_INDEX")
         .ok()
         .filter(|v| !v.is_empty())
         .unwrap_or_else(|| INDEX_URL.to_owned())
@@ -162,7 +162,7 @@ fn refresh_ratings() {
     {
         return;
     }
-    let given = std::env::var("HORIZON_MOD_RATINGS")
+    let given = std::env::var("APEX_MOD_RATINGS")
         .ok()
         .filter(|v| !v.is_empty());
     if given.is_none() && local() {
@@ -232,7 +232,7 @@ pub const POLICY: &str = "https://playhorizon.dev/mods/policy";
 /// Whether the Horizon project made `p` (the mod policy's "Official": author Horizon, source in
 /// the horizon-rust organisation).
 pub fn official(p: &index::Project) -> bool {
-    p.authors == ["Horizon"] && p.source.starts_with("https://github.com/horizon-rust/")
+    p.authors == ["Apex"] && p.source.starts_with("https://github.com/horizon-rust/")
 }
 
 /// What the player reads about a registry project before installing it: who made it, whether its
@@ -246,10 +246,10 @@ pub fn trust_and_capabilities(id: &str) -> Vec<String> {
         return Vec::new();
     };
     let mut lines = vec![if official(p) {
-        "Made by Horizon".to_owned()
+        "Made by Apex".to_owned()
     } else {
         format!(
-            "Made by {}. Not made or endorsed by the Horizon project ({POLICY})",
+            "Made by {}. Not made or endorsed by the Apex project ({POLICY})",
             p.authors.join(", ")
         )
     }];
@@ -264,7 +264,7 @@ pub fn trust_and_capabilities(id: &str) -> Vec<String> {
         if let Some(v) = p.versions.first() {
             let pin = v.api.split('/').nth(1).unwrap_or_default();
             lines.push(format!(
-                "Built by the launcher on Horizon {}",
+                "Built by the launcher on Apex {}",
                 &pin[..pin.len().min(7)]
             ));
         }
@@ -396,10 +396,10 @@ impl Source for Registry {
         let index = index()?;
         let p = index
             .project(id)
-            .ok_or_else(|| format!("{id} isn't in Horizon's registry."))?;
+            .ok_or_else(|| format!("{id} isn't in Apex's registry."))?;
         project_of(p).ok_or_else(|| {
             format!(
-                "{} is a {} in Horizon's registry: this launcher can't install those yet.",
+                "{} is a {} in Apex's registry: this launcher can't install those yet.",
                 p.name,
                 p.kind.name()
             )
@@ -410,7 +410,7 @@ impl Source for Registry {
         let index = index()?;
         let p = index
             .project(&project.id)
-            .ok_or_else(|| format!("{} isn't in Horizon's registry.", project.title))?;
+            .ok_or_else(|| format!("{} isn't in Apex's registry.", project.title))?;
         let level = crate::backend::game_mod_api_level();
         Ok(p.versions
             .iter()
@@ -423,7 +423,7 @@ impl Source for Registry {
         let index = index()?;
         let p = index
             .project(&project.id)
-            .ok_or_else(|| format!("{} isn't in Horizon's registry.", project.title))?;
+            .ok_or_else(|| format!("{} isn't in Apex's registry.", project.title))?;
         let newest = p.versions.first();
         let mut body = p.description.clone();
         if let Some(v) = newest.filter(|v| !v.capabilities.is_empty()) {
@@ -534,7 +534,7 @@ fn relative(kind: Kind, id: &str, file_name: &str) -> Result<String, String> {
         Kind::ResourcePack => Ok(format!("resourcepacks/{file_name}")),
         Kind::Shader => Ok(format!("shaderpacks/{file_name}")),
         Kind::Modpack => Err("A modpack installs as its own profile (pack::install).".into()),
-        Kind::DataPack => Err("Horizon's registry has no data packs.".into()),
+        Kind::DataPack => Err("Apex's registry has no data packs.".into()),
     }
 }
 
@@ -562,7 +562,7 @@ fn install_from(
 ) -> Result<Vec<installed::Entry>, String> {
     let p = index
         .project(&project.id)
-        .ok_or_else(|| format!("{} isn't in Horizon's registry.", project.title))?;
+        .ok_or_else(|| format!("{} isn't in Apex's registry.", project.title))?;
     let v = newest(index, p, level)?;
     install_version(index, local, p, v, home, progress).map(|e| vec![e])
 }
@@ -591,7 +591,7 @@ fn newest<'a>(
     })
 }
 
-const NEEDS_NEWER: &str = "needs a newer Horizon than the game you play";
+const NEEDS_NEWER: &str = "needs a newer Apex than the game you play";
 
 /// Whether version `v` calls mod API functions a game serving `level` doesn't have.
 fn needs_newer(v: &index::Version, level: Option<u32>) -> bool {

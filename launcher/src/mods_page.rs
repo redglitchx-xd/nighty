@@ -33,7 +33,7 @@ const CHECKING: usize = 2;
 /// The sources to pick from on the Resource packs and Modpacks tabs; CurseForge is shown beside them as coming soon.
 const SOURCES: [(SourceId, &str); 2] = [
     (SourceId::Modrinth, "Modrinth"),
-    (SourceId::Horizon, "Horizon"),
+    (SourceId::Horizon, "Apex"),
 ];
 const PAGE: usize = 20;
 
@@ -145,7 +145,7 @@ impl Mods {
 
     pub(super) fn new(cx: &mut App) -> Self {
         let (tx, rx) = channel();
-        let page = std::env::var("HORIZON_LAUNCHER_PAGE");
+        let page = std::env::var("APEX_LAUNCHER_PAGE");
         let kind = match page.as_deref() {
             Ok("modpacks") => PackKind::Modpack,
             Ok("resourcepacks") => PackKind::ResourcePack,
@@ -369,7 +369,7 @@ impl Launcher {
         // `HORIZON_LAUNCHER_PROJECT=<slug>` (with `HORIZON_LAUNCHER_PAGE=mods`): opens that
         // project's page once a search finds it, for screenshots.
         if self.mods.browse.open.is_none() {
-            if let Ok(want) = std::env::var("HORIZON_LAUNCHER_PROJECT") {
+            if let Ok(want) = std::env::var("APEX_LAUNCHER_PROJECT") {
                 if let Some(p) = self
                     .mods
                     .results
@@ -377,7 +377,7 @@ impl Launcher {
                     .find(|p| p.id == want || p.slug == want)
                     .cloned()
                 {
-                    std::env::remove_var("HORIZON_LAUNCHER_PROJECT");
+                    std::env::remove_var("APEX_LAUNCHER_PROJECT");
                     self.mods_open(p);
                 }
             }
@@ -679,7 +679,7 @@ impl Launcher {
         let java = self.mods.java.clone();
         let instance = self
             .selected_instance()
-            .map_or_else(|| "Horizon".to_string(), |i| i.name.clone());
+            .map_or_else(|| "Apex".to_string(), |i| i.name.clone());
         let world = self.mods.world.clone().and_then(|path| {
             let (_, name) = self.mods.worlds.iter().find(|(p, _)| *p == path)?;
             Some((path, name.clone()))
@@ -772,7 +772,7 @@ impl Launcher {
                             names.join(", ")
                         ));
                     }
-                    if p.source == SourceId::Horizon && p.kind == PackKind::Mod {
+                    if p.source == SourceId::Apex && p.kind == PackKind::Mod {
                         return Ok(format!(
                             "Installed {} into horizon-mods and turned it on, checksum checked \
                              (Options > Mods in the game).",
@@ -1454,7 +1454,7 @@ impl Launcher {
         }
         if let (Some(tag), Some(build)) = (&version, &build) {
             detail = detail.child(div().text_color(t.muted).child(trf(
-                "Plays {build}, built on Horizon {version}.",
+                "Plays {build}, built on Apex {version}.",
                 &[("build", tag), ("version", &build.horizon())],
             )));
         }
@@ -1487,7 +1487,7 @@ impl Launcher {
                 button(
                     "native-update",
                     trf(
-                        "Rebuild on Horizon {version}",
+                        "Rebuild on Apex {version}",
                         &[("version", &native_status::horizon_label(&newer))],
                     ),
                     Kind::Secondary,
@@ -1558,12 +1558,12 @@ impl Launcher {
                     ),
                     &t,
                 );
-            } else if m.source == SourceId::Horizon {
-                tr("Nothing in Horizon's registry matches yet.")
+            } else if m.source == SourceId::Apex {
+                tr("Nothing in Apex's registry matches yet.")
             } else if m.everything {
                 tr("Nothing found.")
             } else {
-                tr("Nothing found that runs in Horizon. Show everything lists the rest.")
+                tr("Nothing found that runs in Apex. Show everything lists the rest.")
             };
             return centered(line, &t);
         }

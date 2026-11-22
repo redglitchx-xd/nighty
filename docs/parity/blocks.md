@@ -136,7 +136,7 @@ containers, weather-driven blocks. The library code lives in
 
   They need the feature block exports in `worldgen/blocks`
   (`block-properties.nbt`). The shared `.local` bundle lacks those files, so
-  run the tests with `HORIZON_RESOURCES` pointing at a complete prepared
+  run the tests with `APEX_RESOURCES` pointing at a complete prepared
   bundle. Without one, the tests skip.
 - Client tests cover the Java `Vec3i` hash and compare order and the
   explosion stack merging.
@@ -171,7 +171,7 @@ containers, weather-driven blocks. The library code lives in
   - Dispensers have no behaviour for fire charges, other projectiles,
     armour, shulker boxes, boats, minecarts or spawn eggs. Fire charges and
     most other items drop instead; projectiles, boats, minecarts and spawn
-    eggs are not entities in Horizon.
+    eggs are not entities in Apex.
   - Turtle hatchlings and happy ghastlings are reported as `BlockEvent`s and
     not spawned.
   - Hoppers do not see minecart containers. Item entities do not trigger the

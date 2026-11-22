@@ -4,7 +4,7 @@
 //! ([`rust_toolchain`]). Unlike `.hmod` mods they are not sandboxed: their code runs with the
 //! player's rights.
 //!
-//! A native mod pins the Horizon revision it was made for (a Nightly's or a release's commit).
+//! A native mod pins the Apex revision it was made for (a Nightly's or a release's commit).
 //! Mods pinning different ones build on the newest of them, once the player agreed to try (they
 //! often still apply and compile). A mod that hooks only Horizon's native hook points
 //! (`game/native_hooks.rs`) names the version it needs instead (`hooks`): it builds on any Horizon
@@ -129,7 +129,7 @@ pub fn classify(exists: bool, before: Option<&Record>, now: &Record) -> Plan {
     if before.horizon != now.horizon {
         let short = |r: &str| r.chars().take(7).collect::<String>();
         changes.push(format!(
-            "Horizon commit {} to {}",
+            "Apex commit {} to {}",
             short(&before.horizon),
             short(&now.horizon)
         ));
@@ -390,7 +390,7 @@ pub(crate) fn bundle_in(dir: &Path) -> Result<Option<Bundle>, String> {
     let found = bundle(&dir.join("mixins").join(&id), field("mixins"))?;
     match (&found.horizon, field("horizon")) {
         (Some(pinned), Some(native)) if *pinned != native => Err(format!(
-            "{id}: {NATIVE_MANIFEST} pins Horizon {native}, its {MANIFEST} {pinned}."
+            "{id}: {NATIVE_MANIFEST} pins Apex {native}, its {MANIFEST} {pinned}."
         )),
         (_, native) => Ok(Some(Bundle {
             horizon: found.horizon.clone().or(native),
@@ -547,11 +547,11 @@ fn ask_github(repo: &str, revision: &str) -> Result<String, String> {
         .ok_or_else(|| format!("GitHub doesn't know {repo} commit {revision}."))
 }
 
-/// How [`build`] starts its error when mods pin other Horizon revisions than the one it would
+/// How [`build`] starts its error when mods pin other Apex revisions than the one it would
 /// use and the player hasn't agreed to try (`anyway`); the rest lists them.
-pub const MISMATCH: &str = "Made for other Horizon versions: ";
+pub const MISMATCH: &str = "Made for other Apex versions: ";
 
-/// Each pinned mod whose Horizon revision isn't `revision`, as `id → pin`, and the build's.
+/// Each pinned mod whose Apex revision isn't `revision`, as `id → pin`, and the build's.
 fn mismatch(mods: &[Bundle], revision: &str) -> Option<String> {
     let list: Vec<String> = mods
         .iter()
@@ -613,7 +613,7 @@ fn with_hooks(
     let tested: Vec<Bundle> = hooked.iter().map(|b| (*b).clone()).collect();
     let fallback = agreed(
         &tested,
-        "Horizon",
+        "Apex",
         |b| b.horizon.as_ref(),
         || Err(String::new()),
     );
@@ -633,7 +633,7 @@ fn with_hooks(
         .map(|b| format!("{} (hook points v{})", b.id, b.hooks.unwrap_or_default()))
         .collect();
     Err(format!(
-        "Horizon {} doesn't have the native hook points these mods use: {}. Update Horizon or the mods.",
+        "Apex {} doesn't have the native hook points these mods use: {}. Update Apex or the mods.",
         &pinned[..pinned.len().min(7)],
         list.join(", ")
     ))
@@ -891,11 +891,11 @@ impl Step {
             ),
             Self::Tool => tr("Building horizon-mixins (once)").into(),
             Self::Source(revision) => trf(
-                "Downloading Horizon's source at {revision}",
+                "Downloading Apex's source at {revision}",
                 &[("revision", &revision[..7])],
             ),
             Self::Mixins => tr("Applying the mixins").into(),
-            Self::Crates => tr("Checking the mods' crates against Horizon's Cargo.lock").into(),
+            Self::Crates => tr("Checking the mods' crates against Apex's Cargo.lock").into(),
             Self::Plan(plan, profile) => format!("{} ({})", plan.label(), profile.name()),
             Self::Compile {
                 done,
@@ -1208,7 +1208,7 @@ fn sync(from: &Path, to: &Path) -> Result<(), String> {
     Ok(())
 }
 
-/// Builds `folder`'s mods on the Horizon revision they pin (else `base`'s, the installed version
+/// Builds `folder`'s mods on the Apex revision they pin (else `base`'s, the installed version
 /// whose game files the build reuses: a native build's own revision when it is one, [`base_for`])
 /// and points `instance` at the build, the default one included. Returns the build's version; a
 /// build already made is used again. Mods pinning different revisions build on the newest one,
@@ -1254,7 +1254,7 @@ pub fn build(
     let free = pins.iter().all(|b| b.horizon.is_none());
     let pinned = newest(
         &pins,
-        "Horizon",
+        "Apex",
         |b| b.horizon.as_ref(),
         || match &built_on {
             Some(about) => Ok(about.horizon.clone()),
@@ -1278,7 +1278,7 @@ pub fn build(
     // Said with a failure: a mod made for another revision may not apply or compile on this one.
     let blame = |e: String| {
         match &other {
-        Some(list) => format!("{e}\n\nSome mods were made for other Horizon versions ({list}), which may be why. Install versions made for the same Nightly."),
+        Some(list) => format!("{e}\n\nSome mods were made for other Apex versions ({list}), which may be why. Install versions made for the same Nightly."),
         None => e,
     }
     };
@@ -1718,17 +1718,17 @@ mod tests {
             pinned("b", None),
             pinned("c", Some(A)),
         ];
-        assert_eq!(agreed(&same, "Horizon", get, never).unwrap(), A);
+        assert_eq!(agreed(&same, "Apex", get, never).unwrap(), A);
         let none = [pinned("a", None)];
-        assert_eq!(agreed(&none, "Horizon", get, || Ok(B.into())).unwrap(), B);
+        assert_eq!(agreed(&none, "Apex", get, || Ok(B.into())).unwrap(), B);
         let split = [pinned("veinminer", Some(A)), pinned("minimap", Some(B))];
-        let err = agreed(&split, "Horizon", get, never).unwrap_err();
+        let err = agreed(&split, "Apex", get, never).unwrap_err();
         assert!(
             err.contains("veinminer → aaaaaaa") && err.contains("minimap → bbbbbbb"),
             "{err}"
         );
         let bad = [pinned("a", Some("nightly"))];
-        assert!(agreed(&bad, "Horizon", get, never).is_err());
+        assert!(agreed(&bad, "Apex", get, never).is_err());
     }
 
     #[test]
@@ -1764,7 +1764,7 @@ mod tests {
             pinned("zoom", None, None),
         ];
         assert_eq!(
-            newest(&split, "Horizon", horizon, never, None, date).unwrap(),
+            newest(&split, "Apex", horizon, never, None, date).unwrap(),
             B
         );
         // horizon-mixins: never older than a pin, and the launcher's own when it is newer.
@@ -1781,11 +1781,11 @@ mod tests {
         let no_date = |_: &str| -> Result<String, String> { panic!("no date needed") };
         let same = [pinned("a", Some(A), None), pinned("b", Some(A), None)];
         assert_eq!(
-            newest(&same, "Horizon", horizon, never, None, no_date).unwrap(),
+            newest(&same, "Apex", horizon, never, None, no_date).unwrap(),
             A
         );
         let offline = |_: &str| -> Result<String, String> { Err("offline".into()) };
-        let err = newest(&split, "Horizon", horizon, never, None, offline).unwrap_err();
+        let err = newest(&split, "Apex", horizon, never, None, offline).unwrap_err();
         assert!(err.contains("offline"), "{err}");
         // What the player is shown: each mod made for another revision, and the build's.
         assert_eq!(
@@ -1916,7 +1916,7 @@ mod tests {
         assert_eq!(
             with_hooks(&hooked, A.into(), true, game, at).unwrap(),
             B,
-            "a rebuild that stayed on an older Horizon moves to the game"
+            "a rebuild that stayed on an older Apex moves to the game"
         );
         let with_pin = [mod_("carryblock", A, None), mod_("recipes", &d, Some(2))];
         let revision = with_hooks(&with_pin, A.into(), false, game, at).unwrap();
@@ -2057,7 +2057,7 @@ mod tests {
         let plan = classify(false, Some(&before), &next);
         assert_eq!(
             plan.label(),
-            "Incremental rebuild: Horizon commit aaaaaaa to bbbbbbb; mods keys, zoom"
+            "Incremental rebuild: Apex commit aaaaaaa to bbbbbbb; mods keys, zoom"
         );
         // A removed mod counts as a change too.
         next = record("aaaaaaa1111", &[("zoom", "1")]);
@@ -2174,7 +2174,7 @@ mod tests {
     }
 
     /// levzzz5154's decision (2026-10-29): a rebuild stays on the Horizon the instance plays;
-    /// only "Rebuild on Horizon {version}" moves it to a newer one.
+    /// only "Rebuild on Apex {version}" moves it to a newer one.
     #[test]
     fn a_rebuild_stays_on_the_instances_horizon_until_an_update() {
         let installed: Vec<String> = [
@@ -2293,10 +2293,10 @@ mod tests {
 
     #[test]
     fn tool_errors_read_in_one_line() {
-        let err = "{\n  \"code\": \"E_REVISION\",\n  \"message\": \"requires exact Horizon revision a\",\n  \"file\": \"m.toml\"\n}";
+        let err = "{\n  \"code\": \"E_REVISION\",\n  \"message\": \"requires exact Apex revision a\",\n  \"file\": \"m.toml\"\n}";
         assert_eq!(
             diagnostic(err).as_deref(),
-            Some("E_REVISION: requires exact Horizon revision a (m.toml)")
+            Some("E_REVISION: requires exact Apex revision a (m.toml)")
         );
     }
 

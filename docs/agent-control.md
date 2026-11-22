@@ -3,7 +3,7 @@
 A player's own AI agent (Claude Code, Codex, Cursor, any MCP client) or a script can do
 everything a player does with the mouse and keyboard, in the launcher and in the game. This page
 covers developers: the surfaces, the full inventory, and the rules every new command follows.
-Players read [Control Horizon with your AI agent](https://playhorizon.dev/docs/agents)
+Players read [Control Apex with your AI agent](https://playhorizon.dev/docs/agents)
 (playhorizon.dev/docs/agents).
 
 The command lists are generated, so they can't drift:
@@ -19,12 +19,12 @@ The command lists are generated, so they can't drift:
 
 | Surface | Where | Transport |
 | --- | --- | --- |
-| Game control socket | `horizon-client --control` / `--control-socket PATH`, or Agent Control on in Horizon Settings > AI Agent (`crates/horizon-client/src/control.rs`; commands in `src/game/control.rs`, `agent.rs`, `ui_control.rs`, `saves_control.rs` and friends) | text line in, one JSON line out; Unix socket, or localhost TCP and a token where there is none |
+| Game control socket | `horizon-client --control` / `--control-socket PATH`, or Agent Control on in Apex Settings > AI Agent (`crates/horizon-client/src/control.rs`; commands in `src/game/control.rs`, `agent.rs`, `ui_control.rs`, `saves_control.rs` and friends) | text line in, one JSON line out; Unix socket, or localhost TCP and a token where there is none |
 | `horizon-ctl` | `crates/horizon-client/src/bin/horizon-ctl/` | CLI over the socket; one table of commands (`commands.rs`) gives the help, the argument checks, the MCP tools and the reference |
 | `horizon-ctl mcp` | same | MCP over stdio, one tool per command of the table |
 | Launcher CLI | `launcher/src/cli.rs` | `horizon-launcher <command> [--json]` |
 | Launcher MCP | `launcher/src/mcp.rs`, `cli_tools.rs`, `game_tools.rs` | `horizon-launcher mcp` (stdio): every CLI command as a tool, the session tools, and the game's tools as `game_*` |
-| Connecting | `launcher/src/agents.rs`, `agents_page.rs`; `src/game/agent_settings.rs` | `horizon-launcher agent-config`; Settings > AI in the launcher; Horizon Settings > AI Agent in the game |
+| Connecting | `launcher/src/agents.rs`, `agents_page.rs`; `src/game/agent_settings.rs` | `horizon-launcher agent-config`; Settings > AI in the launcher; Apex Settings > AI Agent in the game |
 | No AI | `crates/horizon-core/src/no_ai.rs` | `noAi:true` in `<game home>/horizon-extras.txt`, read by every surface |
 
 ## One MCP server for everything
@@ -101,8 +101,8 @@ passes on without checking it).
 | Open to LAN | Pause > Open to LAN | part | no | yes | yes | `lan open\|close\|status` |
 | Play with Friends: host, stop, status | Pause | part | no | yes | yes | `friends host\|stop\|status` |
 | Vanilla options, every page | Options | yes | part | yes | yes | `options-get`, `options-set` (all of options.txt, typed); `options PAGE` was socket-only |
-| Horizon Settings: Graphics, Controller, Extras, Mods, AI Agent | Horizon Settings | part | part | yes | yes | `options horizon\|graphics\|extras\|agent...`, then `ui`/`click`/`set` |
-| Agent control on or off, status, connection details | Horizon Settings > AI Agent | no | no | yes | yes | new page (#1353) |
+| Apex Settings: Graphics, Controller, Extras, Mods, AI Agent | Apex Settings | part | part | yes | yes | `options horizon\|graphics\|extras\|agent...`, then `ui`/`click`/`set` |
+| Agent control on or off, status, connection details | Apex Settings > AI Agent | no | no | yes | yes | new page (#1353) |
 | Key binds | Controls > Key Binds | yes | yes | yes | yes | `options-set key_key.jump key.keyboard.j` |
 | Resource packs | Options > Resource Packs | part | part | yes | yes | `options packs`, then `ui` rows and `click`; `options-set resourcePacks` |
 | Chat and commands | Chat | yes | yes | yes | yes | `chat`, `command`, `messages`, `chat-log` |
@@ -125,7 +125,7 @@ passes on without checking it).
 ## No AI
 
 One switch hides and turns off every AI feature: `noAi:true` in `<game home>/horizon-extras.txt`.
-The game home is `HORIZON_HOME`, else the data dir's `horizon`. The game reads its extras from
+The game home is `APEX_HOME`, else the data dir's `horizon`. The game reads its extras from
 its working directory, which is that folder. `horizon_core::no_ai` reads and writes the switch:
 
 - `is_on(home)` and `check(home)` read it;
@@ -133,12 +133,12 @@ its working directory, which is that folder. `horizon_core::no_ai` reads and wri
   never on;
 - `REFUSAL` is the one line every surface prints.
 
-The switch is in three places: Settings > AI in the launcher, Horizon Settings in the game
+The switch is in three places: Settings > AI in the launcher, Apex Settings in the game
 (`Item::NoAi`), and `horizon-launcher no-ai on|off`. When it is on:
 
 | Surface | What happens |
 | --- | --- |
-| Game | opens no control socket, even with `--control` (it logs the refusal); Horizon Settings hides AI Agent...; turning it on in a running game closes the socket at once |
+| Game | opens no control socket, even with `--control` (it logs the refusal); Apex Settings hides AI Agent...; turning it on in a running game closes the socket at once |
 | `horizon-ctl` | every command refuses: exit status 4, `{"error": REFUSAL, "kind": "denied"}` |
 | `horizon-ctl mcp` | refuses to start (exit 4, REFUSAL on stderr); a session already running refuses each call |
 | `horizon-launcher mcp` | refuses to start; a running session answers each `tools/call` with error -32000 and REFUSAL |
@@ -161,9 +161,9 @@ turn the switch off.
   - **Test the connection** (`agents::self_test`) starts `<exe> mcp`, lists its tools and says
     how many answered.
   - `horizon-launcher agent-config [--client ID] [--json] [--test]` prints the same thing.
-- **Game, Horizon Settings > AI Agent:**
+- **Game, Apex Settings > AI Agent:**
   - **Agent Control** (`agentControl` in horizon-extras.txt, off by default) opens the default
-    endpoint (`$HORIZON_CONTROL`, else `horizon-control.sock` in the runtime directory) in a game
+    endpoint (`$APEX_CONTROL`, else `horizon-control.sock` in the runtime directory) in a game
     the player started. Turning it off closes the endpoint and stops its listener.
   - The page shows whether a client is connected (`Server::clients`), when the last command came,
     and the socket's name.
@@ -293,7 +293,7 @@ turn the switch off.
 
 These are tracked in FEATURES.md (LATER):
 
-- Horizon's own option files by key (`horizon-graphics.txt`, controller, extras) next to
+- Apex's own option files by key (`horizon-graphics.txt`, controller, extras) next to
   `options-get` and `options-set`.
 - Adding and removing saved servers by command.
 - `subscribe`: events as a stream on one connection.

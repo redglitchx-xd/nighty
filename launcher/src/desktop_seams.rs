@@ -11,8 +11,8 @@
 //! shortcuts go).
 use std::path::{Path, PathBuf};
 
-pub const TRASH_ENV: &str = "HORIZON_LAUNCHER_TRASH";
-pub const CLIPBOARD_ENV: &str = "HORIZON_LAUNCHER_CLIPBOARD";
+pub const TRASH_ENV: &str = "APEX_LAUNCHER_TRASH";
+pub const CLIPBOARD_ENV: &str = "APEX_LAUNCHER_CLIPBOARD";
 
 /// Moves a file or folder to the system's trash, where the player can still get it back, or
 /// into `HORIZON_LAUNCHER_TRASH` when it is set.

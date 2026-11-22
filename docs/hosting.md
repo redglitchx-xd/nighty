@@ -1,7 +1,7 @@
 # Host a server
 
-`horizon-server` hosts a Minecraft Java Edition 26.3 server with Horizon's own game as the engine: one native
-program, no Java, one settings file, a command line, and a web panel. Vanilla 26.3 clients and Horizon clients
+`horizon-server` hosts a Minecraft Java Edition 26.3 server with Apex's own game as the engine: one native
+program, no Java, one settings file, a command line, and a web panel. Vanilla 26.3 clients and Apex clients
 can join it. This page covers what works on `main` today and says plainly what doesn't yet. The design and the
 plan are in [docs/server.md](https://github.com/horizon-rust/horizon/blob/main/docs/server.md).
 
@@ -17,15 +17,15 @@ plan are in [docs/server.md](https://github.com/horizon-rust/horizon/blob/main/d
   `horizon-server whitelist add` always writes the offline UUID, the one the player joins with, also while
   the server runs (it writes the entry and the game reloads the list): the console's own `whitelist add`
   takes the account's UUID when someone owns that name, as vanilla does, and that player is then refused.
-- **Horizon's own client can't sign in to a Microsoft account yet.** That needs an Azure app registration and
+- **Apex's own client can't sign in to a Microsoft account yet.** That needs an Azure app registration and
   Mojang's approval, which the project doesn't have
   ([docs/microsoft-account.md](https://github.com/horizon-rust/horizon/blob/main/docs/microsoft-account.md)).
-  Until then Horizon players can join offline servers only (`online_mode = false`). An offline server never
+  Until then Apex players can join offline servers only (`online_mode = false`). An offline server never
   checks accounts: anyone who reaches it can join under any name. Keep it on your LAN or a tailnet
   (Tailscale, ZeroTier), or share it only with friends you trust.
 - **Secure chat** works as on vanilla's server: in online mode, vanilla clients sign their chat, and with
   `enforce-secure-profile=true` (the default) unsigned chat is refused. On an offline server, or for a player
-  without a chat session (Horizon's own client today), chat stays unsigned and shows as not secure.
+  without a chat session (Apex's own client today), chat stays unsigned and shows as not secure.
 - **Nether and End:** each player travels on their own through portals, and operators with `execute in
   <dimension> run tp`. The players in the level they leave stop seeing them, and the ones in the level they
   arrive in start to, as on vanilla (checked against vanilla with two players, by command and through an End
@@ -53,10 +53,10 @@ Windows (x64), in PowerShell:
 irm https://raw.githubusercontent.com/horizon-rust/horizon/main/packaging/server/install.ps1 | iex
 ```
 
-The script downloads the current Horizon Nightly for your computer from GitHub (the only build Horizon ships;
+The script downloads the current Apex Nightly for your computer from GitHub (the only build Apex ships;
 `--version` picks another), checks it against the SHA-256 GitHub publishes, and never asks for sudo or administrator rights. It installs:
 
-- the release in `~/.local/share/horizon/releases/<version>` (Windows: `%LOCALAPPDATA%\Horizon`), with
+- the release in `~/.local/share/horizon/releases/<version>` (Windows: `%LOCALAPPDATA%\Apex`), with
   `current` pointing at the one in use;
 - `horizon-server` and `horizon-prepare` in `~/.local/bin` (Windows: added to your PATH);
 - a `game-files` folder for the files you prepare, kept across updates.
@@ -65,12 +65,12 @@ Options: `--version vX.Y.Z`, `--dir FOLDER`, `--bin FOLDER` (Windows: `-Version`
 such as Linux on ARM, build from source: `cargo build --release -p horizon-client --bin horizon-client -p
 horizon-server` and keep both programs in one folder.
 
-The Horizon launcher also installs releases. Every release folder holds `horizon-server`, so you can run it
+The Apex launcher also installs releases. Every release folder holds `horizon-server`, so you can run it
 from there too.
 
 ## 2. Prepare the game files
 
-Horizon reads Minecraft's data from your own copy of the game. You need Minecraft Java Edition 26.3, played
+Apex reads Minecraft's data from your own copy of the game. You need Minecraft Java Edition 26.3, played
 once from the official launcher on this computer, a Java 25 runtime, and the 26.3 `server.jar`: it's the
 `downloads.server.url` in your launcher's `versions/26.3/26.3.json`. Then:
 
@@ -204,7 +204,7 @@ while each operator still reads their own command's answer.
 
 ### Seeing further: `max_view_distance`
 
-Off by default (0), a Horizon setting with no vanilla equivalent. Past `view_distance`, up to
+Off by default (0), a Apex setting with no vanilla equivalent. Past `view_distance`, up to
 `max_view_distance` (at most 32), each player is also sent the chunks the world has already saved, as far
 as their own render distance goes. Those chunks are only read and sent: the server never generates them,
 keeps them loaded or ticks them, so what lies out there stands still (no mobs, no growing crops, no
@@ -226,7 +226,7 @@ keep vanilla's names and formats, so going back to vanilla works too.
 ### Behind a Velocity proxy
 
 A network can put one Velocity proxy in front of several servers: the proxy signs the players in with their
-Microsoft accounts, and the servers behind it trust what it forwards. To run Horizon as one of them:
+Microsoft accounts, and the servers behind it trust what it forwards. To run Apex as one of them:
 
 1. Set `online_mode = false` in `server.toml` and keep the server's port reachable only from the proxy (bind it
    to `127.0.0.1` or put it on a private network).
@@ -269,13 +269,13 @@ horizon-server rollback                  back to the release before
 While the server runs, `op`, `whitelist` and `cmd` go to the game's console, so they act exactly as vanilla's
 console commands do. While it's stopped, they edit vanilla's files directly. Any console command works through
 `cmd`: `horizon-server cmd ban Griefer`, `horizon-server cmd say Restarting in 5 minutes`.
-To generate the world around spawn ahead of the players, Horizon has its own `pregen` command, off until
+To generate the world around spawn ahead of the players, Apex has its own `pregen` command, off until
 `server.toml` has `horizon-pregen = true` under `[properties]`: `horizon-server cmd pregen start 2500`
 ([pregeneration](pregeneration.md)).
-To let only the Horizon client join, set `horizon-clients-only = true` under `[properties]` (off by default).
-Other clients are turned away while they connect with "This server is for the Horizon client:
+To let only the Apex client join, set `horizon-clients-only = true` under `[properties]` (off by default).
+Other clients are turned away while they connect with "This server is for the Apex client:
 playhorizon.dev", and the console says which client it was. The check reads the brand a client names itself
-by (`minecraft:brand`), which any client can fake: it keeps out players who didn't install Horizon, not
+by (`minecraft:brand`), which any client can fake: it keeps out players who didn't install Apex, not
 cheaters. The server's own checks (reach, movement) are what protect it.
 
 `horizon-server report` records the running server for 60 seconds (`report 300` for five minutes, up to 600),
@@ -311,7 +311,7 @@ and puts the world back as it was just before the switch (the world the new game
 archive you have, such as your own build. A server still on a release from before the last dated one doesn't know
 that 0.2 comes after the dated releases and says it is up to date: run `horizon-server update --version v0.2.0`
 once ([versioning](versioning.md)). A stopped server is switched and starts on the new release next
-time. Set `HORIZON_NO_UPDATE_CHECK=1` in the server's environment to turn the check off.
+time. Set `APEX_NO_UPDATE_CHECK=1` in the server's environment to turn the check off.
 
 Coming: `console` (attach to a server running in the background), `ban` and `pardon` as their own
 commands, and `mcp` (an MCP server so an AI assistant can run the server).
@@ -377,8 +377,8 @@ the API and the panel show the webhook as `(set)`. The letters are Pixelify Sans
 
 ### Tools written for vanilla's management protocol
 
-Vanilla 26.3 has its own management protocol, JSON-RPC over a WebSocket, and Horizon's server speaks it too, so a
-tool written for a vanilla server manages a Horizon one. It's off by default; turn it on in `server.toml`:
+Vanilla 26.3 has its own management protocol, JSON-RPC over a WebSocket, and Apex's server speaks it too, so a
+tool written for a vanilla server manages a Apex one. It's off by default; turn it on in `server.toml`:
 
 ```toml
 [properties]
@@ -391,7 +391,7 @@ management-server-port = 8132          # 0: a free port, logged at the start
 
 It listens on `localhost` (`management-server-host`). A client sends the secret as `Authorization: Bearer <secret>`,
 or, from a browser, in the WebSocket subprotocol (`minecraft-v1,<secret>`) from an origin listed in
-`management-server-allowed-origins`. `rpc.discover` lists the methods; Horizon answers more of them with each release
+`management-server-allowed-origins`. `rpc.discover` lists the methods; Apex answers more of them with each release
 ([api/server.md](api/server.md#not-there-yet)).
 
 TLS is on, as in vanilla (`wss://`). The certificate and its key come from a PKCS12 keystore, as vanilla's do:
@@ -401,7 +401,7 @@ TLS is on, as in vanilla (`wss://`). The certificate and its key come from a PKC
 - Its password comes from the `MINECRAFT_MANAGEMENT_TLS_KEYSTORE_PASSWORD` variable, else from
   `management-server-tls-keystore-password`.
 
-Where vanilla refuses to start without a keystore, Horizon makes one:
+Where vanilla refuses to start without a keystore, Apex makes one:
 
 - a self-signed certificate for `localhost`, `127.0.0.1` and `management-server-host`, saved in
   `.horizon/management-keystore.p12`, which only the server's user can read;
@@ -413,7 +413,7 @@ As in vanilla, a wrong secret or keystore stops the server from starting.
 
 ### Tools that speak RCON
 
-Hosting panels, Discord bridges and scripts often run commands through RCON, vanilla's remote console, and Horizon's
+Hosting panels, Discord bridges and scripts often run commands through RCON, vanilla's remote console, and Apex's
 server serves it. It's off by default and needs a password; turn it on in `server.toml` (the dotted keys are
 quoted in TOML):
 
@@ -481,14 +481,14 @@ docker build -f packaging/server/Dockerfile -t horizon-server .
 docker run -d --name horizon -p 25565:25565 --stop-timeout 180 \
   -v horizon-data:/data \
   -v /path/to/26.3:/opt/horizon/.local/horizon-client/26.3:ro \
-  -e HORIZON_EULA=true -e HORIZON_WHITELIST=true -e HORIZON_PLAYERS=Alex,Steve -e HORIZON_OP=Alex \
+  -e APEX_EULA=true -e APEX_WHITELIST=true -e APEX_PLAYERS=Alex,Steve -e APEX_OP=Alex \
   horizon-server
 ```
 
-- `HORIZON_EULA=true` accepts the [Minecraft EULA](https://aka.ms/MinecraftEULA) for this server. Without it
+- `APEX_EULA=true` accepts the [Minecraft EULA](https://aka.ms/MinecraftEULA) for this server. Without it
   the container stops and says why.
-- The first start writes `/data/server.toml` from `HORIZON_EULA`, `HORIZON_WORLD`, `HORIZON_SEED`,
-  `HORIZON_PORT`, `HORIZON_WHITELIST`, `HORIZON_PLAYERS`, `HORIZON_OP` and `HORIZON_ONLINE`. Later starts use
+- The first start writes `/data/server.toml` from `APEX_EULA`, `APEX_WORLD`, `APEX_SEED`,
+  `APEX_PORT`, `APEX_WHITELIST`, `APEX_PLAYERS`, `APEX_OP` and `APEX_ONLINE`. Later starts use
   the file.
 - The mounted folder must come from release v2026.10.17.07 or newer (see step 2).
 - Manage it with `docker exec horizon horizon-server status` (and `cmd`, `backup`, `logs`, ...).
@@ -499,7 +499,7 @@ docker run -d --name horizon -p 25565:25565 --stop-timeout 180 \
 
 ## 10. How fast is it
 
-The latest bot benchmark compares Horizon with vanilla 26.3, Paper and Fabric + Lithium:
+The latest bot benchmark compares Apex with vanilla 26.3, Paper and Fabric + Lithium:
 [benchmarks/server-four-way-2026-10-19](https://github.com/horizon-rust/horizon/blob/main/benchmarks/server-four-way-2026-10-19/README.md).
 It ran release v2026.10.19 on a 4-thread laptop CPU (i7-7500U), with 1 to 50 players walking, exploring and
 standing around spawn, the bots on another machine. All four servers did the same work. Earlier
@@ -511,11 +511,11 @@ short:
 - **Start:** ready in 8 to 9 s, against 15 s for vanilla, 17 s for Fabric and 19 to 22 s for Paper.
 - **CPU:** from 10 players up, the least of the four (1.4 cores at 50, against Paper's 2.1 and Fabric's 2.4).
 - **Average tick:** Paper's is shorter at every count (10.3 against 13.7 ms with one player, 46.9 against
-  47.8 with 50), and Fabric + Lithium's with 1 and 10 players. Horizon's is shorter than vanilla's (equal
+  47.8 with 50), and Fabric + Lithium's with 1 and 10 players. Apex's is shorter than vanilla's (equal
   with 10), and than Fabric's from 25 players up.
-- **Slow ticks:** from 10 players up, Horizon's slowest ticks (99th percentile) are the shortest of the
+- **Slow ticks:** from 10 players up, Apex's slowest ticks (99th percentile) are the shortest of the
   four (73 ms with 50, against 110 for Paper and 174 for Fabric).
-- **50 players:** Horizon and Paper keep 20 TPS, Fabric + Lithium drops to 17, and vanilla's watchdog
+- **50 players:** Apex and Paper keep 20 TPS, Fabric + Lithium drops to 17, and vanilla's watchdog
   stopped it.
 
 For more than 50 active players, give it more cores.

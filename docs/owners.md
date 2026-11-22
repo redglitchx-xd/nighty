@@ -73,16 +73,16 @@ These belong to `horizon-server`, not to the game:
   it; on a running server it applies `difficulty`, `defaultgamemode` and `whitelist on|off` live. There is no
   full live reload yet.
 
-## Planned: limiting a server to Horizon clients
+## Planned: limiting a server to Apex clients
 
 The design (`docs/design.md`, section 6 of horizon-rust/horizon-server) adds one more setting. It is not in
 `server.toml` yet.
 
 ```toml
 [clients]
-allow = "any"        # "any" (vanilla Java and Horizon) or "horizon" (Horizon clients only)
+allow = "any"        # "any" (vanilla Java and Apex) or "horizon" (Apex clients only)
 ```
 
-With `"horizon"` the server refuses a client that does not identify as Horizon. This is a convenience filter,
-not security: Horizon's client is open source, so a modified client can claim to be Horizon. The real gate
+With `"horizon"` the server refuses a client that does not identify as Apex. This is a convenience filter,
+not security: Apex's client is open source, so a modified client can claim to be Apex. The real gate
 stays `online_mode`, plus the whitelist and bans on top of it.

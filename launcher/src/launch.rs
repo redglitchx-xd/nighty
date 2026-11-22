@@ -62,7 +62,7 @@ pub struct Found {
 
 /// `HORIZON_LAUNCHER_LINUX_TOOLS=gamemode,mangohud,gpu,nvidia`: what [`Found::here`] says is
 /// installed, on any system (for tests and screenshots).
-pub const TOOLS_ENV: &str = "HORIZON_LAUNCHER_LINUX_TOOLS";
+pub const TOOLS_ENV: &str = "APEX_LAUNCHER_LINUX_TOOLS";
 
 fn on_path(program: &str) -> bool {
     std::env::var_os("PATH").is_some_and(|path| {

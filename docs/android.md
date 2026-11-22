@@ -1,13 +1,13 @@
-# Horizon on Android
+# Apex on Android
 
-Horizon Android is a native Rust/wgpu client for Minecraft Java **26.3**.
+Apex Android is a native Rust/wgpu client for Minecraft Java **26.3**.
 It downloads the required resources on the device and supports single player
 and Java multiplayer. It does not run arbitrary Minecraft JAR versions.
 
 ## Install and play
 
 1. Install the APK matching the device architecture from [Releases](https://github.com/tubers9999/apex/releases).
-2. Open Horizon and choose **Download Minecraft 26.3**.
+2. Open Apex and choose **Download Minecraft 26.3**.
 3. Wait for resource verification and installation, then choose **Play**.
 
 The first installation downloads approximately 500 MiB, including sounds.
@@ -44,7 +44,7 @@ for cloud restrictions and the frontend-independent game contract.
 ## Launcher
 
 - **Play:** install resources and launch a world or server.
-- **Mods:** import native Horizon packages using a direct HTTPS `.hmod` URL
+- **Mods:** import native Apex packages using a direct HTTPS `.hmod` URL
   on 64-bit builds. New packages are disabled until enabled in Installed.
 - **Packs:** find and install resource packs with checksum verification.
 - **Installed:** enable, disable or remove installed additions.
@@ -168,7 +168,7 @@ launcher entry; TV support is experimental and analog gamepad axes are not conne
 ### Screenshots
 
 F2 keeps the original PNG in the profile and publishes a copy to
-**Pictures/HorizonAndroid** through Android MediaStore. Android 10+ needs no
+**Pictures/ApexAndroid** through Android MediaStore. Android 10+ needs no
 storage permission. Android 8.1–9 asks for storage permission when first saving;
 if access is denied, the profile copy remains available. Gallery publication runs
 outside the render thread and reports success or failure in game chat.

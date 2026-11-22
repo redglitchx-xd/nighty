@@ -1,6 +1,6 @@
 # Benchmark report format (version 1)
 
-Every benchmark Horizon writes uses this one JSON format: `horizon-client --benchmark`, the launcher's own
+Every benchmark Apex writes uses this one JSON format: `horizon-client --benchmark`, the launcher's own
 measurements, and `tools/perf_bench.py` (which also writes it for vanilla and vanilla with mods). The same
 file is the local log a player can attach to an issue and, only with the player's consent, what the
 telemetry upload sends (minus the local-only fields below). The types, the statistics and the hardware
@@ -50,12 +50,12 @@ kilobytes whatever the frame rate. Measured numbers are rounded to 3 decimals.
 newer versions. Adding an optional field keeps the version; renaming, removing or changing the meaning of
 one (histogram edges included) makes it 2.
 
-**`kind`.** `"game"` (a game run: Horizon, or vanilla from `tools/perf_bench.py`) or `"launcher"`.
+**`kind`.** `"game"` (a game run: Apex, or vanilla from `tools/perf_bench.py`) or `"launcher"`.
 
 **`created`.** When the run ended, UTC, `YYYY-MM-DDTHH:MM:SSZ`.
 
 **`app`.** What was measured: `name` (`horizon-client`, `horizon-launcher`, `minecraft`), `version`,
-optionally `commit` (Horizon builds) and `mods` (`[{ "name", "version" }]`, vanilla with mods).
+optionally `commit` (Apex builds) and `mods` (`[{ "name", "version" }]`, vanilla with mods).
 
 **`hardware`.** `os` (`macos`, `linux`, `windows`), `os_version`, `arch`, `cpu` (brand string),
 `cpu_threads`, `cpu_cores` (physical), `cpu_base_mhz` and `cpu_boost_mhz` (where the OS gives them; not on

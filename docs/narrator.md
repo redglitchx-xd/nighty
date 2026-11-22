@@ -26,7 +26,7 @@ language.
 - The volume is the **Voice/Speech** slider times **Master Volume**.
 - Where text-to-speech can't start, the option reads "Not Available" and the
   toast says so; the game goes on without it (vanilla asks in a message box
-  first; Horizon logs vanilla's message instead).
+  first; Apex logs vanilla's message instead).
 
 ## Voices per platform
 
@@ -59,7 +59,7 @@ the game runs and the narrator is "Not Available".
 ## How screens record their narration
 
 Vanilla screens are trees of widget objects that narrate themselves.
-Horizon's screens are drawn each frame, so they record what they would
+Apex's screens are drawn each frame, so they record what they would
 narrate as they draw, and `ScreenNarrator::frame` reads the finished frame:
 
 - `widgets::begin_screen(|| ScreenInfo::new(id, title))` starts the screen.
@@ -109,7 +109,7 @@ show the expected sentences as translation keys.
 
 ## Scripted runs
 
-- `HORIZON_NO_AUDIO=1` keeps the narrator active but silent: everything it
+- `APEX_NO_AUDIO=1` keeps the narrator active but silent: everything it
   would say still goes through its status and into its recent messages.
 - `horizon-ctl narration` prints the status, whether text-to-speech is
   there, and the last 32 messages its status let through, oldest first
@@ -133,7 +133,7 @@ vanilla's widget trees but not always all the way:
 - A click focuses the widget under the mouse even where a scrolled list
   hides it behind the header or footer.
 - The macOS backend has no `crashed` state: a failing synthesizer message
-  would end vanilla's narration for good, and raises nothing in Horizon.
+  would end vanilla's narration for good, and raises nothing in Apex.
 - The first narration of a screen runs after its first frame (vanilla's runs
   in `init`, before it); what `init` couldn't see then (the hovered widget)
   is left out, as in vanilla.

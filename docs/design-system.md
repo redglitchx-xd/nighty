@@ -1,9 +1,9 @@
-# Horizon's design system
+# Apex's design system
 
 One design language for the launcher, the website and the few overlays the game draws that
 vanilla has no screen for (the on-screen keyboard a controller types with). Every game screen
 and the HUD are not part of it: they are vanilla's, because parity is the point of the game, and
-Horizon's own settings are pages built from vanilla's widgets, the way mods add theirs.
+Apex's own settings are pages built from vanilla's widgets, the way mods add theirs.
 
 The tokens live in one place, `crates/horizon-theme`. The launcher (`launcher/src/theme.rs`)
 and the game (`crates/horizon-client/src/ui_theme.rs`) read them as Rust constants, and the
@@ -36,7 +36,7 @@ almost nothing but type. What we take from it is its restraint rather than its c
 
 ### Colour
 
-Cool, slightly blue neutrals in two appearances with the same restraint, and Horizon's violet.
+Cool, slightly blue neutrals in two appearances with the same restraint, and Apex's violet.
 Every text colour passes WCAG AA (4.5:1) on every background it is used on; the tests in
 `horizon-theme` check each pair in both palettes.
 
@@ -118,7 +118,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
   written in mono beside the label, not on the track.
 - **Segmented control / tabs**: a `plate_soft` pill; the selected segment is an `ink` pill with
   `page` text that slides over `move`.
-- **Navigation**: text only. Launcher: a top bar with the mark and "Horizon" on the left and
+- **Navigation**: text only. Launcher: a top bar with the mark and "Apex" on the left and
   the pages on the right, `label` size, `muted`, the current one `ink` on a soft pill. Game
   menus keep their sidebar layout (it suits a controller), but as a plain column of text items
   under the mark, with no panel tint and no border: the current one `ink` on a soft pill that
@@ -143,7 +143,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
   grouped panels of rows. Dark by default, Light or System in Settings (Appearance).
 - **Website** (horizon-rust/horizon-site): the Blocks look below. The same page structure as before (what it
   is, screenshots, parity, launcher, patch notes, community), headings in Pixelify Sans, lists as
-  stacks of panels, the stone texture behind the page and Horizon's pixel landscape (a dawn or a
+  stacks of panels, the stone texture behind the page and Apex's pixel landscape (a dawn or a
   sunset) behind the hero. Light and dark follow the system, with a toggle. A giant wordmark in
   pixels sits in the footer.
 - **Game**: vanilla's screens. The on-screen keyboard is a rounded plate of keys in the page
@@ -151,7 +151,7 @@ Geist (400, 500, 600) and Geist Mono (400), bundled under the SIL Open Font Lice
 
 ## Blocks
 
-A blocky, Minecraft-like look in Horizon's purple, for the website and the redesigned launcher:
+A blocky, Minecraft-like look in Apex's purple, for the website and the redesigned launcher:
 Minecraft's inventory rather than a document. Its colours are `horizon_theme::Blocks`
 (`BLOCKS_LIGHT`, `BLOCKS_DARK`), which `tokens.css` carries under the same names as before plus
 `--panel`, `--raised`, `--button`, `--well`, `--bevel`, `--lip`, `--outline` and the `--face`
@@ -169,11 +169,11 @@ of the main action. The game's menus keep `LIGHT` and `DARK`.
 - **Inventory tabs** switch the kinds in Mods: the open tab joins the panel under it.
 - **Slots** hold pictures: a mod's or pack's own icon and gallery images from its source,
   downloaded when first shown and kept on disk (`launcher/src/browser/images.rs`); the launcher
-  ships no third-party pictures. The Horizon instance shows a grass block drawn from the player's
+  ships no third-party pictures. The Apex instance shows a grass block drawn from the player's
   own prepared Minecraft textures. Sources are named in text ("from Modrinth"): Modrinth's logo is
   all rights reserved, so it is not shown.
 - **Partner banner**: the one exception to shipping no third-party pictures. Sculk, a server host,
-  sponsors Horizon: its banner (`launcher/assets/sculk-banner.webp`, `launcher/src/partner.rs`) sits
+  sponsors Apex: its banner (`launcher/assets/sculk-banner.webp`, `launcher/src/partner.rs`) sits
   under a muted mono "Partner" label at the end of the Servers page and opens Sculk's page in the
   browser. The sidebar of the other pages shows a card made for its width instead: Sculk's characters
   and logo cropped from the same banner, and the text drawn by the launcher in its language, so it
@@ -243,10 +243,10 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 
 - **Motion that means something**: the sky is still by default; the interface moves only to show
   cause and effect (a row arrives where it was added, progress fills). Reduced motion: nothing
-  moves. `HORIZON_LAUNCHER_MOTION=full` lets the sky drift in whole texels on a half-second beat,
+  moves. `APEX_LAUNCHER_MOTION=full` lets the sky drift in whole texels on a half-second beat,
   stopping when the window is hidden or unfocused; `always` keeps it moving for recordings.
 - **Copy says what happens** ("Downloads 26.3 and Java 21, about 600 MB"), never praises.
-- The specimen (`HORIZON_LAUNCHER_PAGE=specimen horizon-launcher`) draws the type and colours in the
+- The specimen (`APEX_LAUNCHER_PAGE=specimen horizon-launcher`) draws the type and colours in the
   launcher itself.
 - **The frame** (`launcher/src/shell.rs`): the sidebar is one plate from the window's top to its
   bottom (the wordmark, instances by group, servers, the launcher's version); the top bar over the
@@ -258,32 +258,32 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   sky, a caption above it naming what it plays and its state (the same square), and when it was
   played below. Play is the main action (`night::PLAY` tall, cut in one step); the version picker
   is a raised control of the same height. Mods lives in the tabs, and the folder in the Overview
-  row, not beside the main action. A Horizon instance
+  row, not beside the main action. A Apex instance
   gets a plate on the right: a release's notes in one line (not a Nightly's) and Join a friend.
   While it gets ready, Play names it ("Getting ready… 34%") beside Cancel, and below sit the
   bar, what is happening with the time left, and the steps (game files, Java, sounds, prepare,
   play), the current one lit, those done ticked: steps, never the log
-  (`HORIZON_LAUNCHER_PAGE=getting-ready` shows it for screenshots, nothing runs).
+  (`APEX_LAUNCHER_PAGE=getting-ready` shows it for screenshots, nothing runs).
 - **Instance icons** (`launcher/src/instance_icons.rs`): the sidebar's rows, Home's hero (beside
   the name) and the instance dialog show the same icon. Its own picture first (`icon.png` in its
   game folder: one the player chose with Choose image…, scaled to 128 pixels, or its modpack's
   icon from where it was installed), else the block or colour chosen in the dialog, else its
   mark: the loader's logo (Fabric, Quilt, Forge, NeoForge), the grass block for plain Minecraft,
-  Horizon's for Horizon. The letter tile is the last resort. The New instance dialog's loader
+  Apex's for Apex. The letter tile is the last resort. The New instance dialog's loader
   cards show the same logos. Pixel-art logos are scaled by whole
   pixels; each is decoded once per size.
 - **The instance's tabs** (`launcher/src/home_tabs.rs`): under Home's hero, one tab at a time
   instead of one long page: Overview (what Play needs: the instance, the game or its resources,
   the account), Worlds, Multiplayer, Packs, then Screenshots and Console once they have something.
   A tab names how many it holds ("Worlds 3"); its own buttons (Add server, Open folder) sit at the
-  strip's end, where a list's header would put them (`HORIZON_LAUNCHER_PAGE=worlds`, `packs`...
+  strip's end, where a list's header would put them (`APEX_LAUNCHER_PAGE=worlds`, `packs`...
   opens one for screenshots).
 - **The Mods tab** (`launcher/src/instance_mods.rs`): the instance's mods on one nearly opaque
-  card, its loader in the header ("Fabric mods", "Horizon mods") beside a filter. A row is the
+  card, its loader in the header ("Fabric mods", "Apex mods") beside a filter. A row is the
   mod's own icon (Modrinth's, else its jar's, else a glyph), its name and version, where it comes from (Modrinth,
   "needed by another mod", or a local file by name), an update as an amber pill when the browser
   found one, and a switch (a Java jar turned off is renamed `.disabled`). Update all and Add mods
-  sit at the strip's end (`HORIZON_LAUNCHER_PAGE=instance-mods`).
+  sit at the strip's end (`APEX_LAUNCHER_PAGE=instance-mods`).
 - **Sign in with Microsoft** (`launcher/src/microsoft.rs`): every button that signs in is
   Microsoft's own, drawn as Microsoft publishes it: 41 pixels tall, its four-square symbol, the text
   semibold at 15 pixels, `#2F2F2F` with white text at night, white with `#5E5E5E` text and a
@@ -292,17 +292,17 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 - **The sign-in sheet** (`launcher/src/owner_page.rs`, the owner gate): an opaque plate over the
   dimmed launcher, never instead of it. It says why (the account that owns Java Edition, no install
   needed), the code in mono on a raised box with Copy, and Open link as the main action; the window
-  goes on by itself once Microsoft answers (`HORIZON_LAUNCHER_PAGE=sign-in` shows it with a made-up
+  goes on by itself once Microsoft answers (`APEX_LAUNCHER_PAGE=sign-in` shows it with a made-up
   code for screenshots).
 - **New instance** (`launcher/src/new_instance.rs`): an opaque plate over the dimmed launcher,
-  tabs for the kind (Horizon, Vanilla, Modded). A Java kind lists Mojang's versions (search,
+  tabs for the kind (Apex, Vanilla, Modded). A Java kind lists Mojang's versions (search,
   Snapshots, Old; the newest release chosen), Modded adds the loader (Fabric or Quilt, at its newest
   stable version), and the name follows the choice ("Fabric 1.21.4") until the player types one.
   Create is the main action.
 
 ## The mark
 
-**Horizon line.** A sun half set below a horizon, drawn as three horizontal bars of 4, 8 and
+**Apex line.** A sun half set below a horizon, drawn as three horizontal bars of 4, 8 and
 10 units over a 12 unit line, on a 16 unit grid. The bars are the sun cut by the horizon into
 slices, which also reads as layers of terrain and as a nod to voxels without drawing a block. It
 is built on whole units of the 16 px grid so it stays sharp at 16 px, and it scales without

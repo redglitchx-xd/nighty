@@ -19,7 +19,7 @@ impl HomeTab {
     /// `HORIZON_LAUNCHER_PAGE=worlds` (or `instance-mods`, `multiplayer`, `packs`, `screenshots`,
     /// `console`) opens Home on that tab, for screenshots.
     pub(super) fn from_env() -> Self {
-        match std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() {
+        match std::env::var("APEX_LAUNCHER_PAGE").as_deref() {
             Ok("instance-mods") => HomeTab::Mods,
             Ok("worlds") => HomeTab::Worlds,
             Ok("multiplayer") => HomeTab::Multiplayer,

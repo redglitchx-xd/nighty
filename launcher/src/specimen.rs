@@ -11,7 +11,7 @@ use std::sync::LazyLock;
 /// Whether the launcher was opened on the specimen.
 pub fn wanted() -> bool {
     static WANTED: LazyLock<bool> =
-        LazyLock::new(|| std::env::var("HORIZON_LAUNCHER_PAGE").as_deref() == Ok("specimen"));
+        LazyLock::new(|| std::env::var("APEX_LAUNCHER_PAGE").as_deref() == Ok("specimen"));
     *WANTED
 }
 

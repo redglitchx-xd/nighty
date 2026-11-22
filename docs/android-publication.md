@@ -1,6 +1,6 @@
 # Android release packaging
 
-Horizon Android preserves the upstream Git history, MIT copyright and license,
+Apex Android preserves the upstream Git history, MIT copyright and license,
 third-party notices and dependency licenses. See [upstream integration](android-upstream.json).
 The `android` branch is maintained separately from upstream deployment workflows.
 
@@ -25,7 +25,7 @@ artifacts: they may contain private resource bundles and enable debugging.
 ### Payload
 
 The public APK includes the Rust engine, licensed application dependencies and
-allowlisted generated Horizon tables. Original Minecraft resource files, JARs,
+allowlisted generated Apex tables. Original Minecraft resource files, JARs,
 textures and sounds are not packaged as game resources. The installer downloads
 them from Mojang, checks pinned hashes and reconstructs required world data on
 the device. Touch textures and their license come from a pinned revision of
@@ -120,7 +120,7 @@ It lives only in four repository secrets, never in Git and never in an artifact:
 
 The build job writes them to `.local/android/release.keystore`, and
 `packaging/android/build.gradle` signs the release variant with it whenever
-`HORIZON_ANDROID_KEYSTORE` and the three companion variables are set. Without them
+`APEX_ANDROID_KEYSTORE` and the three companion variables are set. Without them
 (a developer's local build) the throwaway development key is used, and the APK
 cannot update a CI install. The job fails rather than silently falling back when
 the secret is missing.

@@ -1,4 +1,4 @@
-# Horizon Android 0.7.7 development
+# Apex Android 0.7.7 development
 
 This version is in development; no device-wide performance improvement is established.
 
@@ -186,7 +186,7 @@ existing paths. The keymapping tests cover cancellation, screen transitions,
 subsequent held Shift and the independent vanilla toggle option.
 
 Android PR #79 logs LAN/local connection failures and player departure reasons
-without requiring HORIZON_NET_DEBUG. It changes logging, not packet decoding,
+without requiring APEX_NET_DEBUG. It changes logging, not packet decoding,
 authentication or connection behavior. Diagnostic reports can therefore contain
 additional player names, peer addresses and disconnect/error text; review them
 before sharing. No frame-by-frame network logging was added.
@@ -198,14 +198,14 @@ final release APK still require device smoke testing.
 ## Fixed Android mod bundle
 
 Zoom 2.0, Minimap 2.0, Recipes 2.0 and SmartF3 0.1 are statically compiled
-into the APK. The Horizon Mods catalog shows local Enable/Disable buttons,
+into the APK. The Apex Mods catalog shows local Enable/Disable buttons,
 including without a catalog download; matching remote rows are suppressed.
 They are off by default, retain their settings under Options > Mods and
 reuse existing mod enable/key-binding files. Previously enabled mods of the
 same IDs keep their choice. Profile-scoped runtime state resets between
 launches. This does not add arbitrary .hnmod loading or an on-phone compiler.
 The original MIT sources, licenses and revisions are retained in the bundle
-and THIRD_PARTY_NOTICES.md. Horizon's existing LOD remains available separately.
+and THIRD_PARTY_NOTICES.md. Apex's existing LOD remains available separately.
 
 The isolated F-03L launcher showed all four local rows and retained their
 Enable choices. The in-world Minimap, held-Z zoom and SmartF3 overlay were

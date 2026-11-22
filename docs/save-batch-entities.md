@@ -44,7 +44,7 @@ inventories, custom item components, names, saved NBT overlays, saved entity
 order, and an unmodelled end gateway. Batch sizes are 0, 1, 16, 64 and 256 chunks.
 Terrain uses eight uniform stone sections plus sections containing the entities;
 the minimal registry has five states and one biome. Prepared production assets
-were not found in the relevant project/Horizon cache/data locations, so these
+were not found in the relevant project/Apex cache/data locations, so these
 are synthetic workloads rather than captured saves.
 
 `snapshot` measures the production grouping/clone helper. `snapshot+nbt` also

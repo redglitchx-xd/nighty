@@ -1,8 +1,8 @@
 # Release flow
 
 How a change gets from a pull request to players: the checks a pull request passes, how it merges, and the
-automatic releases that follow. Releases are automatic and frequent so the latest Horizon is always playable.
-Since 2026-10-28 Horizon ships only the **Nightly** (Ludovic's decision; the Team proposed it): the batch train builds
+automatic releases that follow. Releases are automatic and frequent so the latest Apex is always playable.
+Since 2026-10-28 Apex ships only the **Nightly** (Ludovic's decision; the Team proposed it): the batch train builds
 a Nightly instead of a `vX.Y.Z` release, it is published once its smoke test passed and no `release-blocker` is open,
 and every launcher and `horizon-server update` install it ([Nightly only](#nightly-only)).
 
@@ -35,7 +35,7 @@ its job runs on playhorizon's runner only (4 harnesses at a time), and waits for
 instead of taking the Mac mini's. Labels don't start `checks`: add it when opening the pull request
 (`gh pr create --label full-parity`), or before the next push.
 
-Horizon never downloads the game, so harnesses that compare with vanilla run only where the maintainer's own
+Apex never downloads the game, so harnesses that compare with vanilla run only where the maintainer's own
 copy is: the Mac mini and playhorizon (below). Their runners run as the maintainer's account and keep their checkout
 between runs (`clean: false`), so the probes build incrementally into `.local/parity-target` and earlier passes
 stand.
@@ -68,7 +68,7 @@ alone, with a warning. The check is still reported on the head.
 Failed harnesses' logs are uploaded as the `parity-logs` artifact.
 
 **Platform-specific harnesses.** A harness listed under `linux_only` in `tools/parity_hosts.json` gives
-different results on macOS for a reason that is not a Horizon bug (the reason is printed). `parity.py` skips it on
+different results on macOS for a reason that is not a Apex bug (the reason is printed). `parity.py` skips it on
 other platforms unless it is named on the command line. Today it holds only `save_roundtrip` (it needs `vscreen`):
 `options`, `chunk_generation`, `world_border_render` and `mob_ai`, which once differed on macOS through the
 platform's libm, pass on the Mac mini since `horizon_core::jmath` computes what HotSpot computes (checked
@@ -101,7 +101,7 @@ processes, fleet-load's own detection, or a process outside the CI slice using t
 `~/.actions-runners/horizon/pause` exists, and starts it again 5 minutes after the last such sign. A job already
 under way is throttled to 2 threads at the lowest weight and the runner stops after it: freezing the job would make
 GitHub drop it as lost and the harnesses time out. Old pull requests' `runner-env.sh` know only the Mac: the
-runner's `.env` and `.path` give their jobs Python, the JDK and the vanilla data (`HORIZON_SHARED_SOURCE`) all the
+runner's `.env` and `.path` give their jobs Python, the JDK and the vanilla data (`APEX_SHARED_SOURCE`) all the
 same. The nightly audit and parity-main stay on the Mac mini's runners: the audit compares with the previous night,
 so it stays on one platform, and a parity-main job slowed down on the desktop because he came back could time out,
 and its failures bisect and comment on merges.
@@ -126,7 +126,7 @@ requires `verify` for everyone, and Ludovic's review for the files `.github/CODE
 and ships releases). Branches don't have to be up to date with main: main's own `checks` run catches the rare
 semantic conflict.
 
-**Who merges.** The Horizon Team (GitHub team `horizon-team`: kacpherek, levzzz5154, rdbtCVS, Online5277) and
+**Who merges.** The Apex Team (GitHub team `horizon-team`: kacpherek, levzzz5154, rdbtCVS, Online5277) and
 Ludovic. The orchestrator's agents prove only the risky pull requests (below), so a contributor's ordinary pull
 request doesn't wait for them.
 
@@ -236,7 +236,7 @@ commits) since the commit the published Nightly was built on:
 
 ### Nightly only
 
-Ludovic decided on 2026-10-28 that Horizon ships only the Nightly. No `vX.Y.Z` game release is made any more:
+Ludovic decided on 2026-10-28 that Apex ships only the Nightly. No `vX.Y.Z` game release is made any more:
 the last one stays GitHub's *latest*, so launchers and servers from before the switch (which don't read Nightlies)
 keep a working build until they update themselves. `.github/release-line.txt` still numbers the launcher's releases
 (`launcher@X.Y.Z`).
@@ -385,8 +385,8 @@ and by hand; pushes to `launcher` and `launcher-*` branches only build.
   patches separately). Without `.github/release-line.txt`, `launcher-vX.Y.Z`: the patch after the last launcher tag,
   or the next minor (`X.Y+1.0`) when one of those pull requests is labelled `feature`. `launcher-v0.2.0` was taken
   long before 0.2, hence the new prefix.
-- No version-bump commits: the build gets the version in `HORIZON_LAUNCHER_VERSION` and the tag in
-  `HORIZON_LAUNCHER_TAG`, which `launcher/src/backend.rs` reads with `option_env!` (falling back to `Cargo.toml`'s),
+- No version-bump commits: the build gets the version in `APEX_LAUNCHER_VERSION` and the tag in
+  `APEX_LAUNCHER_TAG`, which `launcher/src/backend.rs` reads with `option_env!` (falling back to `Cargo.toml`'s),
   so `--version`, the window, the User-Agent and the self-update comparison all use them. Each build checks
   `--version` says it.
 - Linux on GitHub `ubuntu-22.04`, Windows on `windows-latest`, macOS on the Mac mini's runner; each runs the
@@ -397,7 +397,7 @@ and by hand; pushes to `launcher` and `launcher-*` branches only build.
 Making a launcher release GitHub's latest instead would break servers: every `horizon-server` already installed,
 `install.sh` and `install.ps1` ask for `releases/latest` and expect the game's archives there, and a server that
 can't update can't fetch the fix either. So the game release stays the latest, and it sends people to the launcher
-(#1647): its notes open with a "Want to play? Download the Horizon launcher" block (`PLAYERS` in
+(#1647): its notes open with a "Want to play? Download the Apex launcher" block (`PLAYERS` in
 `tools/release_train.py`: raw HTML, which GitHub shows and launchers' notes skip; the site's Releases page leaves
 it out too), which `PLAYERS_FOOTER` repeats above the disclaimer at the end, and its archives carry labels ("Game files the
 launcher installs: Linux (…)") that GitHub shows in place of the file names. Everything that downloads matches
@@ -507,7 +507,7 @@ comment on any issue or pull request (`.github/workflows/nightly-command.yml`, `
   Fixed, as a release's notes), then each picked pull request with its title, author and who picked it, the known
   issues and the thanks. `build` is
   `game-build.yml`, the same builds and smoke test as a release, with the version `nightly-<date>` and
-  `HORIZON_NIGHTLY="<date> <short sha>"` built in, macOS signed ad hoc. `sign` signs SHA256SUMS for the channel
+  `APEX_NIGHTLY="<date> <short sha>"` built in, macOS signed ad hoc. `sign` signs SHA256SUMS for the channel
   (the message says `horizon release nightly`, so a nightly's signature never passes for a release's). `publish`
   checks the signature, the smoke test and that no `release-blocker` is open (as a release; a dry run only warns, so
   `/nightly dry-run <pr>` still tries a blocker's fix), renames the
@@ -524,7 +524,7 @@ comment on any issue or pull request (`.github/workflows/nightly-command.yml`, `
   macOS jobs on the Mac mini's nightly runner (`horizon-nightly`, its own so a nightly never waits behind pull
   requests' parity queue; same machine and trust as the `horizon-game` runner), never the release runner
   (`MAC_RUNNER`), and its Rust cache has its own key and is never saved. A trusted build doesn't use the machine's
-  shared sccache, which pull requests' jobs write (`HORIZON_NO_SCCACHE`, `tools/ci/runner-env.sh`).
+  shared sccache, which pull requests' jobs write (`APEX_NO_SCCACHE`, `tools/ci/runner-env.sh`).
 - **Players.** Every launcher and `horizon-server update` install the `nightly` pre-release
   ([Nightly only](#nightly-only)). It is never GitHub's latest: the last `vX.Y.Z` stays that, for launchers,
   servers and `install.sh` from before the switch.

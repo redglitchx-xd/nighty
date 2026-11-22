@@ -7,7 +7,7 @@
   <p>
     <a href="https://github.com/tubers9999/apex/releases">Download APK</a> · 
     <a href="docs/">Documentation</a> · 
-    <a href="https://github.com/horizon-rust/horizon">Upstream Horizon (PC)</a>
+    <a href="https://github.com/horizon-rust/horizon">Upstream (PC)</a>
   </p>
 </div>
 
@@ -15,7 +15,7 @@
 
 ### Unofficial Project & Collaboration Notice
 
-Horizon is an independent community project. It is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB.
+Apex is an independent community project. It is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB.
 
 - **PC Edition:** Created and maintained upstream by [Ludovic Marie (horizon-rust)](https://github.com/horizon-rust/horizon).
 - **Android Port:** Maintained and optimized for ARM64 mobile hardware by [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
@@ -25,7 +25,7 @@ Horizon is an independent community project. It is not affiliated with, endorsed
 
 ## Core Characteristics
 
-| Dimension | Horizon Android | Traditional JVM Wrapper |
+| Dimension | Apex Android | Traditional JVM Wrapper |
 | :--- | :--- | :--- |
 | **Execution Architecture** | Native Rust (Ahead-of-Time) | OpenJDK HotSpot JVM |
 | **RAM Footprint** | **~140–220 MB** | 1,200–2,500 MB |
@@ -71,7 +71,7 @@ Authentic captures from the native Android port across touch navigation, world g
 
 ## Supported Version Matrix
 
-Horizon targets an exact engine specification verified against upstream test suites.
+Apex targets an exact engine specification verified against upstream test suites.
 
 | Target | Architecture | Supported | Status |
 | :--- | :--- | :--- | :--- |
@@ -84,7 +84,7 @@ Horizon targets an exact engine specification verified against upstream test sui
 
 ## Legitimate Setup & Preparation
 
-Horizon does not download or redistribute copyrighted Mojang assets. To build or run Horizon, you must provide your own legally purchased copy of Minecraft Java Edition 26.3.
+Apex does not download or redistribute copyrighted Mojang assets. To build or run Apex, you must provide your own legally purchased copy of Minecraft Java Edition 26.3.
 
 1. **Verify Ownership**  
    Ensure you have an active Microsoft account with a legally purchased copy of Minecraft Java Edition 26.3.
@@ -117,7 +117,7 @@ Horizon does not download or redistribute copyrighted Mojang assets. To build or
 
 ### Notă privind caracterul neoficial și colaborarea
 
-Horizon este un proiect comunitar independent. Nu este afiliat, aprobat sau asociat cu Mojang Studios, Microsoft Corporation sau oricare dintre filialele acestora. Minecraft este o marcă înregistrată a Mojang Synergies AB.
+Apex este un proiect comunitar independent. Nu este afiliat, aprobat sau asociat cu Mojang Studios, Microsoft Corporation sau oricare dintre filialele acestora. Minecraft este o marcă înregistrată a Mojang Synergies AB.
 
 - **Ediția PC:** Creată și menținută upstream de [Ludovic Marie (horizon-rust)](https://github.com/horizon-rust/horizon).
 - **Portarea Android:** Menținută și optimizată pentru dispozitive mobile ARM64 de [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
@@ -138,6 +138,6 @@ Doar **Minecraft Java Edition 26.3** este suportat și implementat conform speci
 
 ### Pregătire și cerință de deținere legală
 
-Horizon nu redistribuie resurse originale Mojang. Pentru a compila și rula clientul, este necesară propria copie licențiată de Minecraft Java Edition 26.3, verificată cu scriptul `tools/android_prepare.py`.
+Apex nu redistribuie resurse originale Mojang. Pentru a compila și rula clientul, este necesară propria copie licențiată de Minecraft Java Edition 26.3, verificată cu scriptul `tools/android_prepare.py`.
 
 </details>

@@ -1,7 +1,7 @@
 # Launcher resource preparation
 
 Release folders include `exporters/server`, `exporters/client` and an integrity manifest.
-These contain only Horizon's original Java exporter classes. Minecraft jars, libraries,
+These contain only Apex's original Java exporter classes. Minecraft jars, libraries,
 assets and generated resources remain local and are verified against `research-lock.json`.
 The same platform-independent class bundle is used in game and dedicated-server releases.
 
@@ -38,7 +38,7 @@ components as well as tags. The data generator also remains separate. Inspection
 its providers. Calling it inside a worker would shut down shared executors; incorporating
 its providers directly needs a separate comparison of registry and executor lifetimes.
 Fresh release preparation therefore starts five exporter/data-generator JVMs, down from 18
-(six with 6 processors or more, below), and invokes no compiler. `HORIZON_PREPARE_ISOLATED=1`
+(six with 6 processors or more, below), and invokes no compiler. `APEX_PREPARE_ISOLATED=1`
 retains separate exporter JVMs for output comparisons and diagnosis.
 
 Those JVMs run on four lanes at once, so at most three run at a time (five lanes and four JVMs
@@ -50,7 +50,7 @@ come after every lane. A worker stops when its lane is done. The two sides compi
 too. Imports and checks hash the pinned files on several threads; every file is still checked
 in full.
 
-`HORIZON_PREPARE_JOBS` is how many threads each copying, hashing or compiling step spreads
+`APEX_PREPARE_JOBS` is how many threads each copying, hashing or compiling step spreads
 over: the logical processors by default, at most 8. `1` also runs the lanes one after another
 (for a machine short on memory); any other number runs them all at once. From 6, the world
 generator's block behaviour and structure blocks, a quarter of the server lane, run on a fifth

@@ -29,7 +29,7 @@ A separate five-pair alternating comparison uses the existing unary-only PR revi
 - **1 worker(s):** terrain 10.913267 → 10.034900 (8.05%); combined 12.867017 → 12.079432 (6.12%).
 - **4 worker(s):** terrain 3.536831 → 3.312338 (6.35%); combined 4.110268 → 3.897104 (5.19%).
 
-All ten incremental terrain pairs improved. Pair reductions ranged 4.72–9.93% with one worker and 2.10–8.61% with four, so not every individual pair exceeds 5%. A preliminary gate was excluded in its entirety because a concurrent Horizon client consumed roughly seven cores. Its raw samples remain in `contended-gate/`; all qualification runs began after the client was closed. No individual samples were selectively removed from the restarted runs.
+All ten incremental terrain pairs improved. Pair reductions ranged 4.72–9.93% with one worker and 2.10–8.61% with four, so not every individual pair exceeds 5%. A preliminary gate was excluded in its entirety because a concurrent Apex client consumed roughly seven cores. Its raw samples remain in `contended-gate/`; all qualification runs began after the client was closed. No individual samples were selectively removed from the restarted runs.
 
 ## Worker scaling follow-up
 

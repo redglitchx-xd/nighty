@@ -82,7 +82,7 @@ pub fn launcher_entry(exe: &Path) -> String {
     format!(
         "[Desktop Entry]\n\
          Type=Application\n\
-         Name=Horizon\n\
+         Name=Apex\n\
          GenericName=Game launcher\n\
          Comment=Install, prepare and play Horizon, Minecraft: Java Edition {minecraft} rewritten in Rust\n\
          Exec={}\n\
@@ -221,7 +221,7 @@ pub(crate) fn target(exe: &Path) -> PathBuf {
 }
 
 fn target_from(exe: &Path, appimage: Option<&Path>) -> PathBuf {
-    std::env::var_os("HORIZON_LAUNCHER_DESKTOP_EXEC")
+    std::env::var_os("APEX_LAUNCHER_DESKTOP_EXEC")
         .filter(|path| !path.is_empty())
         .map_or_else(|| appimage.unwrap_or(exe).to_path_buf(), PathBuf::from)
 }
@@ -303,7 +303,7 @@ mod tests {
         // Only the main group counts: an action's Exec is not the launcher.
         let action = "[Desktop Action play]\nExec=/a\n[Desktop Entry]\nExec=/b --x\n";
         assert_eq!(entry_target(action).as_deref(), Some("/b"));
-        assert_eq!(entry_target("[Desktop Entry]\nName=Horizon\n"), None);
+        assert_eq!(entry_target("[Desktop Entry]\nName=Apex\n"), None);
         assert_eq!(entry_target("[Desktop Entry]\nExec=\nTryExec=\n"), None);
     }
 
@@ -336,7 +336,7 @@ mod tests {
         fs::remove_file(&installed).unwrap();
         assert!(needs_repair_in(&data, path));
         // An entry that starts nothing is broken too.
-        fs::write(&entry, "[Desktop Entry]\nName=Horizon\n").unwrap();
+        fs::write(&entry, "[Desktop Entry]\nName=Apex\n").unwrap();
         assert!(needs_repair_in(&data, path));
         let _ = fs::remove_dir_all(&root);
     }

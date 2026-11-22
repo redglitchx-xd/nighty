@@ -124,7 +124,7 @@ pub(super) fn refused(
     wanted: &[Wanted],
 ) -> Option<String> {
     let why = |mod_id: &str, name: &str, version: &str| {
-        format!("{mod_id} needs {name} {version}, which isn't in Horizon's Cargo.lock. A native mod's crate can use only the crates Horizon itself uses, in the versions its Cargo.lock has.")
+        format!("{mod_id} needs {name} {version}, which isn't in Apex's Cargo.lock. A native mod's crate can use only the crates Apex itself uses, in the versions its Cargo.lock has.")
     };
     if let Some(w) = wanted
         .iter()
@@ -152,7 +152,7 @@ pub(super) fn locked(error: String) -> String {
     if !error.contains("--locked was passed") {
         return error;
     }
-    format!("A native mod's crate needs a crate that isn't in Horizon's Cargo.lock, through one of its dependencies' features. A native mod's crate can use only the crates Horizon itself uses, with the features that need no others.\n\n{error}")
+    format!("A native mod's crate needs a crate that isn't in Apex's Cargo.lock, through one of its dependencies' features. A native mod's crate can use only the crates Apex itself uses, with the features that need no others.\n\n{error}")
 }
 
 /// A mod's post-build step: a program of one of its crates, run after the game compiles.
@@ -219,12 +219,12 @@ pub(super) fn post_build(
     crate::rust_toolchain::low_priority(&mut cmd);
     cmd.args(&step.args)
         .current_dir(version)
-        .env("HORIZON_NATIVE_MOD", &step.mod_id)
-        .env("HORIZON_NATIVE_VERSION_DIR", version)
-        .env("HORIZON_NATIVE_DATA_DIR", &data)
-        .env("HORIZON_NATIVE_CACHE_DIR", &cache)
+        .env("APEX_NATIVE_MOD", &step.mod_id)
+        .env("APEX_NATIVE_VERSION_DIR", version)
+        .env("APEX_NATIVE_DATA_DIR", &data)
+        .env("APEX_NATIVE_CACHE_DIR", &cache)
         .env(
-            "HORIZON_NATIVE_BUNDLE_DATA_DIR",
+            "APEX_NATIVE_BUNDLE_DATA_DIR",
             stage.join("native-data").join(&step.mod_id),
         );
     Ok(cmd)
@@ -276,7 +276,7 @@ checksum = "def"
         // Asked for by name, and not in the lock: refused before Cargo looks online.
         let err = refused(&horizon, None, &[wants("bake", "rand", "0.9")]).unwrap();
         assert!(
-            err.starts_with("bake needs rand 0.9, which isn't in Horizon's Cargo.lock"),
+            err.starts_with("bake needs rand 0.9, which isn't in Apex's Cargo.lock"),
             "{err}"
         );
         // In the lock, but the update had to change its version.
@@ -364,18 +364,18 @@ checksum = "def"
                 .and_then(|(_, v)| v)
                 .map(PathBuf::from)
         };
-        assert_eq!(env("HORIZON_NATIVE_MOD"), Some("bake".into()));
-        assert_eq!(env("HORIZON_NATIVE_VERSION_DIR"), Some(version.clone()));
+        assert_eq!(env("APEX_NATIVE_MOD"), Some("bake".into()));
+        assert_eq!(env("APEX_NATIVE_VERSION_DIR"), Some(version.clone()));
         assert_eq!(
-            env("HORIZON_NATIVE_DATA_DIR"),
+            env("APEX_NATIVE_DATA_DIR"),
             Some(version.join("native-data/bake"))
         );
         assert_eq!(
-            env("HORIZON_NATIVE_CACHE_DIR"),
+            env("APEX_NATIVE_CACHE_DIR"),
             Some(root.join("cache/bake"))
         );
         assert_eq!(
-            env("HORIZON_NATIVE_BUNDLE_DATA_DIR"),
+            env("APEX_NATIVE_BUNDLE_DATA_DIR"),
             Some(root.join("stage/native-data/bake"))
         );
         assert!(version.join("native-data/bake").is_dir() && root.join("cache/bake").is_dir());

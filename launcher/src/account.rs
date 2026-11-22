@@ -30,7 +30,7 @@ pub const NOT_CONFIGURED: &str =
     "Microsoft sign-in is coming soon. Until then the game plays offline: single player, \
      LAN and servers in offline mode work.";
 #[cfg(not(target_os = "android"))]
-pub const NOT_CONFIGURED: &str = "This build of the launcher has no Microsoft sign-in (HORIZON_MSA_CLIENT_ID), so it can't start the game.";
+pub const NOT_CONFIGURED: &str = "This build of the launcher has no Microsoft sign-in (APEX_MSA_CLIENT_ID), so it can't start the game.";
 /// What every Play says while no account in the launcher owns the game.
 pub const NEEDS_OWNER: &str =
     "Sign in with a Microsoft account that owns Minecraft: Java Edition to play";
@@ -47,8 +47,8 @@ const RENEW_BEFORE: u64 = 3600;
 /// empty value means none.
 pub fn client_id() -> Option<String> {
     configured_client_id(
-        std::env::var("HORIZON_MSA_CLIENT_ID").ok(),
-        option_env!("HORIZON_MSA_CLIENT_ID"),
+        std::env::var("APEX_MSA_CLIENT_ID").ok(),
+        option_env!("APEX_MSA_CLIENT_ID"),
     )
 }
 fn configured_client_id(runtime: Option<String>, compiled: Option<&str>) -> Option<String> {
@@ -73,7 +73,7 @@ impl Endpoints {
     pub fn live() -> Self {
         // Development builds only: `HORIZON_MSA_MICROSOFT_ENDPOINT` points the device-code and
         // token requests at a local mock, to see and screenshot the sign-in panel.
-        let microsoft = std::env::var("HORIZON_MSA_MICROSOFT_ENDPOINT")
+        let microsoft = std::env::var("APEX_MSA_MICROSOFT_ENDPOINT")
             .ok()
             .filter(|_| cfg!(debug_assertions))
             .unwrap_or_else(|| "https://login.microsoftonline.com/consumers/oauth2/v2.0".into());
@@ -934,7 +934,7 @@ impl SecretStore for SystemStore {
             let attributes = vec![("service", SERVICE), ("account", key)];
             keyring
                 .create_item(
-                    "Horizon launcher: Minecraft account",
+                    "Apex launcher: Minecraft account",
                     &attributes,
                     secret.as_bytes(),
                     true,
@@ -1274,8 +1274,8 @@ pub fn store() -> &'static dyn SecretStore {
                 )
             ))]
             {
-                let why = match std::env::var_os("HORIZON_NO_KEYCHAIN") {
-                    Some(_) => "HORIZON_NO_KEYCHAIN is set.".to_string(),
+                let why = match std::env::var_os("APEX_NO_KEYCHAIN") {
+                    Some(_) => "APEX_NO_KEYCHAIN is set.".to_string(),
                     None => match SystemStore.get("probe") {
                         Ok(_) => return Box::new(SystemStore),
                         Err(e) => e,

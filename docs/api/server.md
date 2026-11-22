@@ -1,6 +1,6 @@
 # Server API
 
-What a host, a panel or a bot can do with a Horizon server: the `horizon-server` commands, `server.toml` and the
+What a host, a panel or a bot can do with a Apex server: the `horizon-server` commands, `server.toml` and the
 control API. How to host: [hosting.md](../hosting.md); the design: [server.md](../server.md).
 
 ## Overview

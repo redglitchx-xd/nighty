@@ -463,7 +463,7 @@ mod tests {
         let path =
             std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../docs/launcher-commands.md");
         let want = markdown();
-        if std::env::var_os("HORIZON_WRITE_DOCS").is_some() {
+        if std::env::var_os("APEX_WRITE_DOCS").is_some() {
             std::fs::write(&path, &want).unwrap();
         }
         let have = std::fs::read_to_string(&path).unwrap_or_default();
