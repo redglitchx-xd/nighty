@@ -65,10 +65,10 @@ pub const FUNCTIONS: [(&str, u32); 46] = [
 /// What the game's program carries so the launcher can read its level
 /// without running it: `apex-mod-api-level:0001;` (four digits). A
 /// program from before the mark serves level 0.
-pub const MARK: [u8; 27] = {
+pub const MARK: [u8; 24] = {
     let mut mark = *b"apex-mod-api-level:0000;";
     let mut level = LEVEL;
-    let mut i = 25;
+    let mut i = 22;
     while level > 0 {
         mark[i] = b'0' + (level % 10) as u8;
         level /= 10;
@@ -79,11 +79,11 @@ pub const MARK: [u8; 27] = {
 
 /// The level a program's bytes carry in their [`MARK`], if any.
 pub fn read_mark(program: &[u8]) -> Option<u32> {
-    let prefix = &MARK[..22];
+    let prefix = &MARK[..19];
     program
         .windows(MARK.len())
-        .filter(|w| w.starts_with(prefix) && w[26] == b';')
-        .find_map(|w| std::str::from_utf8(&w[22..26]).ok()?.parse().ok())
+        .filter(|w| w.starts_with(prefix) && w[23] == b';')
+        .find_map(|w| std::str::from_utf8(&w[19..23]).ok()?.parse().ok())
 }
 
 /// A function's level; None for one this Apex doesn't have.

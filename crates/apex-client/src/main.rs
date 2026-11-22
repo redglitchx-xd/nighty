@@ -10,7 +10,7 @@ static ALLOCATOR: apex_threads::Allocator = apex_threads::Allocator;
 /// The mod API level this game serves, kept in the program for the launcher
 /// to read without running it (`apex_mods::api_level::MARK`). `main`
 /// reads it, so the linker keeps it.
-static MOD_API_LEVEL: [u8; 27] = apex_mods::api_level::MARK;
+static MOD_API_LEVEL: [u8; 24] = apex_mods::api_level::MARK;
 
 fn main() {
     apex_threads::configure_allocator();
