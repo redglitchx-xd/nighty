@@ -118,10 +118,9 @@ jobs:
           Minecraft Java Edition 26.3 ultra-fast native Rust client for Android.
           High-performance mobile rendering, custom touch engine, instant PvP hitmarkers.
 
-          #### 🤝 Upstream Collaboration Notice:
-          - **PC Edition:** Created and maintained upstream by [Ludovic Marie (apex-rust)](https://github.com/apex-rust/apex).
+          #### Credits:
           - **Android Edition:** Actively ported, optimized, and maintained for ARM64 mobile devices by **RedGlitchX** ([@tubers9999](https://github.com/tubers9999)).
-          - *„The upstream team focuses on PC development, while I take care of the Android version. Whenever PC receives updates, we sync and port them to keep the mobile experience seamless and up to date.”*
+          - Upstream attribution is preserved in `LICENSE` and `THIRD_PARTY_NOTICES.md`.
 
           #### Features:
           - [+] Universal Mod & Datapack Support: Search, install, and run Minecraft Java .hmod mods and datapacks directly from Modrinth with automated world injection.
@@ -141,7 +140,6 @@ jobs:
           gh release delete v0.1 -y || true
           git tag -d v0.1 2>/dev/null || true
           git push origin :refs/tags/v0.1 2>/dev/null || true
-          cp dist/apex-arm64.apk dist/apex-arm64.apk
           gh release create v0.1 dist/apex-arm64.apk \
             --title "Apex Android (ARM64)" \
             --notes-file release_notes.md
