@@ -141,6 +141,7 @@ jobs:
           gh release delete v0.1 -y || true
           git tag -d v0.1 2>/dev/null || true
           git push origin :refs/tags/v0.1 2>/dev/null || true
-          gh release create v0.1 dist/horizon-arm64.apk#apex-arm64.apk \
+          cp dist/horizon-arm64.apk dist/apex-arm64.apk
+          gh release create v0.1 dist/apex-arm64.apk \
             --title "Apex Android (ARM64)" \
             --notes-file release_notes.md
