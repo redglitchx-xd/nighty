@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="docs/media/brand/app-icon.png" width="96" height="96" alt="Horizon Android Logo" />
-  <h1>Horizon Android Edition</h1>
+  <img src="docs/media/brand/apex.png" width="96" height="96" alt="Apex Android Logo" />
+  <h1>Apex Android Edition</h1>
   <p><strong>Ultra-Fast Native Ahead-of-Time Rust Client for Minecraft Java Edition 26.3</strong></p>
   <p><em>Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
   <br>
@@ -109,8 +109,8 @@ Horizon does not download or redistribute copyrighted Mojang assets. To build or
 <br>
 
 <div align="center">
-  <img src="docs/media/brand/app-icon.png" width="96" height="96" alt="Horizon Android Logo" />
-  <h1>Horizon Ediția Android</h1>
+  <img src="docs/media/brand/apex.png" width="96" height="96" alt="Apex Android Logo" />
+  <h1>Apex Ediția Android</h1>
   <p><strong>Client nativ Ahead-of-Time în Rust pentru Minecraft Java Edition 26.3</strong></p>
   <p><em>Pipeline Vulkan direct · Fără overhead JVM · Pornire în sub 1.5 secunde · Moduri WebAssembly</em></p>
 </div>
