@@ -105,7 +105,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: horizon-arm64.apk
+          name: apex-arm64.apk
           path: dist/horizon-arm64.apk
 
       - name: Publish to GitHub Releases (v0.1)
@@ -141,6 +141,6 @@ jobs:
           gh release delete v0.1 -y || true
           git tag -d v0.1 2>/dev/null || true
           git push origin :refs/tags/v0.1 2>/dev/null || true
-          gh release create v0.1 dist/horizon-arm64.apk \
+          gh release create v0.1 dist/horizon-arm64.apk#apex-arm64.apk \
             --title "Apex Android (ARM64)" \
             --notes-file release_notes.md
