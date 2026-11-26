@@ -140,5 +140,6 @@ jobs:
           git tag -d v1.0.0-alpha.1 2>/dev/null || true
           git push origin :refs/tags/v1.0.0-alpha.1 2>/dev/null || true
           gh release create v1.0.0-alpha.1 dist/apex-arm64.apk \
+            --target "$GITHUB_SHA" \
             --title "Apex Android (ARM64) - Alpha 1" \
             --notes-file release_notes.md
