@@ -1794,7 +1794,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             let search_btn_w = 98.0;
             let field_w = (content_w - search_btn_w - 8.0).max(120.0);
             let search_hint = if page == Page::Mods {
-                "Search mods or paste .hmod HTTPS link..."
+                "Four built-in Apex mods only"
             } else if page == Page::Datapacks {
                 "Search data packs on Modrinth..."
             } else if page == Page::Shaders {
@@ -1819,7 +1819,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 &mut self.targets,
                 [content_x + field_w + 8.0, search_y, search_btn_w, 36.0],
                 if page == Page::Mods && self.catalog.query.trim().starts_with("https://") {
-                    "Import .hmod"
+                    "Blocked"
                 } else {
                     "Search"
                 },
@@ -1842,14 +1842,16 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 Action::OpenFolder(kind),
                 false,
             );
-            button(
-                &mut ui,
-                &mut self.targets,
-                [content_x + 122.0, sub_y, 114.0, 29.0],
-                "Import file",
-                Action::Import(kind),
-                false,
-            );
+            if kind != apex_client::content_files::Kind::Mods {
+                button(
+                    &mut ui,
+                    &mut self.targets,
+                    [content_x + 122.0, sub_y, 114.0, 29.0],
+                    "Import file",
+                    Action::Import(kind),
+                    false,
+                );
+            }
             if !compact {
                 let status_line = self.error.as_deref().unwrap_or(&self.catalog.status);
                 let fitted_status = ui.fit_text(
@@ -2556,19 +2558,11 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     content_x + 74.0,
                     top + 42.0,
                     (content_w - 92.0).max(80.0),
-                    "Import .hmod/.jar mods, .zip resource packs, or shader packs — or browse files in File Manager.",
+                    "Only the four built-in Apex mods are available; .zip resource packs, shader packs and data packs can still be imported.",
                     my3_muted(),
                 );
                 let cta_y = top + card_h - 46.0;
                 let cta_w = ((content_w - 56.0) / 3.0).clamp(88.0, 168.0);
-                button(
-                    ui,
-                    &mut self.targets,
-                    [content_x + 20.0, cta_y, cta_w, 34.0],
-                    "Import Mod",
-                    Action::Import(Kind::Mods),
-                    true,
-                );
                 button(
                     ui,
                     &mut self.targets,
@@ -5251,21 +5245,21 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                         my3_text(),
                         "Launcher background audio",
                     );
-                    let bgm_active = self.custom_bgm_channel.is_some();
+                    let bgm_active = self.catalog.config.launcher_bgm_enabled;
                     ui.text(
                         Face::Regular,
                         9.5,
                         content_x + 42.0,
                         cy + 28.0,
                         if bgm_active { my3_accent() } else { my3_muted() },
-                        if bgm_active { "Playing background audio" } else { "Launcher audio muted" },
+                        if bgm_active { "Saved: background audio on" } else { "Saved: background audio muted" },
                     );
                     let btn_r = [content_x + content_w - 114.0, cy + 9.0, 102.0, 34.0];
                     button(
                         ui,
                         &mut self.targets,
                         btn_r,
-                        if bgm_active { "Mute BGM" } else { "Play PvP BGM" },
+                        if bgm_active { "Mute & Save" } else { "Play & Save" },
                         Action::ToggleBuiltinBgm,
                         bgm_active,
                     );
@@ -5460,7 +5454,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     ),
                     (
                         "HUD Button Scale",
-                        "Global size multiplier for on-screen touch buttons",
+                        "Global touch button size, 50% to 200%",
                         SettingControl::Slider {
                             value_label: &btn_scale,
                             fraction: btn_scale_frac,
@@ -6352,7 +6346,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             }
             Some(Action::ButtonScaleDelta(delta)) => {
                 self.modify_touch_settings(|t| {
-                    t.button_scale = (t.button_scale + delta).clamp(0.60, 1.60);
+                    t.button_scale = (t.button_scale + delta).clamp(0.50, 2.00);
                 });
             }
             Some(Action::ToggleControlScheme) => {
@@ -6565,9 +6559,13 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             }
             Some(Action::ImportCustomAudio) => {
                 crate::platform::hide();
+                self.catalog.config.launcher_bgm_enabled = true;
+                let _ = self.catalog.config.save(&self.home);
                 let theme_dir = self.catalog.config.game_home(&self.home).join("theme");
                 if let Err(e) = crate::documents::begin_theme_media(theme_dir, "bgm.ogg") {
                     self.catalog.status = e;
+                } else {
+                    self.catalog.status = "Custom audio selected. Playback starts when the file is ready.".into();
                 }
             }
             Some(Action::ClearCustomAudio) => {
@@ -6581,22 +6579,26 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     let _ = std::fs::remove_file(theme_dir.join(f));
                     let _ = std::fs::remove_file(self.home.join(format!("theme/{f}")));
                 }
+                self.catalog.config.launcher_bgm_enabled = false;
+                let _ = self.catalog.config.save(&self.home);
                 self.custom_bgm_checked = false;
-                self.catalog.status = "Reset custom audio to default built-in Apex PvP BGM.".into();
+                self.catalog.status = "Launcher background audio muted and saved.".into();
             }
             Some(Action::ToggleBuiltinBgm) => {
                 if let Some(ch) = self.custom_bgm_channel.take() {
                     if let Some(audio) = &mut self.audio {
                         audio.stop_custom_stream(ch);
                     }
-                    self.catalog.status = "Apex PvP BGM paused.".into();
+                }
+                if self.catalog.config.launcher_bgm_enabled {
+                    self.catalog.config.launcher_bgm_enabled = false;
+                    let _ = self.catalog.config.save(&self.home);
+                    self.catalog.status = "Launcher background audio muted and saved.".into();
                 } else {
-                    let audio = self.audio.get_or_insert_with(|| {
-                        apex_client::audio::Audio::new(&self.home.join(".local/apex-client/26.3"))
-                    });
-                    let (samples, rate) = apex_client::audio::apex_cyber_bgm_samples();
-                    self.custom_bgm_channel = audio.play_custom_samples(samples, rate, 0.42, true);
-                    self.catalog.status = "Playing Apex PvP BGM (135 BPM).".into();
+                    self.catalog.config.launcher_bgm_enabled = true;
+                    let _ = self.catalog.config.save(&self.home);
+                    self.custom_bgm_checked = false;
+                    self.catalog.status = "Launcher background audio enabled and saved.".into();
                 }
             }
             Some(Action::OpenThemeFolder) => {
@@ -7474,8 +7476,8 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 self.modify_game_settings(|s| s.sensitivity = v.clamp(0.05, 1.0));
             }
             Action::ButtonScaleDelta(_) => {
-                let v = ((0.60 + t * 1.00) * 100.0).round() / 100.0;
-                self.modify_touch_settings(|ts| ts.button_scale = v.clamp(0.60, 1.60));
+                let v = ((0.50 + t * 1.50) * 100.0).round() / 100.0;
+                self.modify_touch_settings(|ts| ts.button_scale = v.clamp(0.50, 2.00));
             }
             Action::PointerSizeDelta(_) => {
                 let v = ((0.50 + t * 1.50) * 100.0).round() / 100.0;

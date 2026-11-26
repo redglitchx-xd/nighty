@@ -290,6 +290,13 @@ pub extern "system" fn document_result(
         notice("Import interrupted. Choose the file again.", false);
         return;
     };
+    if pending.kind == Kind::Mods {
+        notice(
+            "External mods are disabled in Apex Alpha. Only the four built-in mods are supported.",
+            false,
+        );
+        return;
+    }
     if result != -1 || uri.is_null() {
         notice("Import cancelled", false);
         return;

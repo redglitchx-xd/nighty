@@ -214,6 +214,12 @@ pub(super) fn content_root(
     enabled: &std::collections::BTreeSet<String>,
     dev: &[std::path::PathBuf],
 ) -> std::path::PathBuf {
+    if cfg!(target_os = "android") {
+        register_mob_effects(&[]);
+        register_entity_types(&[]);
+        register_menu_types(&[]);
+        return root.to_owned();
+    }
     use apex_client::mod_content::{self, ContentMod};
     use apex_mods::{Capability, Content, Package};
     let here = std::env::current_dir().unwrap_or_default();

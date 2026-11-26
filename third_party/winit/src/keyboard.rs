@@ -805,7 +805,7 @@ pub enum NamedKey {
     /// key value is also used for the `Return` (Macintosh numpad) key. This key value is also
     /// used for the Android `KEYCODE_DPAD_CENTER`.
     Enter,
-    /// The Apextal Tabulation `Tab` key.
+    /// The Horizontal Tabulation `Tab` key.
     Tab,
     /// Used in text to insert a space between words. Usually located below the character keys.
     Space,

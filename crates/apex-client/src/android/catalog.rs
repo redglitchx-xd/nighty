@@ -12,8 +12,8 @@ use std::{
     time::Duration,
 };
 
-pub fn source_only_mod(_project: &Project) -> bool {
-    false // Enabled: support both .hmod and .hnmod native mods
+pub fn source_only_mod(project: &Project) -> bool {
+    matches!(project.kind, Kind::Mod | Kind::Modpack)
 }
 
 /// Temporary dev registration published as Minecraft Nintendo Switch by PrismarineJS.
@@ -104,6 +104,8 @@ pub struct Config {
     pub custom_profile_desc: String,
     #[serde(default)]
     pub preset_edit_mode: String,
+    #[serde(default)]
+    pub launcher_bgm_enabled: bool,
     #[serde(default)]
     pub theme: apex_client::ui_theme::LauncherThemeConfig,
 }
@@ -1567,12 +1569,8 @@ impl Catalog {
         }
         if self.page == Page::Mods && self.query.trim().starts_with("https://") {
             self.searches.cancel_interest();
-            if refresh {
-                self.import_native(home);
-            } else {
-                self.results.clear();
-                self.status = "Press Import .hmod to download this HTTPS link".into();
-            }
+            self.results.clear();
+            self.status = "External .hmod imports are disabled in Apex Alpha; only the four built-in Apex mods are available.".into();
             return;
         }
         self.scroll = 0.0;
@@ -1600,18 +1598,8 @@ impl Catalog {
         {
             "No Apex shader packs match this search. Try another query or import a .hshader."
                 .into()
-        } else if self.page == Page::Mods
-            && self.config.mod_source == crate::shader_catalog::Origin::Modrinth
-        {
-            format!(
-                "{} Modrinth mods found - select Install to download",
-                items.len()
-            )
         } else if self.page == Page::Mods {
-            format!(
-                "{} Apex mods available - select Install to download",
-                items.len()
-            )
+            "External mods are disabled in Apex Alpha; use the four built-in Apex mods.".into()
         } else if self.page == Page::Datapacks {
             format!(
                 "{} Data packs found - select Install to download",
@@ -1657,59 +1645,8 @@ impl Catalog {
             let _ = tx.send(result);
         });
     }
-    pub fn import_native(&mut self, home: &Path) {
-        let url = self.query.trim().to_owned();
-        let game = self.config.game_home(home);
-        self.downloading = Some((browser::SourceId::Apex, "https-import".into()));
-        self.downloading_title = "Custom .hmod Package".into();
-        self.downloading_size_mib = 2.4;
-        self.paused.store(false, Ordering::Relaxed);
-        self.cancelled.store(false, Ordering::Relaxed);
-        *self.progress.lock().unwrap_or_else(|e| e.into_inner()) = 0.15;
-        let progress = self.progress.clone();
-        self.job("Downloading sandboxed .hmod over HTTPS...", move || {
-            use std::io::Read;
-            let mut bytes = Vec::new();
-            ureq::AgentBuilder::new()
-                .https_only(true)
-                .timeout_connect(std::time::Duration::from_secs(20))
-                .timeout_read(std::time::Duration::from_secs(90))
-                .build()
-                .get(&url)
-                .call()
-                .map_err(|e| e.to_string())?
-                .into_reader()
-                .take(32 * 1024 * 1024 + 1)
-                .read_to_end(&mut bytes)
-                .map_err(|e| e.to_string())?;
-            if bytes.len() > 32 * 1024 * 1024 {
-                return Err("Apex mod exceeds 32 MiB".into());
-            }
-            *progress.lock().unwrap_or_else(|e| e.into_inner()) = 0.85;
-            let dir = game.join("apex-mods");
-            std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-            let stage = dir.join("import.partial");
-            std::fs::write(&stage, bytes).map_err(|e| e.to_string())?;
-            let result = (|| {
-                let package = apex_mods::Package::read(&stage)?;
-                let destination = dir.join(format!("{}.hmod", package.manifest.id));
-                if destination.exists() {
-                    std::fs::copy(&destination, destination.with_extension("hmod.previous"))
-                        .map_err(|e| e.to_string())?;
-                }
-                std::fs::rename(&stage, destination).map_err(|e| e.to_string())?;
-                *progress.lock().unwrap_or_else(|e| e.into_inner()) = 1.0;
-                Ok(Reply::Done(
-                    format!(
-                        "Installed {}. Enable it in Installed after reviewing its capabilities in game Mods.",
-                        package.manifest.name
-                    ),
-                    apex_client::content_files::Kind::Mods,
-                ))
-            })();
-            let _ = std::fs::remove_file(stage);
-            result
-        });
+    pub fn import_native(&mut self, _home: &Path) {
+        self.status = "External .hmod imports are disabled in Apex Alpha; only the four built-in Apex mods are available.".into();
     }
     pub fn install(&mut self, home: &Path, index: usize) {
         let Some(project) = self.results.get(index).cloned() else {
@@ -1717,7 +1654,7 @@ impl Catalog {
         };
 
         if source_only_mod(&project) {
-            self.status = "Native .hnmod mods are in development for a future update. Standard Apex .hmod mods are fully supported.".into();
+            self.status = "External mods are disabled in Apex Alpha; only the four built-in Apex mods are available.".into();
             return;
         }
         if self.busy() || self.download_label(&project).is_some() {

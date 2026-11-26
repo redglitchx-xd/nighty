@@ -1158,7 +1158,7 @@ impl EventProcessor {
                 info.position = x;
                 // X11 vertical scroll coordinates are opposite to winit's
                 let delta = match info.orientation {
-                    ScrollOrientation::Apextal => {
+                    ScrollOrientation::Horizontal => {
                         MouseScrollDelta::LineDelta(-delta as f32, 0.0)
                     },
                     ScrollOrientation::Vertical => MouseScrollDelta::LineDelta(0.0, -delta as f32),

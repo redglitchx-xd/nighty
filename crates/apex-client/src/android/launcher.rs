@@ -894,33 +894,35 @@ impl ApplicationHandler for Launcher {
                     audio.stop_custom_stream(ch);
                 }
             }
-            let candidates = [
-                self.home.join("theme/bgm.ogg"),
-                self.home.join("theme/music.ogg"),
-                self.home.join("theme/pvp.ogg"),
-                self.home.join("theme/pvp_music.ogg"),
-                self.catalog.config.game_home(&self.home).join("theme/bgm.ogg"),
-                self.catalog.config.game_home(&self.home).join("theme/music.ogg"),
-                self.catalog.config.game_home(&self.home).join("theme/pvp.ogg"),
-                self.catalog.config.game_home(&self.home).join("theme/pvp_music.ogg"),
-            ];
-            let mut started = false;
-            for p in &candidates {
-                if p.is_file() {
+            if self.catalog.config.launcher_bgm_enabled {
+                let candidates = [
+                    self.home.join("theme/bgm.ogg"),
+                    self.home.join("theme/music.ogg"),
+                    self.home.join("theme/pvp.ogg"),
+                    self.home.join("theme/pvp_music.ogg"),
+                    self.catalog.config.game_home(&self.home).join("theme/bgm.ogg"),
+                    self.catalog.config.game_home(&self.home).join("theme/music.ogg"),
+                    self.catalog.config.game_home(&self.home).join("theme/pvp.ogg"),
+                    self.catalog.config.game_home(&self.home).join("theme/pvp_music.ogg"),
+                ];
+                let mut started = false;
+                for p in &candidates {
+                    if p.is_file() {
+                        let audio = self.audio.get_or_insert_with(|| {
+                            apex_client::audio::Audio::new(&self.home.join(".local/apex-client/26.3"))
+                        });
+                        self.custom_bgm_channel = audio.play_custom_stream(p, 0.45, true);
+                        started = true;
+                        break;
+                    }
+                }
+                if !started {
                     let audio = self.audio.get_or_insert_with(|| {
                         apex_client::audio::Audio::new(&self.home.join(".local/apex-client/26.3"))
                     });
-                    self.custom_bgm_channel = audio.play_custom_stream(p, 0.45, true);
-                    started = true;
-                    break;
+                    let (samples, rate) = apex_client::audio::apex_cyber_bgm_samples();
+                    self.custom_bgm_channel = audio.play_custom_samples(samples, rate, 0.42, true);
                 }
-            }
-            if !started && self.custom_bgm_channel.is_none() {
-                let audio = self.audio.get_or_insert_with(|| {
-                    apex_client::audio::Audio::new(&self.home.join(".local/apex-client/26.3"))
-                });
-                let (samples, rate) = apex_client::audio::apex_cyber_bgm_samples();
-                self.custom_bgm_channel = audio.play_custom_samples(samples, rate, 0.42, true);
             }
         }
         if let Some(audio) = &mut self.audio {

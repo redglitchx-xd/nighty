@@ -73,7 +73,7 @@ zip = { version = "2", default-features = false, features = ["deflate"] }
 rustix = { version = "1", default-features = false, features = ["std", "time", "fs"] }
 
 [features]
-default = ["mods", "audio"]
+default = ["audio"]
 audio = ["apex-client/audio"]
 controllers = []
 mods = ["apex-client/mods", "apex-mods/runtime"]

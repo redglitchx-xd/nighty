@@ -2322,7 +2322,7 @@ unsafe fn public_window_callback_inner(
                     .unwrap_or(conservative_rect);
 
                 // If we're dragging the window, offset the window so that the cursor's
-                // relative apextal position in the title bar is preserved.
+                // relative horizontal position in the title bar is preserved.
                 if dragging_window {
                     let bias = {
                         let cursor_pos = {
@@ -2330,12 +2330,12 @@ unsafe fn public_window_callback_inner(
                             unsafe { GetCursorPos(&mut pos) };
                             pos
                         };
-                        let suggested_cursor_apextal_ratio = (cursor_pos.x - suggested_rect.left)
+                        let suggested_cursor_horizontal_ratio = (cursor_pos.x - suggested_rect.left)
                             as f64
                             / (suggested_rect.right - suggested_rect.left) as f64;
 
                         (cursor_pos.x
-                            - (suggested_cursor_apextal_ratio
+                            - (suggested_cursor_horizontal_ratio
                                 * (conservative_rect.right - conservative_rect.left) as f64)
                                 as i32)
                             - conservative_rect.left

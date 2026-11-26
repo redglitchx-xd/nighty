@@ -1852,6 +1852,12 @@ impl<'a> Ui<'a> {
             let corner_glow = color::with_alpha(theme.accent, 0.04);
             self.fill(x, y, (w * 0.35).min(240.0), 120.0, corner_glow);
             self.fill(x + w - (w * 0.35).min(240.0), y + h - 120.0, (w * 0.35).min(240.0), 120.0, corner_glow);
+            for i in 0..5 {
+                let shimmer = (t * 0.8 + i as f32 * 1.7).sin() * 0.5 + 0.5;
+                let px = x + (i as f32 + 1.0) * w / 6.0;
+                self.fill(px, y, 1.0, h, color::with_alpha(theme.surface_bright, 0.03 + shimmer * 0.03));
+            }
+            self.fill(x, y, w, 1.0, color::with_alpha(0xFFFFFF, 0.22));
         } else if theme.is_gradient {
             let mid = theme
                 .use_three_stops

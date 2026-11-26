@@ -951,14 +951,14 @@ pub enum MouseButton {
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum MouseScrollDelta {
-    /// Amount in lines or rows to scroll in the apextal
+    /// Amount in lines or rows to scroll in the horizontal
     /// and vertical directions.
     ///
     /// Positive values indicate that the content that is being scrolled should move
     /// right and down (revealing more content left and up).
     LineDelta(f32, f32),
 
-    /// Amount in pixels to scroll in the apextal and
+    /// Amount in pixels to scroll in the horizontal and
     /// vertical direction.
     ///
     /// Scroll events are expressed as a `PixelDelta` if
