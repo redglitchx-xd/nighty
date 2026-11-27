@@ -1,11 +1,11 @@
 <div align="center">
-  <img src="docs/media/brand/nighty.png" width="96" height="96" alt="Nighty Android Logo" />
+  <img src="docs/media/brand/nighty-banner.png" width="750" alt="Nighty Android Banner" />
   <h1>Nighty Alpha</h1>
   <p><strong>Ultra-Fast Native Ahead-of-Time Rust Client for Minecraft Java Edition 26.3</strong></p>
   <p><em>Nighty Alpha · purple liquid glass · Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
   <br>
   <p>
-    <a href="https://github.com/tubers9999/nighty/releases">Download APK</a> ·
+    <a href="https://github.com/redglitchx-xd/nighty/releases">Download APK</a> ·
     <a href="docs/">Documentation</a> ·
     <a href="docs/security.md">Security &amp; privacy</a>
   </p>
