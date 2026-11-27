@@ -7,7 +7,7 @@ android {
         applicationId providers.gradleProperty('appId').getOrElse('dev.apex.android')
         minSdk providers.gradleProperty('minSdk').getOrElse('28').toInteger()
         targetSdk 35
-        versionCode providers.gradleProperty('devVersionCode').getOrElse('33').toInteger()
+        versionCode providers.gradleProperty('devVersionCode').getOrElse('34').toInteger()
         versionName 'Nighty Alpha' + (providers.gradleProperty('devVersionCode').isPresent() ? '-dev.' + providers.gradleProperty('devBuild').get() : '')
         ndk { abiFilters providers.gradleProperty('abi').get() }
     }

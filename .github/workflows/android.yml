@@ -6,6 +6,7 @@ on:
     branches:
       - nighty-build
       - nighty-ui-v2
+      - nighty-launcher-rebuild
     paths:
       - 'crates/**'
       - 'launcher/**'
@@ -113,21 +114,25 @@ jobs:
             dist/nighty-arm64.apk
             dist/SHA256SUMS.txt
 
-      - name: Publish to GitHub Releases (vNighty-Alpha)
+      - name: Publish to GitHub Releases (vNighty-Launcher-Rebuild)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat << 'EOF' > release_notes.md
-          ### [>] Nighty Alpha
+          ### [>] Nighty Alpha · Launcher Rebuild
+
+          This build replaces the visible launcher shell with a new layout: a quiet navigation rail, a focused Play card, real catalog and settings panels, and a single active accent instead of stacked decorative effects.
 
           Nighty Alpha is an unofficial ARM64 client for Minecraft Java Edition 26.3.
-          This build continues the deeper Nighty purple liquid-glass rebuild and keeps the alpha feature set.
+          The game engine, secure storage, Android document access, and launch pipeline are unchanged.
 
           #### Credits:
           - **Android Edition:** Actively ported, optimized, and maintained for ARM64 mobile devices by **RedGlitchX** ([@tubers9999](https://github.com/tubers9999)).
           - Upstream attribution is preserved in `LICENSE` and `THIRD_PARTY_NOTICES.md`.
 
           #### Alpha features:
+          - [+] Rebuilt Launcher: navigation rail, Play card, catalog/browse views, skins/account panel, compact settings grid, and a live status strip.
+          - [+] Quiet Visual System: flat surfaces, hairline borders, measured type, restrained motion, and one active accent; no legacy launcher branding in the visible shell.
           - [+] Nighty Purple Liquid Glass: deeper violet accents, translucent layered panels, the new Nighty logo, and theme choices saved on the device.
           - [+] Fixed Built-in Mod Set: exactly four built-in mods (Minimap, Zoom, Recipes, SmartF3). External .hmod/.hnmod mods are disabled on Android.
           - [+] Add-on Support Kept: resource packs, shader packs, and data packs still install from files and the catalog.
@@ -154,7 +159,7 @@ jobs:
             printf '```\n'
           } >> release_notes.md
 
-          gh release create vNighty-Alpha dist/nighty-arm64.apk dist/SHA256SUMS.txt \
+          gh release create vNighty-Launcher-Rebuild dist/nighty-arm64.apk dist/SHA256SUMS.txt \
             --target "$GITHUB_SHA" \
-            --title "Nighty Alpha" \
+            --title "Nighty Alpha · Launcher Rebuild" \
             --notes-file release_notes.md

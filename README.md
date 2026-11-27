@@ -18,14 +18,14 @@
 Nighty Alpha is an unofficial ARM64 launcher; upstream engine attribution is preserved in `LICENSE` and `THIRD_PARTY_NOTICES.md`. Nighty Alpha is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, Starling or Zalith, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB. Starling and Zalith are mentioned only as UI inspiration; no code is copied from them.
 
 - **Android Port:** Maintained and optimized for ARM64 mobile hardware by [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
-- *Apex Android is developed independently for mobile devices.*
+- *Nighty Android is developed independently for mobile devices.*
 - *No Mojang game files are bundled; settings stay local, and in-app downloads come only from sources you choose. See [security and privacy](docs/security.md).*
 
 ---
 
-## Nighty UI: deeper purple, liquid glass
+## Nighty UI: focused launcher, quiet chrome
 
-The Nighty Alpha build (`vNighty-Alpha`, `versionName Nighty Alpha`) continues the Nighty rebuild: deeper purple tones, frosted translucent panels with subtle wave and sheen bands, the `docs/media/brand/nighty.png` mark, and theme choices saved on the device. The launcher and Nighty overlays use this look; the game's vanilla screens stay unchanged where parity matters. The design direction is documented in [docs/design-system.md](docs/design-system.md), and the Android packaging details in [docs/android-publication.md](docs/android-publication.md).
+The `vNighty-Launcher-Rebuild` build replaces the visible launcher shell with a navigation rail, a focused Play card, direct catalog and settings panels, a skins/account card, and a live status strip. The layout uses flat surfaces, hairline borders, measured type, restrained motion, and one active accent; no legacy launcher branding is shown in the shell. Theme choices, secure storage, Android document access, and the game launch pipeline stay intact. The design direction is documented in [docs/design-system.md](docs/design-system.md), and the Android packaging details in [docs/android-publication.md](docs/android-publication.md).
 
 ---
 

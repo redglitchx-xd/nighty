@@ -11,6 +11,10 @@ website reads them as CSS custom properties generated from the same crate
 (`cargo run -p xtask -- tokens` writes `crates/apex-theme/tokens.css`, which the website's build
 reads from main; a test fails when the file is out of date). Change a value in the crate and all three follow.
 
+## Nighty Android launcher shell
+
+The Android launcher uses a focused shell rather than a decorative dashboard: a narrow navigation rail, a Play card with the install/launch state, catalog and installed-content lists, an account/skins card, a compact settings grid, and a status strip. Surfaces are flat with hairline borders; the active accent marks only the current rail item, progress, and the primary action. Motion is a short fade and slide that respects reduced-motion settings.
+
 ## Where it comes from
 
 The direction was set by [mkdir.directory](https://mkdir.directory/), a directory site that is

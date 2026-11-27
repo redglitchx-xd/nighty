@@ -1147,6 +1147,7 @@ impl Launcher {
             }
             return Ok(());
         }
+        return self.draw_nighty_shell(r, gui);
 
 fn load_custom_wallpaper_cached(path: &std::path::Path) -> Option<(u32, u32, Vec<u8>)> {
     static CACHE: std::sync::Mutex<Option<(std::time::SystemTime, u32, u32, Vec<u8>)>> =
@@ -7679,6 +7680,882 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             }
             _ => {}
         }
+    }
+
+    fn list_x(rect: [f32; 4]) -> f32 {
+        rect[0] + 8.0
+    }
+
+    fn rect_w(rect: [f32; 4]) -> f32 {
+        (rect[2] - 16.0).max(1.0)
+    }
+
+    fn nighty_clean(value: &str) -> String {
+        value
+            .replace("Apex", "Nighty")
+            .replace("apex", "nighty")
+            .replace("Horizon", "Nighty")
+            .replace("horizon", "nighty")
+    }
+
+    fn nighty_panel(ui: &mut Ui<'_>, rect: [f32; 4], emphasis: bool) {
+        let [x, y, w, h] = rect;
+        let th = apex_client::ui_theme::active_theme();
+        let fill = if emphasis { th.surface_selected } else { th.surface };
+        ui.rounded(x, y, w, h, 18.0, color::with_alpha(fill, 255));
+        ui.border(x, y, w, h, 18.0, color::with_alpha(th.border, 255));
+        ui.fill(
+            x + 14.0,
+            y + 12.0,
+            2.0,
+            (h - 24.0).max(1.0),
+            color::with_alpha(th.accent, if emphasis { 210 } else { 78 }),
+        );
+    }
+
+    fn nighty_button(
+        ui: &mut Ui<'_>,
+        targets: &mut Vec<([f32; 4], Action)>,
+        rect: [f32; 4],
+        label: &str,
+        action: Action,
+        primary: bool,
+    ) {
+        let [x, y, w, h] = rect;
+        let th = apex_client::ui_theme::active_theme();
+        let fill = if primary {
+            th.accent
+        } else {
+            color::with_alpha(th.surface_bright, 255)
+        };
+        ui.rounded(x, y, w, h, (h * 0.38).clamp(9.0, 16.0), fill);
+        if !primary {
+            ui.border(x, y, w, h, (h * 0.38).clamp(9.0, 16.0), th.border);
+        }
+        let font = if w < 86.0 { 12.5 } else { 14.0 };
+        let fitted = ui.fit_text(Face::Medium, font, label, (w - 16.0).max(12.0));
+        let tw = ui.measure(Face::Medium, font, &fitted);
+        ui.text(
+            Face::Medium,
+            font,
+            x + ((w - tw) * 0.5).max(8.0),
+            y + ((h - font * 1.45) * 0.5).max(1.0),
+            if primary { th.on_accent } else { th.text_primary },
+            &fitted,
+        );
+        if let Some(c) = ui.clip_rect(rect) {
+            targets.push((c, action));
+        }
+    }
+
+    fn nighty_nav(
+        ui: &mut Ui<'_>,
+        targets: &mut Vec<([f32; 4], Action)>,
+        rect: [f32; 4],
+        icon: Icon,
+        label: &str,
+        action: Action,
+        selected: bool,
+    ) {
+        let [x, y, w, h] = rect;
+        let th = apex_client::ui_theme::active_theme();
+        if selected {
+            ui.rounded(
+                x,
+                y,
+                w,
+                h,
+                12.0,
+                color::with_alpha(th.accent, 34),
+            );
+            ui.fill(x, y + 7.0, 3.0, h - 14.0, th.accent);
+        }
+        ui.icon(
+            icon,
+            x + 11.0,
+            y + (h - 20.0) * 0.5,
+            20.0,
+            if selected { th.accent } else { th.text_muted },
+        );
+        ui.text(
+            Face::Medium,
+            13.0,
+            x + 40.0,
+            y + (h - 19.0) * 0.5,
+            if selected { th.text_primary } else { th.text_muted },
+            &ui.fit_text(Face::Medium, 13.0, label, (w - 48.0).max(12.0)),
+        );
+        if let Some(c) = ui.clip_rect(rect) {
+            targets.push((c, action));
+        }
+    }
+
+    fn nighty_setting(
+        ui: &mut Ui<'_>,
+        targets: &mut Vec<([f32; 4], Action)>,
+        rect: [f32; 4],
+        label: &str,
+        detail: &str,
+        action: Action,
+        toggle: Option<bool>,
+    ) {
+        let [x, y, w, h] = rect;
+        let th = apex_client::ui_theme::active_theme();
+        ui.rounded(x, y, w, h, 14.0, color::with_alpha(th.surface_dim, 255));
+        ui.border(x, y, w, h, 14.0, color::with_alpha(th.border, 190));
+        ui.text(
+            Face::Medium,
+            13.5,
+            x + 12.0,
+            y + 7.0,
+            th.text_primary,
+            &ui.fit_text(Face::Medium, 13.5, label, (w - 90.0).max(24.0)),
+        );
+        ui.text(
+            Face::Regular,
+            11.5,
+            x + 12.0,
+            y + 27.0,
+            th.text_muted,
+            &ui.fit_text(Face::Regular, 11.5, detail, (w - 90.0).max(24.0)),
+        );
+        if let Some(on) = toggle {
+            let track_x = x + w - 54.0;
+            let track_y = y + (h - 24.0) * 0.5;
+            ui.rounded(
+                track_x,
+                track_y,
+                42.0,
+                24.0,
+                12.0,
+                if on {
+                    th.accent
+                } else {
+                    color::with_alpha(th.surface_bright, 255)
+                },
+            );
+            ui.rounded(
+                if on { track_x + 22.0 } else { track_x + 3.0 },
+                track_y + 3.0,
+                18.0,
+                18.0,
+                9.0,
+                if on { th.on_accent } else { th.text_muted },
+            );
+        } else {
+            ui.text(
+                Face::Medium,
+                12.0,
+                x + w - 52.0,
+                y + (h - 18.0) * 0.5,
+                th.accent,
+                "Open",
+            );
+        }
+        if let Some(c) = ui.clip_rect(rect) {
+            targets.push((c, action));
+        }
+    }
+
+    fn nighty_background(ui: &mut Ui<'_>, w: f32, h: f32) {
+        let th = apex_client::ui_theme::active_theme();
+        ui.fill(0.0, 0.0, w, h, color::with_alpha(th.bg_solid, 255));
+        ui.fill(0.0, 0.0, 3.0, h, color::with_alpha(th.accent, 210));
+        let panel_x = w * 0.58;
+        ui.rounded(
+            panel_x,
+            -50.0,
+            (w - panel_x) * 0.78,
+            h + 100.0,
+            140.0,
+            color::with_alpha(th.accent, 10),
+        );
+        for i in 0..5 {
+            ui.fill(
+                panel_x + i as f32 * 58.0,
+                0.0,
+                1.0,
+                h,
+                color::with_alpha(th.border, 54),
+            );
+        }
+        ui.fill(
+            0.0,
+            h * 0.71,
+            w,
+            1.0,
+            color::with_alpha(th.border, 110),
+        );
+    }
+
+    fn draw_nighty_shell(&mut self, r: &mut Renderer, gui: &game::UiResources) -> Result<()> {
+        self.targets.clear();
+        SLIDER_TRACK_TARGETS.with(|t| t.borrow_mut().clear());
+        self.list_targets.clear();
+        self.list_view = None;
+
+        let mut b = HudBatch::new([r.config.width, r.config.height]);
+        let mut ui = Ui::mobile(&gui.atlas, &mut b, (0.0, 0.0));
+        let (w, h) = (ui.w, ui.h);
+        let has_modal = self.catalog.project_modal.is_some()
+            || self.catalog.fm_modal.is_some()
+            || self.login.visible
+            || self.chooser.is_some()
+            || self.diagnostics_modal_open
+            || self.exit_confirmation;
+        self.anim.step(
+            self.catalog.page,
+            self.catalog.settings_category,
+            0.0,
+            has_modal,
+            self.catalog.sections,
+        );
+        Self::nighty_background(&mut ui, w, h);
+
+        let compact = w < 640.0 || h < 350.0;
+        let rail_w = if compact { 76.0 } else { 158.0 };
+        let body_y = 66.0;
+        let bottom_h = 42.0;
+        let body_h = (h - body_y - bottom_h - 10.0).max(60.0);
+        let content_x = rail_w + 14.0;
+        let content_w = (w - content_x - 14.0).max(140.0);
+
+        let th = apex_client::ui_theme::active_theme();
+        ui.text(
+            Face::SemiBold,
+            20.0,
+            content_x,
+            12.0,
+            th.text_primary,
+            "Nighty Alpha",
+        );
+        ui.text(
+            Face::Regular,
+            11.5,
+            content_x,
+            39.0,
+            th.text_muted,
+            "Unofficial local Minecraft launcher",
+        );
+        if w > 560.0 {
+            let account = Self::nighty_clean(&self.catalog.config.name);
+            let pill_w = (ui.measure(Face::Medium, 12.5, &account) + 28.0).clamp(96.0, 176.0);
+            Self::nighty_button(
+                &mut ui,
+                &mut self.targets,
+                [w - pill_w - 14.0, 13.0, pill_w, 32.0],
+                &account,
+                Action::Account,
+                false,
+            );
+        }
+
+        let rail_rect = [8.0, 8.0, rail_w - 16.0, h - 58.0];
+        Self::nighty_panel(&mut ui, rail_rect, false);
+        let nav = [
+            (Page::Play, Icon::Play),
+            (Page::Mods, Icon::Mods),
+            (Page::Packs, Icon::Packs),
+            (Page::Shaders, Icon::Shaders),
+            (Page::Installed, Icon::Installed),
+            (Page::Skins, Icon::Gamepad),
+            (Page::Settings, Icon::Settings),
+        ];
+        let row_h = ((h - 110.0) / nav.len() as f32).clamp(36.0, 52.0);
+        for (i, (page, icon)) in nav.iter().enumerate() {
+            Self::nighty_nav(
+                &mut ui,
+                &mut self.targets,
+                [16.0, 62.0 + i as f32 * row_h, rail_w - 32.0, row_h - 4.0],
+                *icon,
+                page.name(),
+                Action::Page(*page),
+                self.catalog.page == *page,
+            );
+        }
+
+        match self.catalog.page {
+            Page::Play => self.draw_nighty_play_page(&mut ui, content_x, body_y, content_w, body_h),
+            Page::Mods
+            | Page::Packs
+            | Page::Datapacks
+            | Page::Shaders
+            | Page::Installed => {
+                self.draw_nighty_catalog_page(&mut ui, content_x, body_y, content_w, body_h)
+            }
+            Page::Skins => self.draw_nighty_skins_page(&mut ui, content_x, body_y, content_w, body_h),
+            Page::Settings => {
+                self.draw_nighty_settings_page(&mut ui, content_x, body_y, content_w, body_h)
+            }
+        }
+        self.draw_nighty_status(&mut ui, content_x, h - bottom_h - 4.0, content_w, bottom_h - 4.0);
+
+        if self.catalog.project_modal.is_some() {
+            self.draw_project_modal(&mut ui, w, h);
+        }
+        if self.login.visible {
+            self.list_targets.clear();
+            self.list_view = None;
+            self.login.draw(
+                &mut ui,
+                &mut self.targets,
+                &self.catalog.config.name,
+                self.catalog.editing,
+                self.anim.modal_anim,
+            );
+        }
+        if let Some(chooser) = &mut self.chooser {
+            chooser.draw(&mut ui, &mut self.targets, self.anim.modal_anim);
+        }
+        if self.catalog.fm_modal.is_some() {
+            self.draw_fm_modal(&mut ui, w, h, None);
+        }
+        if self.diagnostics_modal_open {
+            self.draw_diagnostics_summary_modal(&mut ui, w, h);
+        }
+        if self.exit_confirmation {
+            self.draw_nighty_exit(&mut ui, w, h);
+        }
+
+        if !r.render(&game::loading_frame(&b))? && !b.patches.is_empty() {
+            apex_client::ui_theme::reset_atlas();
+        }
+        Ok(())
+    }
+
+    fn draw_nighty_play_page(
+        &mut self,
+        ui: &mut Ui<'_>,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+    ) {
+        let th = apex_client::ui_theme::active_theme();
+        let installed = apex_client::official_install::ready(&self.home);
+        let install = self
+            .install
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let progress = if install.total > 0 {
+            install.done as f32 / install.total as f32
+        } else {
+            0.0
+        };
+        let stage = Self::nighty_clean(install.stage.label());
+        drop(install);
+
+        let stacked = w < 520.0;
+        let (hero_w, side_w, side_y, side_h) = if stacked {
+            (w, w, y + h * 0.56 + 10.0, h * 0.44 - 10.0)
+        } else {
+            (w * 0.62 - 6.0, w * 0.38 - 6.0, y, h)
+        };
+        let hero_rect = [x, y, hero_w, if stacked { h * 0.56 } else { h }];
+        Self::nighty_panel(ui, hero_rect, true);
+
+        ui.text(
+            Face::SemiBold,
+            21.0,
+            x + 20.0,
+            y + 18.0,
+            th.text_primary,
+            "Minecraft 26.3",
+        );
+        ui.text(
+            Face::Regular,
+            12.5,
+            x + 20.0,
+            y + 46.0,
+            th.text_muted,
+            "Java Edition · prepared locally",
+        );
+
+        let orb_x = x + hero_w - 74.0;
+        let orb_y = y + 22.0;
+        ui.rounded(
+            orb_x,
+            orb_y,
+            52.0,
+            52.0,
+            16.0,
+            color::with_alpha(th.accent, 42),
+        );
+        ui.rounded(
+            orb_x + 13.0,
+            orb_y + 13.0,
+            26.0,
+            26.0,
+            8.0,
+            th.accent,
+        );
+        ui.fill(orb_x + 23.0, orb_y + 23.0, 6.0, 6.0, th.on_accent);
+
+        let button_y = y + hero_rect[3] - 92.0;
+        let button_w = (hero_w - 40.0).min(260.0);
+        if installed {
+            Self::nighty_button(
+                ui,
+                &mut self.targets,
+                [x + 20.0, button_y, button_w, 48.0],
+                "Play",
+                Action::Play,
+                true,
+            );
+            let controls_w = hero_w - button_w - 44.0;
+            if controls_w > 64.0 {
+                Self::nighty_button(
+                    ui,
+                    &mut self.targets,
+                    [x + 24.0 + button_w, button_y, controls_w, 48.0],
+                    "Controls",
+                    Action::OpenControlEditor,
+                    false,
+                );
+            }
+        } else if self.worker.is_some() {
+            Self::nighty_button(
+                ui,
+                &mut self.targets,
+                [x + 20.0, button_y, button_w * 0.55, 48.0],
+                if self.install_paused.load(Ordering::Relaxed) {
+                    "Resume"
+                } else {
+                    "Pause"
+                },
+                Action::PauseInstall,
+                true,
+            );
+            Self::nighty_button(
+                ui,
+                &mut self.targets,
+                [x + 26.0 + button_w * 0.55, button_y, button_w * 0.45, 48.0],
+                "Cancel",
+                Action::CancelInstall,
+                false,
+            );
+            ui.rounded(
+                x + 20.0,
+                y + hero_rect[3] - 124.0,
+                hero_w - 40.0,
+                6.0,
+                3.0,
+                color::with_alpha(th.surface_bright, 255),
+            );
+            ui.rounded(
+                x + 20.0,
+                y + hero_rect[3] - 124.0,
+                (hero_w - 40.0) * progress.clamp(0.0, 1.0),
+                6.0,
+                3.0,
+                th.accent,
+            );
+            ui.text(
+                Face::Regular,
+                11.0,
+                x + 20.0,
+                y + hero_rect[3] - 146.0,
+                th.text_muted,
+                &stage,
+            );
+        } else {
+            Self::nighty_button(
+                ui,
+                &mut self.targets,
+                [x + 20.0, button_y, button_w, 48.0],
+                "Install game",
+                Action::Play,
+                true,
+            );
+        }
+
+        let sx = if stacked { x } else { x + w - side_w };
+        let side_rect = [sx, side_y, side_w, side_h];
+        Self::nighty_panel(ui, side_rect, false);
+        ui.text(
+            Face::SemiBold,
+            15.0,
+            sx + 18.0,
+            side_y + 14.0,
+            th.text_primary,
+            "Session",
+        );
+        let player = Self::nighty_clean(&self.catalog.config.name);
+        let rows = [
+            ("Player", player.as_str()),
+            ("Renderer", self.catalog.config.renderer.label()),
+            ("Resolution", self.catalog.config.render_scale.label()),
+            ("Profile", "Local"),
+        ];
+        for (i, (label, value)) in rows.iter().enumerate() {
+            let ry = side_y + 46.0 + i as f32 * 34.0;
+            ui.text(Face::Regular, 11.0, sx + 18.0, ry, th.text_muted, label);
+            ui.text(
+                Face::Medium,
+                12.0,
+                sx + 18.0,
+                ry + 13.0,
+                th.text_primary,
+                &ui.fit_text(Face::Medium, 12.0, value, side_w - 36.0),
+            );
+        }
+        if side_h > 180.0 {
+            let by = side_y + side_h - 52.0;
+            Self::nighty_button(
+                ui,
+                &mut self.targets,
+                [sx + 16.0, by, (side_w - 36.0) * 0.5, 36.0],
+                "Account",
+                Action::Account,
+                false,
+            );
+            Self::nighty_button(
+                ui,
+                &mut self.targets,
+                [sx + 20.0 + (side_w - 36.0) * 0.5, by, (side_w - 36.0) * 0.5, 36.0],
+                "Skins",
+                Action::Page(Page::Skins),
+                false,
+            );
+        }
+    }
+
+    fn draw_nighty_catalog_page(
+        &mut self,
+        ui: &mut Ui<'_>,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+    ) {
+        let th = apex_client::ui_theme::active_theme();
+        let page = self.catalog.page;
+        let (title, subtitle, kind) = match page {
+            Page::Mods => ("Mods", "Browse add-ons and enable bundled entries", apex_client::content_files::Kind::Mods),
+            Page::Packs => ("Resource packs", "Change textures and sounds", apex_client::content_files::Kind::Packs),
+            Page::Datapacks => ("Data packs", "Add world logic and content", apex_client::content_files::Kind::Datapacks),
+            Page::Shaders => ("Shaders", "Change the look of the world", apex_client::content_files::Kind::Shaders),
+            _ => ("Installed", "Content stored on this device", apex_client::content_files::Kind::Mods),
+        };
+        ui.text(Face::SemiBold, 19.0, x, y, th.text_primary, title);
+        ui.text(Face::Regular, 11.5, x, y + 25.0, th.text_muted, subtitle);
+
+        let toolbar_y = y + 48.0;
+        let search_w = (w * 0.46).max(120.0);
+        let field_rect = [x, toolbar_y, search_w, 38.0];
+        ui.rounded(
+            field_rect[0],
+            field_rect[1],
+            field_rect[2],
+            field_rect[3],
+            12.0,
+            color::with_alpha(th.surface_dim, 255),
+        );
+        ui.border(field_rect[0], field_rect[1], field_rect[2], field_rect[3], 12.0, th.border);
+        ui.icon(Icon::Search, x + 10.0, toolbar_y + 10.0, 18.0, th.text_muted);
+        let query = Self::nighty_clean(if self.catalog.query.is_empty() {
+            "Search projects"
+        } else {
+            &self.catalog.query
+        });
+        ui.text(
+            Face::Regular,
+            12.5,
+            x + 36.0,
+            toolbar_y + 10.0,
+            if self.catalog.query.is_empty() { th.text_muted } else { th.text_primary },
+            &query,
+        );
+        if let Some(c) = ui.clip_rect(field_rect) {
+            self.targets.push((c, Action::Field("search")));
+        }
+
+        let btn_x = x + search_w + 8.0;
+        let btn_w = ((w - search_w - 16.0) / 2.0).max(54.0);
+        Self::nighty_button(
+            ui,
+            &mut self.targets,
+            [btn_x, toolbar_y, btn_w, 38.0],
+            "Import",
+            Action::Import(kind),
+            false,
+        );
+        Self::nighty_button(
+            ui,
+            &mut self.targets,
+            [btn_x + btn_w + 8.0, toolbar_y, (w - search_w - btn_w - 24.0).max(0.0), 38.0],
+            "Folder",
+            Action::OpenFolder(kind),
+            false,
+        );
+
+        let source_y = toolbar_y + 46.0;
+        let source_w = (w - 8.0) * 0.5;
+        if page != Page::Installed {
+            let origin_a = crate::shader_catalog::Origin::Apex;
+            let origin_b = crate::shader_catalog::Origin::Modrinth;
+            let action_a = if page == Page::Shaders {
+                Action::ShaderSource(origin_a)
+            } else {
+                Action::ModSource(origin_a)
+            };
+            let action_b = if page == Page::Shaders {
+                Action::ShaderSource(origin_b)
+            } else {
+                Action::ModSource(origin_b)
+            };
+            let selected_a = if page == Page::Shaders {
+                self.catalog.config.shader_source == origin_a
+            } else {
+                self.catalog.config.mod_source == origin_a
+            };
+            Self::nighty_button(ui, &mut self.targets, [x, source_y, source_w, 32.0], "Nighty List", action_a, selected_a);
+            Self::nighty_button(ui, &mut self.targets, [x + source_w + 8.0, source_y, (w - source_w - 8.0).max(0.0), 32.0], "Modrinth", action_b, !selected_a);
+        }
+
+        let list_y = source_y + (if page == Page::Installed { 8.0 } else { 42.0 });
+        let list_rect = [x, list_y, w, (y + h - list_y).max(20.0)];
+        Self::nighty_panel(ui, list_rect, false);
+        ui.set_clip(Some(list_rect));
+
+        if page == Page::Installed {
+            let stride = 54.0;
+            let scroll = self.catalog.scroll.max(0.0);
+            let visible = (list_rect[3] / stride).ceil() as usize + 1;
+            let total = self.catalog.local.len() * stride;
+            for (i, item) in self.catalog.local.iter().enumerate().take(visible + 1) {
+                let row_y = list_y + 8.0 + i as f32 * stride - scroll;
+                if row_y + stride < list_y || row_y > list_y + list_rect[3] {
+                    continue;
+                }
+                let rect = [list_x(list_rect), row_y, rect_w(list_rect) - 16.0, stride - 6.0];
+                ui.rounded(rect[0], rect[1], rect[2], rect[3], 12.0, color::with_alpha(th.surface_dim, 255));
+                ui.text(Face::Medium, 12.5, rect[0] + 10.0, rect[1] + 6.0, th.text_primary, &Self::nighty_clean(&item.title));
+                ui.text(Face::Regular, 10.5, rect[0] + 10.0, rect[1] + 25.0, th.text_muted, &Self::nighty_clean(&item.subtitle));
+                let label = if item.enabled { "On" } else { "Off" };
+                ui.text(Face::Medium, 11.5, rect[0] + rect[2] - 42.0, rect[1] + 14.0, if item.enabled { th.accent } else { th.text_muted }, label);
+                if let Some(c) = ui.clip_rect(rect) {
+                    self.list_targets.push((c, Action::ToggleLocal(i)));
+                }
+            }
+            self.list_view = Some([list_y, list_y + list_rect[3], total as f32]);
+        } else {
+            let stride = 58.0;
+            let scroll = self.catalog.scroll.max(0.0);
+            let visible = (list_rect[3] / stride).ceil() as usize + 1;
+            let total = self.catalog.results.len() * stride;
+            for (i, project) in self.catalog.results.iter().enumerate().take(visible + 1) {
+                let row_y = list_y + 8.0 + i as f32 * stride - scroll;
+                if row_y + stride < list_y || row_y > list_y + list_rect[3] {
+                    continue;
+                }
+                let rect = [list_x(list_rect), row_y, rect_w(list_rect) - 16.0, stride - 6.0];
+                ui.rounded(rect[0], rect[1], rect[2], rect[3], 12.0, color::with_alpha(th.surface_dim, 255));
+                ui.text(Face::Medium, 12.5, rect[0] + 10.0, rect[1] + 5.0, th.text_primary, &Self::nighty_clean(&project.title));
+                ui.text(Face::Regular, 10.5, rect[0] + 10.0, rect[1] + 23.0, th.text_muted, &Self::nighty_clean(&project.summary));
+                let meta = format!("{} · {}", project.author, format_downloads(project.downloads));
+                ui.text(Face::Regular, 10.0, rect[0] + 10.0, rect[1] + 39.0, th.text_muted, &Self::nighty_clean(&meta));
+                if let Some(c) = ui.clip_rect(rect) {
+                    self.list_targets.push((c, Action::OpenProject(i)));
+                }
+            }
+            self.list_view = Some([list_y, list_y + list_rect[3], total as f32]);
+        }
+        ui.set_clip(None);
+    }
+
+    fn draw_nighty_skins_page(
+        &mut self,
+        ui: &mut Ui<'_>,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+    ) {
+        let th = apex_client::ui_theme::active_theme();
+        let card = [x, y, w, h * 0.62];
+        Self::nighty_panel(ui, card, true);
+        ui.text(Face::SemiBold, 20.0, x + 20.0, y + 18.0, th.text_primary, "Skins & account");
+        ui.text(
+            Face::Regular,
+            12.0,
+            x + 20.0,
+            y + 46.0,
+            th.text_muted,
+            "Choose an offline name or sign in to use your prepared skin.",
+        );
+
+        let name = Self::nighty_clean(&self.catalog.config.name);
+        let avatar = [x + 20.0, y + 82.0, 72.0, 72.0];
+        ui.rounded(avatar[0], avatar[1], avatar[2], avatar[3], 18.0, color::with_alpha(th.accent, 38));
+        ui.rounded(avatar[0] + 20.0, avatar[1] + 18.0, 32.0, 32.0, 10.0, color::with_alpha(th.accent, 220));
+        ui.text(Face::SemiBold, 15.0, x + 106.0, y + 88.0, th.text_primary, &name);
+        ui.text(
+            Face::Regular,
+            11.0,
+            x + 106.0,
+            y + 112.0,
+            th.text_muted,
+            &Self::nighty_clean(self.catalog.config.last_name_changed_label()),
+        );
+
+        let actions = [
+            ("Account", Action::Account),
+            ("Add account", Action::AddAccount),
+            ("Offline name", Action::OfflineAccount),
+            ("Appearance", Action::WardrobeCloud),
+        ];
+        let gap = 8.0;
+        let bw = (w - 40.0 - gap * 3.0) / 4.0;
+        if bw > 48.0 {
+            for (i, (label, action)) in actions.iter().enumerate() {
+                Self::nighty_button(
+                    ui,
+                    &mut self.targets,
+                    [x + 20.0 + i as f32 * (bw + gap), y + card[3] - 54.0, bw, 36.0],
+                    label,
+                    *action,
+                    i == 0,
+                );
+            }
+        }
+
+        let note = [x, y + card[3] + 10.0, w, (h - card[3] - 10.0).max(40.0)];
+        Self::nighty_panel(ui, note, false);
+        ui.text(
+            Face::Regular,
+            12.0,
+            x + 18.0,
+            note[1] + 14.0,
+            th.text_muted,
+            "Account data stays on this device. Nighty never bundles Mojang account files.",
+        );
+    }
+
+    fn draw_nighty_settings_page(
+        &mut self,
+        ui: &mut Ui<'_>,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+    ) {
+        let th = apex_client::ui_theme::active_theme();
+        ui.text(Face::SemiBold, 19.0, x, y, th.text_primary, "Settings");
+        ui.text(Face::Regular, 11.5, x, y + 25.0, th.text_muted, "Tune the launcher and the game session.");
+
+        let grid_y = y + 48.0;
+        let cols = if w > 280.0 { 2 } else { 1 };
+        let gap = 8.0;
+        let cw = (w - gap * (cols - 1) as f32) / cols as f32;
+        let row_h = if cols == 1 { 48.0 } else { 54.0 };
+        let rows = [
+            ("Renderer", self.catalog.config.renderer.label(), Action::Renderer, None),
+            ("Interface scale", self.catalog.config.ui_scale_label(), Action::UiScale, None),
+            ("Orientation", self.catalog.config.orientation.label(), Action::Orientation, None),
+            ("Controls", "Edit the touch layout", Action::OpenControlEditor, None),
+            ("Launcher music", "Optional local soundtrack", Action::ToggleBuiltinBgm, Some(self.catalog.config.launcher_bgm_enabled)),
+            ("Interface motion", "Page transitions and soft fades", Action::ToggleLauncherAnimations, Some(!self.catalog.config.disable_launcher_animations)),
+            ("Game effects", "Animations and visual effects", Action::ToggleGameAnimations, Some(!self.catalog.config.disable_game_animations)),
+            ("Soft surfaces", "Frosted panels where supported", Action::ToggleLiquidGlass, Some(th.liquid_glass)),
+            ("World files", "Open the world directory", Action::WorldFiles, None),
+            ("Game files", "Open the game directory", Action::GameFiles, None),
+            ("Logs", "View recent launcher logs", Action::Logs, None),
+            ("Source & actions", "Repository and provenance", Action::Repository, None),
+        ];
+        for (i, (label, detail, action, toggle)) in rows.iter().enumerate() {
+            let col = i % cols;
+            let row = i / cols;
+            Self::nighty_setting(
+                ui,
+                &mut self.targets,
+                [x + col as f32 * (cw + gap), grid_y + row as f32 * (row_h + gap), cw, row_h],
+                label,
+                detail,
+                *action,
+                *toggle,
+            );
+        }
+    }
+
+    fn draw_nighty_status(
+        &mut self,
+        ui: &mut Ui<'_>,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+    ) {
+        let th = apex_client::ui_theme::active_theme();
+        ui.rounded(x, y, w, h, 12.0, color::with_alpha(th.surface_dim, 235));
+        ui.border(x, y, w, h, 12.0, color::with_alpha(th.border, 160));
+        let status = Self::nighty_clean(&self.catalog.status);
+        ui.text(
+            Face::Regular,
+            11.5,
+            x + 12.0,
+            y + (h - 17.0) * 0.5,
+            th.text_muted,
+            &ui.fit_text(Face::Regular, 11.5, &status, (w - 108.0).max(40.0)),
+        );
+
+        let mut progress = -1.0;
+        if let Ok(install) = self.install.lock()
+            && install.total > 0
+        {
+            progress = install.done as f32 / install.total as f32;
+        }
+        if progress < 0.0 && self.catalog.busy() {
+            progress = self.catalog.progress_fraction();
+        }
+        if progress >= 0.0 {
+            let bar_x = x + w - 94.0;
+            ui.rounded(bar_x, y + (h - 6.0) * 0.5, 76.0, 6.0, 3.0, color::with_alpha(th.surface_bright, 255));
+            ui.rounded(
+                bar_x,
+                y + (h - 6.0) * 0.5,
+                76.0 * progress.clamp(0.0, 1.0),
+                6.0,
+                3.0,
+                th.accent,
+            );
+        } else if w > 520.0 {
+            ui.text(Face::Regular, 10.5, x + w - 92.0, y + (h - 15.0) * 0.5, th.text_muted, "Local files");
+        }
+    }
+
+    fn draw_nighty_exit(&mut self, ui: &mut Ui<'_>, w: f32, h: f32) {
+        let th = apex_client::ui_theme::active_theme();
+        ui.fill(0.0, 0.0, w, h, color::with_alpha(th.bg_solid, 230));
+        let mw = (w * 0.42).clamp(280.0, 460.0);
+        let mh = 150.0;
+        let rect = [(w - mw) * 0.5, (h - mh) * 0.5, mw, mh];
+        Self::nighty_panel(ui, rect, true);
+        ui.text(Face::SemiBold, 18.0, rect[0] + 20.0, rect[1] + 18.0, th.text_primary, "Leave Nighty?");
+        ui.text(
+            Face::Regular,
+            12.0,
+            rect[0] + 20.0,
+            rect[1] + 48.0,
+            th.text_muted,
+            "Any active download will stop. Launcher settings are saved.",
+        );
+        Self::nighty_button(
+            ui,
+            &mut self.targets,
+            [rect[0] + 20.0, rect[1] + 96.0, (mw - 52.0) * 0.5, 38.0],
+            "Stay",
+            Action::Dismiss,
+            false,
+        );
+        Self::nighty_button(
+            ui,
+            &mut self.targets,
+            [rect[0] + 32.0 + (mw - 52.0) * 0.5, rect[1] + 96.0, (mw - 52.0) * 0.5, 38.0],
+            "Exit",
+            Action::ConfirmExit,
+            true,
+        );
     }
 
     pub(super) fn ui_density(&self) -> f32 {
