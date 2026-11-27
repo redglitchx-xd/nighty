@@ -74,7 +74,7 @@ use std::borrow::Cow;
 use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::Ordering;
 use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::Mutex;
+use std::sync::{Arc, LazyLock, Mutex};
 use std::time::{Duration, Instant};
 use theme::Theme;
 
@@ -1690,35 +1690,19 @@ fn version_tag(tag: &str) -> Div {
         )
 }
 
-/// Apex's mark: two stems, their reflection below, and the apex across in the accent.
-fn mark(size: f32, t: &Theme) -> Div {
-    let u = size / 16.;
-    let stem = |x: f32, y: f32, color: Hsla| {
-        div()
-            .absolute()
-            .left(px(x * u))
-            .top(px(y * u))
-            .w(px(2. * u))
-            .h(px(4. * u))
-            .bg(color)
-    };
+/// Nighty's mark: the launcher logo from `docs/media/brand/nighty.png`.
+static MARK: LazyLock<Arc<gpui::Image>> = LazyLock::new(|| {
+    Arc::new(gpui::Image::from_bytes(
+        gpui::ImageFormat::Png,
+        include_bytes!("../../docs/media/brand/nighty.png").to_vec(),
+    ))
+});
+
+fn mark(size: f32, _t: &Theme) -> Div {
     div()
-        .relative()
         .flex_none()
         .size(px(size))
-        .child(stem(4., 3., t.ink))
-        .child(stem(10., 3., t.ink))
-        .child(stem(4., 8., t.ink.opacity(0.36)))
-        .child(stem(10., 8., t.ink.opacity(0.36)))
-        .child(
-            div()
-                .absolute()
-                .left(px(u))
-                .top(px(7. * u))
-                .w(px(14. * u))
-                .h(px(u))
-                .bg(t.accent),
-        )
+        .child(gpui::img(MARK.clone()).size(px(size)))
 }
 
 /// The last thing the player did was press Tab: focused controls show a ring (a click focuses them
@@ -2557,7 +2541,7 @@ impl Launcher {
                 .child(
                     shell::text(theme::night::TITLE, shell::c(n.ink))
                         .font_family(theme::DISPLAY_FONT)
-                        .child("Apex"),
+                        .child("Nighty"),
                 )
         });
         shell::sidebar_plate(&t)
@@ -3022,7 +3006,7 @@ impl Launcher {
         page
     }
 
-    /// "Apex crashed": the report and the logs, and where to report it.
+    /// "Nighty crashed": the report and the logs, and where to report it.
     fn crash_notice(&self, crash: Crash, cx: &mut Context<Self>) -> Div {
         let t = self.theme;
         let mut actions = div().flex().flex_wrap().gap(px(8.)).mt(px(8.));
@@ -3098,7 +3082,7 @@ impl Launcher {
             .child(
                 text(theme::HEADING)
                     .text_color(t.ink)
-                    .child(tr("Apex crashed")),
+                    .child(tr("Nighty crashed")),
             );
         if !crash.summary.is_empty() {
             body = body.child(div().text_color(t.ink_soft).child(crash.summary));
@@ -3344,7 +3328,7 @@ impl Launcher {
                     .child(group("AI", "terminal"))
                     .child(self.no_ai_row(n + 6, cx))
                     .child(group("About", "info-box"))
-                    .child(index_row(n + 7, "Apex", Some(plain(&apex)), apex_action, &t))
+                    .child(index_row(n + 7, "Game", Some(plain(&apex)), apex_action, &t))
                     .child(index_row(
                         n + 8,
                         tr("Launcher"),
@@ -4638,8 +4622,8 @@ fn key_bindings() -> Vec<KeyBinding> {
 fn menus() -> Vec<Menu> {
     vec![
         Menu {
-            name: "Apex Launcher".into(),
-            items: vec![MenuItem::action("Quit Apex Launcher", Quit)],
+            name: "Nighty Launcher".into(),
+            items: vec![MenuItem::action("Quit Nighty Launcher", Quit)],
             disabled: false,
         },
         Menu {
@@ -4858,10 +4842,10 @@ mod tests {
     #[test]
     fn the_app_menu_has_quit() {
         let menus = super::menus();
-        assert_eq!(menus[0].name, "Apex Launcher");
+        assert_eq!(menus[0].name, "Nighty Launcher");
         assert!(matches!(
             &menus[0].items[0],
-            gpui::MenuItem::Action { name, .. } if name == "Quit Apex Launcher"
+            gpui::MenuItem::Action { name, .. } if name == "Quit Nighty Launcher"
         ));
     }
 

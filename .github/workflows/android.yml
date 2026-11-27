@@ -1,10 +1,10 @@
-name: Android APK Build (ARM64)
+name: Nighty Android APK Build (ARM64)
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - apex-alpha-build
+      - nighty-build
     paths:
       - 'crates/**'
       - 'launcher/**'
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build & Release Apex Android ARM64 APK
+    name: Build & Release Nighty Android ARM64 APK
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     env:
@@ -92,40 +92,38 @@ jobs:
         run: |
           python3 tools/android_build.py --abi arm64-v8a --public --profile release \
             --sdk "$ANDROID_HOME" --java-home "$JAVA_HOME_17_X64" --gradle "$(command -v gradle)" \
-            --ndk-version 28.2.13676358 --build-tools-version 35.0.0 \
-            --dev-build "${GITHUB_RUN_NUMBER}.${GITHUB_SHA:0:12}" \
-            --dev-version-code "$((1000 + GITHUB_RUN_NUMBER))"
+            --ndk-version 28.2.13676358 --build-tools-version 35.0.0
 
       - name: Collect APK
         run: |
           mkdir -p dist
-          cp .local/android/apk/arm64-v8a/apex-android-public.apk dist/apex-arm64.apk
+          cp .local/android/apk/arm64-v8a/apex-android-public.apk dist/nighty-arm64.apk
           ls -lh dist/
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: apex-arm64.apk
-          path: dist/apex-arm64.apk
+          name: nighty-arm64.apk
+          path: dist/nighty-arm64.apk
 
-      - name: Publish to GitHub Releases (v1.0.0-alpha.1)
+      - name: Publish to GitHub Releases (v1.0.0-alpha.2)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat << 'EOF' > release_notes.md
-          ### [>] Apex Android (ARM64) - Alpha 1
+          ### [>] Nighty Android (ARM64) - Alpha 2
 
-          Minecraft Java Edition 26.3 ultra-fast native Rust client for Android.
-          Apex-only alpha: redesigned launcher, configurable touch controls, and a locked mod set.
+          Minecraft Java Edition 26.3 ultra-fast native Rust client for Android, built on Apex Android.
+          Nighty brings a purple Starling-inspired glass launcher, a new logo, and the locked Apex alpha feature set.
 
           #### Credits:
           - **Android Edition:** Actively ported, optimized, and maintained for ARM64 mobile devices by **RedGlitchX** ([@tubers9999](https://github.com/tubers9999)).
           - Upstream attribution is preserved in `LICENSE` and `THIRD_PARTY_NOTICES.md`.
 
           #### Alpha features:
+          - [+] Nighty Purple Liquid Glass: Apex's frosted-acrylic launcher with Starling's violet accent, the new Nighty logo, and saved theme settings.
           - [+] Apex-Only Mod Set: exactly four built-in mods (Minimap, Zoom, Recipes, SmartF3). External .hmod/.hnmod mods are disabled on Android.
           - [+] Add-on Support Kept: resource packs, shader packs, and data packs still install from files and the catalog.
-          - [+] Liquid Glass Launcher: frosted acrylic theme with gradient presets, accent controls, and saved theme settings.
           - [+] Background Audio Off by Default: launcher BGM no longer starts on its own and remembers the muted choice.
           - [+] Resizable Touch Controls: control sizes can be changed in Settings and stay clamped in the HUD editor.
           - [+] Visual PvP Hitmarker & "Ack" Sound: razor-sharp crimson crosshair with instant PvP audio feedback.
@@ -136,10 +134,7 @@ jobs:
           - [+] Native Storage Access (SAF): Android DocumentsProvider integrated seamlessly.
           EOF
 
-          gh release delete v1.0.0-alpha.1 -y || true
-          git tag -d v1.0.0-alpha.1 2>/dev/null || true
-          git push origin :refs/tags/v1.0.0-alpha.1 2>/dev/null || true
-          gh release create v1.0.0-alpha.1 dist/apex-arm64.apk \
+          gh release create v1.0.0-alpha.2 dist/nighty-arm64.apk \
             --target "$GITHUB_SHA" \
-            --title "Apex Android (ARM64) - Alpha 1" \
+            --title "Nighty Android (ARM64) - Alpha 2" \
             --notes-file release_notes.md

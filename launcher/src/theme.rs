@@ -1,6 +1,6 @@
 //! The launcher's view of Apex's design tokens (`crates/apex-theme`, described in
 //! `docs/design-system.md`): the night look (`apex_theme::night`, a night sky or a dawn with
-//! Apex's violet) in Bricolage Grotesque, with Geist Mono for paths and codes (all bundled, SIL
+//! Nighty purple) in Bricolage Grotesque, with Geist Mono for paths and codes (all bundled, SIL
 //! Open Font License). Screens not rebuilt yet draw the Blocks parts in the night's colours.
 use gpui::{rgb, Hsla, WindowAppearance};
 use apex_launcher::backend::Appearance;

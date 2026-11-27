@@ -72,7 +72,7 @@ impl Launcher {
             Some(
                 div()
                     .child(tr(
-                        "Apex's violet by default. Every colour keeps text as easy to read.",
+                        "Nighty purple by default. Every colour keeps text as easy to read.",
                     ))
                     .into_any_element(),
             ),

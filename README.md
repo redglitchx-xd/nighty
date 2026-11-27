@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="docs/media/brand/apex.png" width="96" height="96" alt="Apex Android Logo" />
-  <h1>Apex Android Edition</h1>
+  <img src="docs/media/brand/nighty.png" width="96" height="96" alt="Nighty Android Logo" />
+  <h1>Nighty Android Edition</h1>
   <p><strong>Ultra-Fast Native Ahead-of-Time Rust Client for Minecraft Java Edition 26.3</strong></p>
-  <p><em>Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
+  <p><em>Built on Apex Android · Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
   <br>
   <p>
     <a href="https://github.com/tubers9999/apex/releases">Download APK</a> · 
@@ -23,7 +23,7 @@ Apex is an independent community project. It is not affiliated with, endorsed by
 
 ## Core Characteristics
 
-| Dimension | Apex Android | Traditional JVM Wrapper |
+| Dimension | Nighty Android | Traditional JVM Wrapper |
 | :--- | :--- | :--- |
 | **Execution Architecture** | Native Rust (Ahead-of-Time) | OpenJDK HotSpot JVM |
 | **RAM Footprint** | **~140–220 MB** | 1,200–2,500 MB |
@@ -69,7 +69,7 @@ Authentic captures from the native Android port across touch navigation, world g
 
 ## Supported Version Matrix
 
-Apex targets an exact engine specification verified against upstream test suites.
+Nighty targets an exact engine specification verified against upstream test suites.
 
 | Target | Architecture | Supported | Status |
 | :--- | :--- | :--- | :--- |
@@ -96,7 +96,7 @@ Apex does not download or redistribute copyrighted Mojang assets. To build or ru
 3. **Install ARM64 Package**  
    Install the release package onto your ARM64 Android device:
    ```bash
-   adb install -r dist/apex-arm64.apk
+   adb install -r dist/nighty-arm64.apk
    ```
 
 ---
@@ -107,10 +107,10 @@ Apex does not download or redistribute copyrighted Mojang assets. To build or ru
 <br>
 
 <div align="center">
-  <img src="docs/media/brand/apex.png" width="96" height="96" alt="Apex Android Logo" />
-  <h1>Apex Ediția Android</h1>
+  <img src="docs/media/brand/nighty.png" width="96" height="96" alt="Nighty Android Logo" />
+  <h1>Nighty Ediția Android</h1>
   <p><strong>Client nativ Ahead-of-Time în Rust pentru Minecraft Java Edition 26.3</strong></p>
-  <p><em>Pipeline Vulkan direct · Fără overhead JVM · Pornire în sub 1.5 secunde · Moduri WebAssembly</em></p>
+  <p><em>Construit pe Apex Android · Pipeline Vulkan direct · Fără overhead JVM · Pornire în sub 1.5 secunde · Moduri WebAssembly</em></p>
 </div>
 
 ### Notă privind caracterul neoficial și colaborarea

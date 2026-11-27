@@ -632,8 +632,8 @@ impl TouchUi {
         let border_idle = color::hex(0xFFFFFF, 35);
         let text_idle = color::hex(0xF0EEF8, 230);
 
-        let bg_active = color::hex(0xF51C48, 230); // Glowing Apex Crimson
-        let border_active = color::hex(0xFF5B7A, 255);
+        let bg_active = color::hex(0x6B4BFF, 230); // Nighty purple
+        let border_active = color::hex(0xA9A9FF, 255);
         let text_active = color::hex(0xFFFFFF, 255);
 
         let is_w = keys.contains(&KeyCode::KeyW);

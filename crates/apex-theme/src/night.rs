@@ -87,8 +87,8 @@ pub const NIGHT: Night = Night {
     ink: 0xf4f2ff,
     ink_soft: 0xcfc9ea,
     muted: 0xa59fc6,
-    accent: 0x7656fa,
-    accent_hi: 0xa08cff,
+    accent: 0x6b4bff,
+    accent_hi: 0xa9a9ff,
     on_accent: 0xffffff,
     success: 0x5fd39a,
     warn: 0xf5b45a,
@@ -96,7 +96,7 @@ pub const NIGHT: Night = Night {
     dark: true,
 };
 
-/// The light appearance: the same sky at dawn, pale blue to peach, with the night's violet.
+/// The light appearance: the same sky at dawn, pale blue to peach, with Nighty purple.
 pub const DAWN: Night = Night {
     sky: [0xc9d3f2, 0xdcd8f3, 0xead5ec, 0xf5d3d8, 0xf9d6bd, 0xfbe4c6],
     page: 0xe9e6f6,

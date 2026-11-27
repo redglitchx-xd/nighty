@@ -36,7 +36,7 @@ almost nothing but type. What we take from it is its restraint rather than its c
 
 ### Colour
 
-Cool, slightly blue neutrals in two appearances with the same restraint, and Apex's violet.
+Cool, slightly blue neutrals in two appearances with the same restraint, and Nighty purple.
 Every text colour passes WCAG AA (4.5:1) on every background it is used on; the tests in
 `apex-theme` check each pair in both palettes.
 
@@ -237,8 +237,8 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
 | `ink`       | `#f4f2ff` | `#1b1530` | text |
 | `ink-soft`  | `#cfc9ea` | `#3b3354` | secondary text |
 | `muted`     | `#a59fc6` | `#585071` | labels, details |
-| `accent`    | `#7656fa` | `#5b3fd6` | the main action, progress |
-| `accent-hi` | `#a08cff` | `#5333c9` | accent text, focus ring |
+| `accent`    | `#6b4bff` | `#5b3fd6` | the main action, progress |
+| `accent-hi` | `#a9a9ff` | `#5333c9` | accent text, focus ring |
 | `success`, `warn`, `danger` | `#5fd39a` `#f5b45a` `#ff8a78` | `#136336` `#7a4f00` `#a3301d` | Ready, updates, errors |
 
 - **Motion that means something**: the sky is still by default; the interface moves only to show

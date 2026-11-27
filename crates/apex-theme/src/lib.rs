@@ -3,7 +3,7 @@
 //! generated from [`css`] by `cargo run -p xtask -- tokens`, which the site's build reads from main). Change a value here and all three
 //! follow. The system is described in `docs/design-system.md`.
 //!
-//! Cool neutrals in two appearances and one violet accent; Geist and Geist Mono, bundled here
+//! Cool neutrals in two appearances and one Nighty-purple accent; Geist and Geist Mono, bundled here
 //! under the SIL Open Font License (`fonts/OFL-Geist.txt`). The launcher's night look and its
 //! Bricolage Grotesque are in [`night`]. Colours are `0xRRGGBB`; sizes
 //! are in logical pixels.
@@ -408,9 +408,9 @@ pub const BLOCKS_DARK: Blocks = Blocks {
     ink_soft: 0xc5c7d1,
     muted: 0xa29cb8,
     accent: 0x9a86ff,
-    face: 0x5b3fd6,
-    face_bevel: 0x8a74ff,
-    face_lip: 0x3a2694,
+    face: 0x6b4bff,
+    face_bevel: 0xa9a9ff,
+    face_lip: 0x4c31c7,
     on_face: 0xffffff,
     danger: 0xf07a68,
     success: 0x45c27a,
@@ -434,9 +434,9 @@ pub const BLOCKS_LIGHT: Blocks = Blocks {
     ink_soft: 0x3b3354,
     muted: 0x585071,
     accent: 0x5333c9,
-    face: 0x5b3fd6,
-    face_bevel: 0x8069ef,
-    face_lip: 0x3a2694,
+    face: 0x6b4bff,
+    face_bevel: 0xa9a9ff,
+    face_lip: 0x4c31c7,
     on_face: 0xffffff,
     danger: 0xa3301d,
     success: 0x136336,

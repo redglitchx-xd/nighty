@@ -147,7 +147,7 @@ The opening, then Play ([clip](docs/opening.webm)):
   [NAME]`, `account select <name>` (an account or an offline name), `account forget-offline
   <name>`.
 - **Accent and Home background**: on top of Dark, Light or System, Settings > Launcher picks an
-  accent (Apex's violet, blue, teal, green, amber, red or pink) and a picture of the player's
+  accent (Nighty purple, blue, teal, green, amber, red or pink) and a picture of the player's
   own behind Home (PNG, JPEG or WebP, cropped to fill; **Landscape** brings Apex's back). An
   accent turns the violet tokens to its hue, then darkens or lightens them just enough to keep
   white on the Play button at 4.5:1 and the accent at 3:1 on every background (a test holds every

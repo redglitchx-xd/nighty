@@ -2,14 +2,14 @@
 //! Home.
 //!
 //! An accent is a hue, and the player may pick any of them; seven hues have names, as shortcuts.
-//! Apex's violet is the default. Another hue turns the violet tokens (`apex_theme::Blocks`'
+//! Nighty purple is the default. Another hue turns the purple tokens (`apex_theme::Blocks`'
 //! accent and the main action's face, bevel and lip) to it, keeping their saturation and
 //! lightness, then darkens or lightens each just enough to read as well as the violet does: white
 //! on the face at 4.5:1, the accent at 3:1 on every background.
 use apex_theme::{contrast, Blocks};
 use std::path::{Path, PathBuf};
 
-/// An accent: a hue in degrees, or none for Apex's violet, whose tokens are the palette's own
+/// An accent: a hue in degrees, or none for Nighty purple, whose tokens are the palette's own
 /// and stay untouched.
 #[derive(Clone, Copy, Debug, Default, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(try_from = "String", into = "String")]
