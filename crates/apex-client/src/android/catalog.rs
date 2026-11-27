@@ -18,7 +18,7 @@ pub fn source_only_mod(project: &Project) -> bool {
 
 fn source_label(source: browser::SourceId) -> &'static str {
     if source == browser::SourceId::Apex {
-        "Nighty"
+        "Nighty Alpha"
     } else {
         source.label()
     }

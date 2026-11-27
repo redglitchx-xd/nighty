@@ -124,7 +124,7 @@ What applies to the Nighty APK:
 - **User-chosen downloads.** In the app, downloads happen only from sources you select, such as local files and
   the catalog you browse; it does not silently install third-party content.
 - **Reviewable provenance.** The source and the GitHub Actions workflow that builds `nighty-arm64.apk` are public.
-  Alpha 3 (`v1.0.0-alpha.3`, versionCode 32) publishes `SHA256SUMS.txt` alongside the APK and quotes the checksum
+  Nighty Alpha (`vNighty-Alpha`, internal versionCode 33) publishes `SHA256SUMS.txt` alongside the APK and quotes the checksum
   in the release notes.
 - **What a checksum does and does not prove.** `sha256sum -c SHA256SUMS.txt` confirms that the downloaded bytes
   match the published asset. It does not prove the code is trustworthy or free of malware. Antivirus products can

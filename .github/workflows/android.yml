@@ -113,15 +113,15 @@ jobs:
             dist/nighty-arm64.apk
             dist/SHA256SUMS.txt
 
-      - name: Publish to GitHub Releases (v1.0.0-alpha.3)
+      - name: Publish to GitHub Releases (vNighty-Alpha)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat << 'EOF' > release_notes.md
-          ### [>] Nighty Android (ARM64) - Alpha 3
+          ### [>] Nighty Alpha
 
-          Nighty Android is an unofficial ARM64 client for Minecraft Java Edition 26.3, built on Apex Android.
-          Alpha 3 continues the deeper Nighty purple liquid-glass rebuild and keeps the alpha feature set.
+          Nighty Alpha is an unofficial ARM64 client for Minecraft Java Edition 26.3.
+          This build continues the deeper Nighty purple liquid-glass rebuild and keeps the alpha feature set.
 
           #### Credits:
           - **Android Edition:** Actively ported, optimized, and maintained for ARM64 mobile devices by **RedGlitchX** ([@tubers9999](https://github.com/tubers9999)).
@@ -129,7 +129,7 @@ jobs:
 
           #### Alpha features:
           - [+] Nighty Purple Liquid Glass: deeper violet accents, translucent layered panels, the new Nighty logo, and theme choices saved on the device.
-          - [+] Apex-Only Mod Set: exactly four built-in mods (Minimap, Zoom, Recipes, SmartF3). External .hmod/.hnmod mods are disabled on Android.
+          - [+] Fixed Built-in Mod Set: exactly four built-in mods (Minimap, Zoom, Recipes, SmartF3). External .hmod/.hnmod mods are disabled on Android.
           - [+] Add-on Support Kept: resource packs, shader packs, and data packs still install from files and the catalog.
           - [+] Background Audio Off by Default: launcher BGM no longer starts on its own and remembers the muted choice.
           - [+] Resizable Touch Controls: control sizes can be changed in Settings and stay clamped in the HUD editor.
@@ -154,7 +154,7 @@ jobs:
             printf '```\n'
           } >> release_notes.md
 
-          gh release create v1.0.0-alpha.3 dist/nighty-arm64.apk dist/SHA256SUMS.txt \
+          gh release create vNighty-Alpha dist/nighty-arm64.apk dist/SHA256SUMS.txt \
             --target "$GITHUB_SHA" \
-            --title "Nighty Android (ARM64) - Alpha 3" \
+            --title "Nighty Alpha" \
             --notes-file release_notes.md

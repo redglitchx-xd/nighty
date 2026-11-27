@@ -81,7 +81,7 @@ fn my3_muted() -> u32 {
 #[inline]
 fn source_label(source: crate::browser::SourceId) -> &'static str {
     if source == crate::browser::SourceId::Apex {
-        "Nighty"
+        "Nighty Alpha"
     } else {
         source.label()
     }
@@ -331,7 +331,6 @@ pub(super) enum Action {
     ToggleBundled(&'static str),
     WorldFiles,
     GameFiles,
-    StarlingDownload,
     WorkerLimit,
     ChooseWorkerLimit(u32),
     PerformanceHints,
@@ -1355,7 +1354,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
 
         // ---- Top Header Bar (brand lockup ... account pill) ----
         ui.apex_logo(18.0, 12.0, 28.0);
-        ui.text(Face::SemiBold, 16.0, 54.0, 10.0, my3_text(), "Nighty");
+        ui.text(Face::SemiBold, 16.0, 54.0, 10.0, my3_text(), "Nighty Alpha");
         let account_name = self
             .login
             .profile
@@ -1723,7 +1722,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     content_x + 22.0,
                     card_y + 84.0,
                     my3_text(),
-                    "Nighty Android Client 26.3",
+                    "Nighty Alpha",
                 );
                 let notice = "A native Rust launcher for Minecraft 26.3 on Android: responsive touch controls, local profiles, and add-on support. Game files download during setup from official sources.";
                 let mut line_y = card_y + 108.0;
@@ -1765,24 +1764,11 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     );
                 }
                 let migration_y = line_y + 24.0;
-                let migration_w = (content_w - 52.0) * 0.5;
+                let migration_w = content_w - 44.0;
                 button(
                     &mut ui,
                     &mut self.targets,
                     [content_x + 22.0, migration_y, migration_w, 34.0],
-                    "Download Starling",
-                    Action::StarlingDownload,
-                    false,
-                );
-                button(
-                    &mut ui,
-                    &mut self.targets,
-                    [
-                        content_x + 30.0 + migration_w,
-                        migration_y,
-                        migration_w,
-                        34.0,
-                    ],
                     "Export worlds (SAF)",
                     Action::WorldFiles,
                     false,
@@ -2361,7 +2347,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 x + 22.0,
                 y + 24.0,
                 my3_text(),
-                "Exit Nighty?",
+                "Exit Nighty Alpha?",
             );
             let bw = (width - 52.0) * 0.5;
             button(
@@ -5992,7 +5978,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 let account_btn = if signed_in { "Manage" } else { "Sign in" };
                 let allow_motion = !apex_client::ui_theme::motion::reduced_motion();
                 let privacy_text = [
-                    "Nighty is unofficial and not affiliated with Mojang, Microsoft, Starling, or Zalith.",
+                    "Nighty Alpha is unofficial and not affiliated with Mojang, Microsoft, Starling, or Zalith.",
                     "No Mojang game files are bundled; Minecraft files download during setup from official sources.",
                     "Settings, logs and reports stay in local app storage unless you export them.",
                     "Add-ons come only from the catalog source you select; review each project before installing.",
@@ -6651,14 +6637,6 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             Some(Action::ToggleBundled(id)) => {
                 self.toggle_bundled_mod(id)?;
             }
-            Some(Action::StarlingDownload) => {
-                if !crate::platform::open_url(
-                    "https://github.com/JuanLuci/starling/releases/latest",
-                ) {
-                    self.catalog.status =
-                        "Open github.com/JuanLuci/starling/releases to transfer worlds with Starling.".into();
-                }
-            }
             Some(Action::GameFiles) => {
                 self.catalog.status = if crate::platform::open_documents(crate::document_store::ROOT) {
                     "Game files opened. Worlds, mods, packs, shaders and reports are available here."
@@ -6667,7 +6645,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             Some(Action::WorldFiles) => {
                 let id = crate::document_store::folder_id(self.catalog.config.profile, "worlds");
                 self.catalog.status = if crate::platform::open_documents(&id) {
-                    "In Android Files, select a complete world folder, then Copy to a folder you choose. Keep Nighty installed until you verify your worlds in Starling."
+                    "In Android Files, select a complete world folder, then Copy to a folder you choose. Keep Nighty Alpha installed until your worlds are copied."
                 } else { "Open the Nighty documents folder > Worlds. Copy complete world folders while the game is closed." }.into();
             }
             Some(Action::WorkerLimit) => self.open_chooser(chooser::Kind::WorkerLimit),

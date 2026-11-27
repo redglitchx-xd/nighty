@@ -1,8 +1,8 @@
 <div align="center">
   <img src="docs/media/brand/nighty.png" width="96" height="96" alt="Nighty Android Logo" />
-  <h1>Nighty Android Edition</h1>
+  <h1>Nighty Alpha</h1>
   <p><strong>Ultra-Fast Native Ahead-of-Time Rust Client for Minecraft Java Edition 26.3</strong></p>
-  <p><em>Built on Apex Android · Nighty purple liquid glass · Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
+  <p><em>Nighty Alpha · purple liquid glass · Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
   <br>
   <p>
     <a href="https://github.com/tubers9999/nighty/releases">Download APK</a> ·
@@ -15,7 +15,7 @@
 
 ### Unofficial Project & Collaboration Notice
 
-Apex is an independent community project. Nighty is an unofficial launcher built on Apex Android. Nighty is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, Starling or Zalith, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB. Starling and Zalith are mentioned only as UI inspiration; no code is copied from them.
+Nighty Alpha is an unofficial ARM64 launcher; upstream engine attribution is preserved in `LICENSE` and `THIRD_PARTY_NOTICES.md`. Nighty Alpha is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, Starling or Zalith, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB. Starling and Zalith are mentioned only as UI inspiration; no code is copied from them.
 
 - **Android Port:** Maintained and optimized for ARM64 mobile hardware by [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
 - *Apex Android is developed independently for mobile devices.*
@@ -25,7 +25,7 @@ Apex is an independent community project. Nighty is an unofficial launcher built
 
 ## Nighty UI: deeper purple, liquid glass
 
-The alpha.3 release (`v1.0.0-alpha.3`, `versionCode 32`) continues the Nighty rebuild on top of Apex Android: deeper purple tones, frosted translucent panels with subtle wave and sheen bands, the `docs/media/brand/nighty.png` mark, and theme choices saved on the device. The launcher and Nighty overlays use this look; the game's vanilla screens stay unchanged where parity matters. The design direction is documented in [docs/design-system.md](docs/design-system.md), and the Android packaging details in [docs/android-publication.md](docs/android-publication.md).
+The Nighty Alpha build (`vNighty-Alpha`, `versionName Nighty Alpha`) continues the Nighty rebuild: deeper purple tones, frosted translucent panels with subtle wave and sheen bands, the `docs/media/brand/nighty.png` mark, and theme choices saved on the device. The launcher and Nighty overlays use this look; the game's vanilla screens stay unchanged where parity matters. The design direction is documented in [docs/design-system.md](docs/design-system.md), and the Android packaging details in [docs/android-publication.md](docs/android-publication.md).
 
 ---
 
@@ -116,14 +116,14 @@ Apex does not download or redistribute copyrighted Mojang assets. To build or ru
 
 <div align="center">
   <img src="docs/media/brand/nighty.png" width="96" height="96" alt="Nighty Android Logo" />
-  <h1>Nighty Ediția Android</h1>
+  <h1>Nighty Alpha</h1>
   <p><strong>Client nativ Ahead-of-Time în Rust pentru Minecraft Java Edition 26.3</strong></p>
-  <p><em>Construit pe Apex Android · Pipeline Vulkan direct · Fără overhead JVM · Pornire în sub 1.5 secunde · Moduri WebAssembly</em></p>
+  <p><em>Nighty Alpha · Pipeline Vulkan direct · Fără overhead JVM · Pornire în sub 1.5 secunde · Moduri WebAssembly</em></p>
 </div>
 
 ### Notă privind caracterul neoficial și colaborarea
 
-Apex este un proiect comunitar independent. Nighty este un launcher neoficial construit pe Apex Android. Nighty nu este afiliat, aprobat sau asociat cu Mojang Studios, Microsoft Corporation, Starling sau Zalith, sau cu oricare dintre filialele acestora. Minecraft este o marcă înregistrată a Mojang Synergies AB. Starling și Zalith sunt menționate doar ca inspirație vizuală; nu a fost copiat cod din ele.
+Nighty Alpha este un launcher neoficial ARM64; atribuirea motorului upstream este păstrată în `LICENSE` și `THIRD_PARTY_NOTICES.md`. Nighty Alpha nu este afiliat, aprobat sau asociat cu Mojang Studios, Microsoft Corporation, Starling sau Zalith, sau cu oricare dintre filialele acestora. Minecraft este o marcă înregistrată a Mojang Synergies AB. Starling și Zalith sunt menționate doar ca inspirație vizuală; nu a fost copiat cod din ele.
 
 - **Portarea Android:** Menținută și optimizată pentru dispozitive mobile ARM64 de [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
 - Apex Android este dezvoltat independent pentru dispozitive mobile.

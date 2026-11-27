@@ -8,10 +8,10 @@ are maintained separately from upstream deployment workflows.
 For automatic, separately installed development APKs for testers, see
 [development builds in GitHub Actions](android-dev-builds.md).
 
-## Nighty alpha.3 release
+## Nighty Alpha release
 
-The current Nighty release is `v1.0.0-alpha.3` (`versionName 1.0.0-alpha.3`,
-`versionCode 32`). The workflow in `.github/workflows/android.yml` builds the
+The current Nighty release is `vNighty-Alpha` (`versionName Nighty Alpha`,
+internal `versionCode 33`). The workflow in `.github/workflows/android.yml` builds the
 ARM64-v8a public APK, attaches `nighty-arm64.apk` and `SHA256SUMS.txt` to the
 GitHub release, and targets the exact source commit it built. It does not publish
 the other ABIs listed below. Nighty is not affiliated with Mojang, Microsoft,
@@ -71,14 +71,14 @@ Microsoft/Mojang registration; do not describe it as an approved integration.
 
 ## Versions and release branches
 
-The Nighty line is at `1.0.0-alpha.3` (`versionCode 32`, ARM64-v8a), tagged
-`v1.0.0-alpha.3`. The `0.7.5` material in the
+The Nighty line is at `Nighty Alpha` (internal `versionCode 33`, ARM64-v8a), tagged
+`vNighty-Alpha`. The `0.7.5` material in the
 [change list and validation scope](android-0.7.5.md) is upstream Apex history,
 kept for reference. A Git push does not itself publish an APK; release attachments
 must come from the exact tagged source (`--target "$GITHUB_SHA"` in the workflow).
 
-Use `1.0.0-alpha.3-dev.<build>` for intermediate development APKs and
-`1.0.0-alpha.3-rc.<build>` for explicitly prepared release candidates. Debug
+Use `Nighty Alpha-dev.<build>` for intermediate development APKs and
+`Nighty Alpha-rc.<build>` for explicitly prepared release candidates. Debug
 builds use a separate `.dev` application ID by default, keeping their data separate
 from the release app. Never replace an existing release asset with a different
 binary of the same name.
@@ -86,7 +86,7 @@ binary of the same name.
 Maintain changes as focused commits on working branches, integrate reviewed
 upstream history into the Nighty branch, and record changes relative to the last
 public release. Build and test the exact commit to be tagged. Only then create an
-Android release tag such as `v1.0.0-alpha.3` and attach the audited APK and checksum
+Android release tag such as `vNighty-Alpha` and attach the audited APK and checksum
 manifest.
 Increment `versionCode` for every public Android update and preserve its signing
 certificate. A source commit or development version is not a compatibility or
