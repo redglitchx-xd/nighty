@@ -2056,7 +2056,7 @@ impl<'a> Ui<'a> {
                 cx,
                 title_y,
                 color::with_alpha(theme.text_primary, title_t),
-                "APEX",
+                "NIGHTY",
             );
             let sub_y = title_y + 32.0;
             self.text_centered(
@@ -2065,7 +2065,7 @@ impl<'a> Ui<'a> {
                 cx,
                 sub_y,
                 color::with_alpha(theme.accent, title_t * 0.95),
-                "COMPETITIVE CLIENT  •  26.3",
+                "NIGHTY PURPLE  •  26.3",
             );
 
             // Real initialization progress indicator
@@ -2177,7 +2177,7 @@ fn wordmark(atlas: &HudAtlas, batch: &mut HudBatch) {
     let cross_hw = mark_s * 0.15;
     ui.rounded(cx - cross_hw, cross_y - dot_w * 0.4, cross_hw * 2.0, dot_w * 0.8, dot_w * 0.4, accent);
 
-    ui.text_centered(Face::SemiBold, size, cx, top, BOOT_TEXT, "Apex");
+    ui.text_centered(Face::SemiBold, size, cx, top, BOOT_TEXT, "Nighty");
     let sub_y = top + size * 1.45 + small * 0.6;
     ui.text_centered(
         Face::Mono,
@@ -2185,7 +2185,7 @@ fn wordmark(atlas: &HudAtlas, batch: &mut HudBatch) {
         cx,
         sub_y,
         BOOT_LOG,
-        "Apex Android Client",
+        "Nighty Android Client",
     );
 
     // Symmetrical centered startup progress bar below the tagline
@@ -2312,7 +2312,7 @@ impl ThemePreset {
 
     pub fn subtitle(self) -> &'static str {
         match self {
-            Self::ObsidianViolet => "Deep obsidian with Apex violet",
+            Self::ObsidianViolet => "Deep obsidian with Nighty purple",
             Self::CyberCyan => "Deep slate with electric cyan",
             Self::EmeraldForest => "Woodland moss with emerald mint",
             Self::CrimsonEmber => "Obsidian ruby with warm coral",
@@ -2474,16 +2474,16 @@ pub struct LauncherThemeConfig {
 impl Default for LauncherThemeConfig {
     fn default() -> Self {
         Self {
-            preset: ThemePreset::CrimsonEmber,
+            preset: ThemePreset::ObsidianViolet,
             appearance: ThemeAppearance::Dark,
             background_mode: BackgroundMode::Gradient,
-            custom_bg_hex: "#140A0F".into(),
-            custom_surface_hex: "#22121A".into(),
-            custom_accent_hex: "#F51C48".into(),
+            custom_bg_hex: "#13111C".into(),
+            custom_surface_hex: "#1D192B".into(),
+            custom_accent_hex: "#9A7BFF".into(),
             gradient_direction: GradientDirection::DiagonalDown,
-            gradient_start_hex: "#240E17".into(),
-            gradient_mid_hex: "#170C14".into(),
-            gradient_end_hex: "#0A060C".into(),
+            gradient_start_hex: "#161129".into(),
+            gradient_mid_hex: "#1E1638".into(),
+            gradient_end_hex: "#0E0C16".into(),
             gradient_mid_pos: 0.48,
             use_three_stops: true,
             liquid_glass: true,

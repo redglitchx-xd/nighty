@@ -1,13 +1,13 @@
-# Apex on Android
+# Nighty on Android
 
-Apex Android is a native Rust/wgpu client for Minecraft Java **26.3**.
+Nighty Android is a native Rust/wgpu client for Minecraft Java **26.3**, built on Apex Android.
 It downloads the required resources on the device and supports single player
 and Java multiplayer. It does not run arbitrary Minecraft JAR versions.
 
 ## Install and play
 
-1. Install the APK matching the device architecture from [Releases](https://github.com/tubers9999/apex/releases).
-2. Open Apex and choose **Download Minecraft 26.3**.
+1. Install the ARM64 APK from [Nighty Releases](https://github.com/tubers9999/nighty/releases) and verify it with the published `SHA256SUMS.txt`.
+2. Open Nighty and choose **Download Minecraft 26.3**.
 3. Wait for resource verification and installation, then choose **Play**.
 
 The first installation downloads approximately 500 MiB, including sounds.

@@ -262,7 +262,7 @@ pub struct Audio {
     /// milliseconds on Android, so the render thread only receives its result.
     #[cfg(feature = "audio")]
     device_probe: Option<std::sync::mpsc::Receiver<DeviceProbe>>,
-    /// Timestamp of the last successful hitmarker trigger for visual HUD feedback.
+    /// Timestamp of the last landed PvP hit, for the visual HUD hitmarker only.
     pub last_hit_time: Option<std::time::Instant>,
 }
 fn decode(path: &Path) -> Option<(Vec<f32>, u32)> {
@@ -1385,27 +1385,9 @@ impl Audio {
         );
         Some(id)
     }
-    /// Plays the signature Apex PvP hitmarker sound effect ("ack") when striking hostile mobs or players.
-    pub fn play_apex_hit_sound(&mut self, home: Option<&Path>) {
+    /// Records a landed PvP hit for the visual hitmarker; no sound is played.
+    pub fn note_hitmarker(&mut self) {
         self.last_hit_time = Some(std::time::Instant::now());
-        if let Some(h) = home {
-            let custom_hit = h.join("theme/hit.ogg");
-            let custom_ack = h.join("theme/ack.ogg");
-            let target = if custom_hit.is_file() {
-                Some(custom_hit)
-            } else if custom_ack.is_file() {
-                Some(custom_ack)
-            } else {
-                None
-            };
-            if let Some(p) = target {
-                if self.play_custom_stream(&p, 0.95, false).is_some() {
-                    return;
-                }
-            }
-        }
-        let (samples, rate) = apex_hit_sound_samples();
-        self.play_custom_samples(samples, rate, 0.95, false);
     }
     /// Stops a custom playing audio channel.
     pub fn stop_custom_stream(&mut self, channel: ChannelId) {
@@ -1564,33 +1546,6 @@ impl Sounds for Audio {
     fn update_category_volume(&mut self, source: usize, gain: f32) {
         self.bound().update_category_volume(source, gain);
     }
-}
-
-/// Generates or returns the precomputed Apex PvP hitmarker ("ack") PCM audio waveform.
-pub fn apex_hit_sound_samples() -> (Arc<Vec<f32>>, u32) {
-    static CACHED: std::sync::OnceLock<(Arc<Vec<f32>>, u32)> = std::sync::OnceLock::new();
-    CACHED
-        .get_or_init(|| {
-            let sample_rate = 44100u32;
-            let duration_secs = 0.09f32; // 90ms punchy, crisp hitmarker "ack"
-            let total_samples = (sample_rate as f32 * duration_secs) as usize;
-            let mut buffer = Vec::with_capacity(total_samples);
-            for i in 0..total_samples {
-                let t = i as f32 / sample_rate as f32;
-                let progress = i as f32 / total_samples as f32;
-                // Snappy frequency drop from 2400Hz to 1200Hz for the punchy "ack" transient
-                let freq = 2400.0 * (-12.0 * progress).exp() + 1200.0 * (1.0 - progress);
-                let phase = 2.0 * std::f32::consts::PI * freq * t;
-                let phase2 = 2.0 * std::f32::consts::PI * (freq * 1.5) * t;
-                // Instantaneous 2ms smooth rise and exponential decay
-                let attack = (t / 0.002).clamp(0.0, 1.0);
-                let decay = (-22.0 * progress).exp();
-                let sample = (phase.sin() * 0.75 + phase2.sin() * 0.25) * attack * decay * 0.85;
-                buffer.push(sample);
-            }
-            (Arc::new(buffer), sample_rate)
-        })
-        .clone()
 }
 
 /// Generates or returns the precomputed Apex High-Octane 135 BPM Minecraft PvP soundtrack.

@@ -8088,8 +8088,7 @@ impl Game<'_> {
                 || self.mobs[i].kind.id == "minecraft:player"
                 || self.mobs[i].ai.target.is_some();
             if is_hostile_or_player {
-                let home = apex_client::logging::game_home();
-                self.audio.play_apex_hit_sound(Some(&home));
+                self.audio.note_hitmarker();
             }
             self.remote_player_attack(i);
             self.reset_attack_strength();

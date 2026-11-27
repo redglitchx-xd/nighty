@@ -236,7 +236,7 @@ pub fn export_file(
     if file_name.to_ascii_lowercase().ends_with(".png") {
         let _ = crate::gallery::save(file_path);
         return Ok(format!(
-            "Exporting '{file_name}' to Pictures/ApexAndroid..."
+            "Exporting '{file_name}' to Nighty's pictures folder..."
         ));
     }
     let rel_str = file_path
@@ -263,7 +263,7 @@ pub fn export_file(
         ))
     } else {
         Ok(format!(
-            "Ready to export '{file_name}' via system Files > Apex Android."
+            "Ready to export '{file_name}' via system Files > Nighty documents."
         ))
     }
 }
@@ -292,7 +292,7 @@ pub extern "system" fn document_result(
     };
     if pending.kind == Kind::Mods {
         notice(
-            "External mods are disabled in Apex Alpha. Only the four built-in mods are supported.",
+            "External mods are disabled in Nighty Alpha. Only the four built-in mods are supported.",
             false,
         );
         return;

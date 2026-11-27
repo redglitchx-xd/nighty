@@ -2,10 +2,22 @@
 
 Apex Android preserves the upstream Git history, MIT copyright and license,
 third-party notices and dependency licenses. See [upstream integration](android-upstream.json).
-The `android` branch is maintained separately from upstream deployment workflows.
+Nighty is an unofficial fork built on that history; its UI branch and release workflow
+are maintained separately from upstream deployment workflows.
 
 For automatic, separately installed development APKs for testers, see
 [development builds in GitHub Actions](android-dev-builds.md).
+
+## Nighty alpha.3 release
+
+The current Nighty release is `v1.0.0-alpha.3` (`versionName 1.0.0-alpha.3`,
+`versionCode 32`). The workflow in `.github/workflows/android.yml` builds the
+ARM64-v8a public APK, attaches `nighty-arm64.apk` and `SHA256SUMS.txt` to the
+GitHub release, and targets the exact source commit it built. It does not publish
+the other ABIs listed below. Nighty is not affiliated with Mojang, Microsoft,
+Starling or Zalith; see [security and privacy](security.md).
+
+---
 
 ## Build distribution APKs
 
@@ -47,7 +59,7 @@ update. `versionName` is the visible application version. Update those values in
 Public releases should attach:
 
 - One clearly named APK per supported ABI.
-- `SHA256SUMS.txt` covering the exact attached APKs.
+- `SHA256SUMS.txt` covering the exact attached APKs; Nighty alpha releases also quote it in the release notes.
 - `LICENSE.txt` and `THIRD_PARTY_NOTICES.md`.
 - Release notes describing changes, requirements and known compatibility limits.
 
@@ -59,19 +71,23 @@ Microsoft/Mojang registration; do not describe it as an approved integration.
 
 ## Versions and release branches
 
-Development is now on the `0.7.5` release candidate. See the
-[change list and validation scope](android-0.7.5.md). A Git push does not itself
-publish an APK; release attachments must come from the exact tagged source.
+The Nighty line is at `1.0.0-alpha.3` (`versionCode 32`, ARM64-v8a), tagged
+`v1.0.0-alpha.3`. The `0.7.5` material in the
+[change list and validation scope](android-0.7.5.md) is upstream Apex history,
+kept for reference. A Git push does not itself publish an APK; release attachments
+must come from the exact tagged source (`--target "$GITHUB_SHA"` in the workflow).
 
-Use `0.7.5-dev.<build>` for intermediate development APKs and `0.7.5-rc.<build>`
-for explicitly prepared release candidates. Debug builds use a separate `.dev`
-application ID by default, keeping their data separate from the release app.
-Never replace an existing release asset with a different binary of the same name.
+Use `1.0.0-alpha.3-dev.<build>` for intermediate development APKs and
+`1.0.0-alpha.3-rc.<build>` for explicitly prepared release candidates. Debug
+builds use a separate `.dev` application ID by default, keeping their data separate
+from the release app. Never replace an existing release asset with a different
+binary of the same name.
 
 Maintain changes as focused commits on working branches, integrate reviewed
-upstream history into `android`, and record changes relative to the last public
-release. Build and test the exact commit to be tagged. Only then create an Android
-release tag such as `v0.7.5` and attach the audited APKs and checksums.
+upstream history into the Nighty branch, and record changes relative to the last
+public release. Build and test the exact commit to be tagged. Only then create an
+Android release tag such as `v1.0.0-alpha.3` and attach the audited APK and checksum
+manifest.
 Increment `versionCode` for every public Android update and preserve its signing
 certificate. A source commit or development version is not a compatibility or
 performance guarantee; list the architectures and device checks actually completed.
@@ -102,36 +118,25 @@ Android ABIs, and one with `build_apk` enabled prepares the pinned engine tables
 builds that ABI's public APK and uploads it as a workflow artifact. The workflow
 never publishes releases.
 
-### The permanent Android signing key
+### Nighty alpha signing
 
-Every CI build signs with one permanent certificate, so each APK updates the
-installed app in place: Android requires the same certificate and a higher
-`versionCode`, and it no longer asks for an uninstall between builds. The key is
-an RSA-4096 PKCS12 keystore, valid 100 years, alias `apex-release`.
+The Nighty workflow restores `.local/android/debug.keystore` from the
+`ANDROID_DEV_KEYSTORE_BASE64` repository secret when it is set; otherwise it
+generates a fresh development keystore for that run.
+`packaging/android/build.gradle` signs the release variant with that keystore.
+No signing key is committed or attached to a release.
 
-It lives only in four repository secrets, never in Git and never in an artifact:
-
-| Secret | Holds |
-| --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | The whole keystore, base64-encoded |
-| `ANDROID_KEYSTORE_PASSWORD` | The keystore password |
-| `ANDROID_KEY_ALIAS` | `apex-release` |
-| `ANDROID_KEY_PASSWORD` | The key password (the same one) |
-
-The build job writes them to `.local/android/release.keystore`, and
-`packaging/android/build.gradle` signs the release variant with it whenever
-`APEX_ANDROID_KEYSTORE` and the three companion variables are set. Without them
-(a developer's local build) the throwaway development key is used, and the APK
-cannot update a CI install. The job fails rather than silently falling back when
-the secret is missing.
-
-Keep a copy of the keystore and its password outside GitHub: without them, no
-future build can update an installed app. `--print-certs` in the build log names
-the certificate each APK carries.
+A changed keystore means a changed signing certificate: Android then requires
+uninstalling the old app before installing the new APK. In-place updates need the
+same keystore secret to be preserved and a higher `versionCode` for every public
+release. Check the certificate in each build before describing an update as
+in-place; an APK signed with a generated key is not a permanent signing identity.
+The checksum manifest verifies the APK bytes, not the signing identity.
 
 ## Upstream maintenance
 
-Fetch and review `upstream/main` before a release. Merge reviewed stable history,
-resolve Android module paths and bridges, update `docs/android-upstream.json`,
-and run Android checks before pushing. Keep experimental feature clusters and
-upstream deployment changes separate from routine Android fixes.
+Fetch and review `upstream/main` before a release. Merge reviewed stable history
+into the Nighty branch, resolve Android module paths and bridges, update
+`docs/android-upstream.json`, and run Android checks before pushing. Keep
+experimental feature clusters and upstream deployment changes separate from
+routine Android fixes.

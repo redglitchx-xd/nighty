@@ -78,6 +78,15 @@ fn my3_muted() -> u32 {
     apex_client::ui_theme::active_theme().text_muted
 }
 
+#[inline]
+fn source_label(source: crate::browser::SourceId) -> &'static str {
+    if source == crate::browser::SourceId::Apex {
+        "Nighty"
+    } else {
+        source.label()
+    }
+}
+
 /// Smooth 60fps UI animation state across navigation, pages, accordions, theme previews, progress bars, and modals.
 /// Automatically respects `motion::reduced_motion()` on low-end Android hardware.
 pub(crate) struct AnimState {
@@ -520,6 +529,41 @@ fn toggle(
     }
 }
 
+fn draw_glass_card_highlight(
+    ui: &mut Ui,
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    radius: f32,
+    shimmer_phase: f32,
+    allow_motion: bool,
+) {
+    if !allow_motion {
+        return;
+    }
+    ui.rounded(x, y, w, h, radius, color::with_alpha(my3_accent(), 0.05));
+    ui.fill(
+        x + radius,
+        y,
+        (w - radius * 2.0).max(1.0),
+        1.5,
+        color::with_alpha(0xFFFFFF, 0.16),
+    );
+    ui.clipped([x, y, w, h], |ui| {
+        let sweep_w = (w * 0.32).clamp(36.0, 160.0);
+        let sx = x + (w - sweep_w) * shimmer_phase.clamp(0.0, 1.0);
+        ui.rounded(
+            sx,
+            y,
+            sweep_w,
+            h,
+            radius,
+            color::with_alpha(my3_accent_soft(), 0.22),
+        );
+    });
+}
+
 #[allow(clippy::too_many_arguments)]
 fn draw_setting_card(
     ui: &mut Ui,
@@ -827,6 +871,7 @@ fn draw_my3_progress_view(
     cancel_action: Action,
 ) {
     let center_y = (h * 0.44).clamp(168.0, h - 135.0);
+    let allow_motion = !apex_client::ui_theme::motion::reduced_motion();
     let title_fitted = ui.fit_text(Face::SemiBold, 23.0, title, content_w);
     ui.text(
         Face::SemiBold,
@@ -890,7 +935,7 @@ fn draw_my3_progress_view(
     if clamped > 0.0 {
         let fill_w = (content_w * clamped).max(bar_h).min(content_w);
         ui.rounded(content_x, bar_y, fill_w, bar_h, 6.0, my3_accent());
-        if !paused && fill_w > 36.0 {
+        if allow_motion && !paused && fill_w > 36.0 {
             let sw = (fill_w * 0.25).clamp(24.0, 72.0);
             let sx = content_x + (fill_w - sw) * shimmer_phase.clamp(0.0, 1.0);
             ui.rounded(
@@ -905,13 +950,15 @@ fn draw_my3_progress_view(
     }
 
     // Stage description on left + Download Speed & ETA on right
-    let metrics_line = format!("{speed_label}  •  {eta_label}");
+    let eta_value = eta_label.strip_prefix("ETA ").unwrap_or(eta_label);
+    let metrics_line = format!("Speed: {speed_label}  •  ETA: {eta_value}");
     let metrics_w = ui.measure(Face::Medium, 13.0, &metrics_line);
-    let stage_line = if paused {
+    let status_text = if paused {
         format!("Paused • {stage_text}")
     } else {
         stage_text.to_owned()
     };
+    let stage_line = format!("Status: {status_text}");
     let stage_max = (content_w - metrics_w - 16.0).max(80.0);
     let stage_fitted = ui.fit_text(Face::Regular, 13.0, &stage_line, stage_max);
     ui.text(
@@ -1198,32 +1245,42 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
     // 1. Base cyber obsidian/crimson gradient
     ui.draw_theme_background(0.0, 0.0, w, h, th);
 
-    // 2. Animated luminous plasma waves (apextal bands oscillating with sine/cosine)
-    let bands = 6;
-    for i in 0..bands {
-        let fi = i as f32;
-        let speed = 0.75 + fi * 0.22;
-        let y_base = (h * (0.18 + fi * 0.14) + (now * speed + fi * 1.6).sin() * 22.0).clamp(0.0, h);
-        let band_h = 24.0 + (now * 1.1 + fi).cos().abs() * 16.0;
-        let alpha = (0.12 + 0.08 * (now * 1.4 + fi * 2.0).sin().abs()).clamp(0.05, 0.32);
-        let color = if i % 2 == 0 {
-            apex_client::ui_theme::color::with_alpha(th.accent, alpha)
-        } else {
-            apex_client::ui_theme::color::with_alpha(th.accent_soft, alpha * 0.85)
-        };
-        ui.rounded(0.0, y_base, w, band_h, band_h * 0.5, color);
-    }
+    let allow_motion = !apex_client::ui_theme::motion::reduced_motion();
+    if allow_motion {
+        // 2. Animated luminous plasma waves (apextal bands oscillating with sine/cosine)
+        let bands = 6;
+        for i in 0..bands {
+            let fi = i as f32;
+            let speed = 0.75 + fi * 0.22;
+            let y_base = (h * (0.18 + fi * 0.14) + (now * speed + fi * 1.6).sin() * 22.0).clamp(0.0, h);
+            let band_h = 24.0 + (now * 1.1 + fi).cos().abs() * 16.0;
+            let alpha = (0.12 + 0.08 * (now * 1.4 + fi * 2.0).sin().abs()).clamp(0.05, 0.32);
+            let color = if i % 2 == 0 {
+                apex_client::ui_theme::color::with_alpha(th.accent, alpha)
+            } else {
+                apex_client::ui_theme::color::with_alpha(th.accent_soft, alpha * 0.85)
+            };
+            ui.rounded(0.0, y_base, w, band_h, band_h * 0.5, color);
+        }
 
-    // 3. Floating cyber embers / sparks drifting upwards
-    for p in 0..18 {
-        let seed = p as f32 * 37.17;
-        let cycle = (now * 0.35 + seed) % 1.0;
-        let px = ((seed * 113.7).sin().abs() * w).clamp(10.0, w - 10.0);
-        let py = h * (1.0 - cycle) + (now * 1.7 + seed).sin() * 12.0;
-        let p_size = 2.5 + ((seed * 19.3).cos().abs() * 3.5);
-        let p_alpha = ((1.0 - (cycle - 0.5).abs() * 2.0).clamp(0.0, 1.0) * 0.65).clamp(0.0, 0.85);
-        let p_color = apex_client::ui_theme::color::with_alpha(th.accent, p_alpha);
-        ui.rounded(px, py, p_size, p_size, p_size * 0.5, p_color);
+        // 3. Floating cyber embers / sparks drifting upwards
+        for p in 0..18 {
+            let seed = p as f32 * 37.17;
+            let cycle = (now * 0.35 + seed) % 1.0;
+            let px = ((seed * 113.7).sin().abs() * w).clamp(10.0, w - 10.0);
+            let py = h * (1.0 - cycle) + (now * 1.7 + seed).sin() * 12.0;
+            let p_size = 2.5 + ((seed * 19.3).cos().abs() * 3.5);
+            let p_alpha = ((1.0 - (cycle - 0.5).abs() * 2.0).clamp(0.0, 1.0) * 0.65).clamp(0.0, 0.85);
+            let p_color = apex_client::ui_theme::color::with_alpha(th.accent, p_alpha);
+            ui.rounded(px, py, p_size, p_size, p_size * 0.5, p_color);
+        }
+    } else {
+        for i in 0..3 {
+            let fi = i as f32;
+            let y_base = h * (0.24 + fi * 0.24);
+            let color = apex_client::ui_theme::color::with_alpha(th.accent, 0.10);
+            ui.rounded(0.0, y_base, w, 18.0, 9.0, color);
+        }
     }
 
     // 4. Cyber perspective apex glow
@@ -1298,8 +1355,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
 
         // ---- Top Header Bar (brand lockup ... account pill) ----
         ui.apex_logo(18.0, 12.0, 28.0);
-        ui.text(Face::SemiBold, 15.0, 52.0, 16.0, active_th.accent, "APEX");
-        ui.text(Face::Medium, 10.0, 96.0, 18.0, active_th.text_muted, "CLIENT");
+        ui.text(Face::SemiBold, 16.0, 54.0, 10.0, my3_text(), "Nighty");
         let account_name = self
             .login
             .profile
@@ -1338,7 +1394,6 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         self.targets.push((eq_btn_rect, Action::OpenControlEditor));
 
         let brand_w = (eq_btn_rect[0] - 66.0).max(70.0);
-        ui.text(Face::SemiBold, 16.0, 54.0, 10.0, my3_text(), "Apex");
         let version_line = format!("Android {}", crate::backend::VERSION);
         let fitted_version = ui.fit_text(Face::Regular, 11.0, &version_line, brand_w);
         ui.text(
@@ -1385,7 +1440,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             .push(([pill_x, pill_y, pill_w, pill_h], Action::Account));
 
         // ---- Left Vertical Navigation Rail + Smooth Gliding Active Pill ----
-        let sidebar_w = if w < 560.0 { 136.0 } else { 184.0 };
+        let sidebar_w = if w < 560.0 { 118.0 } else { 152.0 };
         ui.rounded(
             sidebar_w,
             56.0,
@@ -1395,8 +1450,8 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             my3_border(),
         );
         let nav_start_y = 62.0;
-        let nav_step = ((h - nav_start_y - 14.0) / (Page::ALL.len() as f32).max(1.0)).clamp(28.0, 44.0);
-        let nav_h = (nav_step - 4.0).clamp(28.0, 38.0);
+        let nav_step = ((h - nav_start_y - 12.0) / (Page::ALL.len() as f32).max(1.0)).clamp(27.0, 40.0);
+        let nav_h = (nav_step - 4.0).clamp(26.0, 34.0);
         let selected_idx = Page::ALL
             .iter()
             .position(|p| *p == self.catalog.page)
@@ -1415,35 +1470,70 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             self.catalog.sections,
         );
 
-        // Draw gliding MY3 active indicator pill
+        let rail_x = 8.0;
+        let rail_w = sidebar_w - 16.0;
         ui.rounded(
-            10.0,
+            rail_x,
             self.anim.nav_pill_y,
-            sidebar_w - 20.0,
+            rail_w,
             nav_h,
-            nav_h * 0.5,
+            10.0,
             my3_nav_active(),
+        );
+        ui.border(
+            rail_x,
+            self.anim.nav_pill_y,
+            rail_w,
+            nav_h,
+            10.0,
+            color::with_alpha(my3_accent(), 0.45),
+        );
+        ui.rounded(
+            rail_x,
+            self.anim.nav_pill_y,
+            3.0,
+            nav_h,
+            1.5,
+            my3_accent(),
         );
 
         for (i, page) in Page::ALL.iter().enumerate() {
-            let nx = 10.0;
+            let nx = rail_x;
             let ny = nav_start_y + i as f32 * nav_step;
-            let nw = sidebar_w - 20.0;
+            let nw = rail_w;
             let selected = *page == self.catalog.page;
             let fg = if selected { my3_text() } else { my3_muted() };
+            if selected {
+                ui.rounded(
+                    nx + 4.0,
+                    ny + 2.0,
+                    29.0,
+                    nav_h - 4.0,
+                    9.0,
+                    color::with_alpha(my3_accent(), 0.22),
+                );
+                ui.rounded(
+                    nx + nw - 7.0,
+                    ny + (nav_h - 8.0) * 0.5,
+                    4.0,
+                    8.0,
+                    2.0,
+                    my3_accent(),
+                );
+            }
             ui.icon(
                 page_icon(*page),
-                nx + 14.0,
-                ny + (nav_h - 17.0) * 0.5,
-                17.0,
+                nx + 11.0,
+                ny + (nav_h - 15.0) * 0.5,
+                15.0,
                 fg,
             );
-            let label = ui.fit_text(Face::Medium, 13.5, page.name(), nw - 42.0);
+            let label = ui.fit_text(Face::Medium, 12.0, page.name(), nw - 44.0);
             ui.text(
                 Face::Medium,
-                13.5,
-                nx + 39.0,
-                ny + (nav_h - 19.0) * 0.5,
+                12.0,
+                nx + 35.0,
+                ny + (nav_h - 17.0) * 0.5,
                 fg,
                 &label,
             );
@@ -1452,8 +1542,8 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         }
 
         // ---- Main Content Area (with smooth slide transition offset) ----
-        let content_x = sidebar_w + 22.0;
-        let content_w = (w - content_x - 22.0).max(160.0);
+        let content_x = sidebar_w + 18.0;
+        let content_w = (w - content_x - 18.0).max(160.0);
         let compact = content_w < 430.0;
         let page = self.catalog.page;
         let slide_y = self.anim.page_slide;
@@ -1478,7 +1568,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             };
             let sub_left = format!(
                 "Minecraft 26.3 • {} • Profile {}",
-                source_id.label(),
+                source_label(*source_id),
                 self.catalog.config.profile + 1
             );
             let sub_right = format!("{done_mib:.1} / {total_mib:.1} MiB ({:.0}%)", frac * 100.0);
@@ -1588,6 +1678,17 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 let card_h = (h - 178.0).clamp(220.0, 280.0);
                 ui.rounded(content_x, card_y, content_w, card_h, 20.0, my3_surface());
                 ui.border(content_x, card_y, content_w, card_h, 20.0, my3_border());
+                let allow_motion = !apex_client::ui_theme::motion::reduced_motion();
+                draw_glass_card_highlight(
+                    &mut ui,
+                    content_x,
+                    card_y,
+                    content_w,
+                    card_h,
+                    20.0,
+                    self.anim.shimmer_phase,
+                    allow_motion,
+                );
 
                 ui.text(
                     Face::SemiBold,
@@ -1622,9 +1723,9 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     content_x + 22.0,
                     card_y + 84.0,
                     my3_text(),
-                    "Apex Android Client 26.3",
+                    "Nighty Android Client 26.3",
                 );
-                let notice = "High-performance native Rust engine tuned for mobile. Ultra-fast FPS, low latency touch controls, built-in PvP hitmarkers, and full mod support.";
+                let notice = "A native Rust launcher for Minecraft 26.3 on Android: responsive touch controls, local profiles, and add-on support. Game files download during setup from official sources.";
                 let mut line_y = card_y + 108.0;
                 let font_size = 11.5;
                 let mut line = String::new();
@@ -1697,9 +1798,13 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     let bar_x = content_x + 14.0;
                     let bar_y = btn_y + 34.0;
                     ui.rounded(bar_x, bar_y, bar_w, 5.0, 2.5, my3_track());
-                    let sw = (bar_w * 0.36).clamp(24.0, bar_w);
-                    let sx = bar_x + (bar_w - sw) * self.anim.shimmer_phase.clamp(0.0, 1.0);
-                    ui.rounded(sx, bar_y, sw, 5.0, 2.5, my3_accent());
+                    if allow_motion {
+                        let sw = (bar_w * 0.36).clamp(24.0, bar_w);
+                        let sx = bar_x + (bar_w - sw) * self.anim.shimmer_phase.clamp(0.0, 1.0);
+                        ui.rounded(sx, bar_y, sw, 5.0, 2.5, my3_accent());
+                    } else {
+                        ui.rounded(bar_x, bar_y, (bar_w * 0.18).max(18.0), 5.0, 2.5, my3_accent());
+                    }
                     ui.centered_fit(
                         Face::SemiBold,
                         15.0,
@@ -1753,15 +1858,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 content_x,
                 header_y,
                 my3_text(),
-                if page == Page::Mods {
-                    "Mods"
-                } else if page == Page::Shaders {
-                    "Shader Packs"
-                } else if page == Page::Datapacks {
-                    "Data Packs"
-                } else {
-                    "Resource Packs"
-                },
+                page.name(),
             );
             if matches!(page, Page::Shaders | Page::Mods) {
                 use crate::shader_catalog::Origin;
@@ -1778,7 +1875,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                         &mut ui,
                         &mut self.targets,
                         rect,
-                        origin.source().label(),
+                        source_label(origin.source()),
                         if page == Page::Mods {
                             Action::ModSource(origin)
                         } else {
@@ -1794,7 +1891,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             let search_btn_w = 98.0;
             let field_w = (content_w - search_btn_w - 8.0).max(120.0);
             let search_hint = if page == Page::Mods {
-                "Four built-in Apex mods only"
+                "Four built-in Nighty mods only"
             } else if page == Page::Datapacks {
                 "Search data packs on Modrinth..."
             } else if page == Page::Shaders {
@@ -1988,7 +2085,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     content_x + 64.0,
                     y + 45.0,
                     my3_accent(),
-                    "Apex Built-in • Tap for versions, Modrinth info & screenshots",
+                    "Nighty Built-in • Tap for versions, Modrinth info & screenshots",
                 );
                 if let Some(c) = ui.clip_rect(card_rect) {
                     self.targets.push((c, Action::OpenBundledProject(id)));
@@ -2078,13 +2175,13 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 let meta_tag = if p.downloads > 0 {
                     format!(
                         "{} • {} downloads • Tap for versions & screenshots",
-                        p.source.label(),
+                        source_label(p.source),
                         format_downloads(p.downloads)
                     )
                 } else {
                     format!(
                         "{} • Tap for versions, description & screenshots",
-                        p.source.label()
+                        source_label(p.source)
                     )
                 };
                 let fitted_meta = ui.fit_text(Face::Medium, 11.0, &meta_tag, text_max);
@@ -2264,7 +2361,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 x + 22.0,
                 y + 24.0,
                 my3_text(),
-                "Exit Apex?",
+                "Exit Nighty?",
             );
             let bw = (width - 52.0) * 0.5;
             button(
@@ -2558,7 +2655,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     content_x + 74.0,
                     top + 42.0,
                     (content_w - 92.0).max(80.0),
-                    "Only the four built-in Apex mods are available; .zip resource packs, shader packs and data packs can still be imported.",
+                    "Only the four built-in Nighty mods are available; .zip resource packs, shader packs and data packs can still be imported.",
                     my3_muted(),
                 );
                 let cta_y = top + card_h - 46.0;
@@ -3687,7 +3784,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     ver.number,
                     ver.game_versions.first().map_or("26.3", String::as_str),
                     if ver.loaders.is_empty() {
-                        modal.project.source.label().to_owned()
+                        source_label(modal.project.source).to_owned()
                     } else {
                         ver.loaders.join(", ")
                     }
@@ -3999,10 +4096,10 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     Action::SettingsCat(SettingsCategory::Diagnostics),
                 ),
                 (
-                    Icon::MicrosoftGrid,
-                    "Account",
-                    "Microsoft and Xbox sign-in",
-                    Action::Account,
+                    Icon::FileText,
+                    "Security & Privacy",
+                    "Account, local data and download sources",
+                    Action::SettingsCat(SettingsCategory::Account),
                 ),
             ];
 
@@ -4026,6 +4123,16 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
 
                 ui.rounded(cx, cy, card_w, card_h, 16.0, my3_card_bg());
                 ui.border(cx, cy, card_w, card_h, 16.0, my3_card_border());
+                draw_glass_card_highlight(
+                    ui,
+                    cx,
+                    cy,
+                    card_w,
+                    card_h,
+                    16.0,
+                    self.anim.shimmer_phase,
+                    !apex_client::ui_theme::motion::reduced_motion(),
+                );
 
                 // Left vector icon + vertical divider line matching 45062.jpg
                 let icon_size = 20.0;
@@ -4236,7 +4343,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     ),
                     (
                         "Field of View (FOV)",
-                        "Apextal camera view angle in degrees",
+                        "Camera view angle in degrees",
                         SettingControl::Slider {
                             value_label: &fov_str,
                             fraction: fov_frac,
@@ -5167,12 +5274,12 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                         content_x + 42.0,
                         cy + 10.0,
                         my3_text(),
-                        "Custom PvP Music (BGM)",
+                        "Custom Launcher Music (BGM)",
                     );
                     let sub = if has_bg_audio {
-                        "Active custom PvP music (Looping Ogg Vorbis audio)"
+                        "Active custom music (Looping Ogg Vorbis audio)"
                     } else {
-                        "Choose PvP music or custom audio (.ogg) from phone files"
+                        "Choose music or custom audio (.ogg) from phone files"
                     };
                     ui.text(
                         Face::Regular,
@@ -5409,7 +5516,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     ),
                     (
                         "Export Active Control Preset",
-                        "Export current layout JSON to Apex Reports & controls folder",
+                        "Export current layout JSON to Nighty's local reports folder",
                         SettingControl::Button("Export JSON", Action::ExportControlProfile, false),
                     ),
                     (
@@ -5880,8 +5987,111 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 }
                 ui.set_clip(None);
             }
-            // Not reachable from the category grid yet.
-            SettingsCategory::Overview | SettingsCategory::Account => {}
+            SettingsCategory::Account => {
+                let signed_in = self.login.signed_in;
+                let account_btn = if signed_in { "Manage" } else { "Sign in" };
+                let allow_motion = !apex_client::ui_theme::motion::reduced_motion();
+                let privacy_text = [
+                    "Nighty is unofficial and not affiliated with Mojang, Microsoft, Starling, or Zalith.",
+                    "No Mojang game files are bundled; Minecraft files download during setup from official sources.",
+                    "Settings, logs and reports stay in local app storage unless you export them.",
+                    "Add-ons come only from the catalog source you select; review each project before installing.",
+                    "Source code and GitHub Actions provenance are available from the Repository button below.",
+                    "No launcher can guarantee complete safety; check files and sources before use.",
+                ];
+                let text_w = (content_w - 32.0).max(80.0);
+                let mut wrapped = Vec::new();
+                for line in &privacy_text {
+                    wrapped.extend(wrap_text_lines(ui, Face::Regular, 10.0, line, text_w));
+                }
+                let info_h = 74.0 + wrapped.len() as f32 * 13.0;
+                let max_scroll = (list_top + step_y * 2.0 + info_h - list_bottom).max(0.0);
+                self.catalog.scroll = self.catalog.scroll.clamp(0.0, max_scroll);
+                self.list_view = Some([list_top, list_bottom, max_scroll]);
+
+                ui.set_clip(Some([
+                    content_x - 2.0,
+                    list_top,
+                    content_w + 4.0,
+                    (list_bottom - list_top).max(1.0),
+                ]));
+                let first_y = list_top - self.catalog.scroll;
+                draw_setting_card(
+                    ui,
+                    &mut self.targets,
+                    &mut self.list_targets,
+                    content_x,
+                    first_y,
+                    content_w,
+                    card_h,
+                    "ACCOUNT",
+                    "Optional Microsoft sign-in for multiplayer sessions",
+                    SettingControl::SectionHeader(
+                        if signed_in { "SIGNED IN" } else { "OPTIONAL" },
+                        Icon::MicrosoftGrid,
+                    ),
+                );
+                draw_setting_card(
+                    ui,
+                    &mut self.targets,
+                    &mut self.list_targets,
+                    content_x,
+                    first_y + step_y,
+                    content_w,
+                    card_h,
+                    "Microsoft account",
+                    "Sign-in runs in Microsoft's browser. Nighty never sees your password.",
+                    SettingControl::Button(account_btn, Action::Account, false),
+                );
+
+                let info_y = first_y + step_y * 2.0 + 4.0;
+                ui.rounded(content_x, info_y, content_w, info_h, 18.0, my3_card_bg());
+                ui.border(content_x, info_y, content_w, info_h, 18.0, my3_card_border());
+                draw_glass_card_highlight(
+                    ui,
+                    content_x,
+                    info_y,
+                    content_w,
+                    info_h,
+                    18.0,
+                    self.anim.shimmer_phase,
+                    allow_motion,
+                );
+                ui.text(
+                    Face::SemiBold,
+                    13.5,
+                    content_x + 16.0,
+                    info_y + 12.0,
+                    my3_accent(),
+                    "SECURITY & PRIVACY",
+                );
+                let mut ty = info_y + 32.0;
+                for line in &wrapped {
+                    let fitted = ui.fit_text(Face::Regular, 10.0, line, text_w);
+                    ui.text(
+                        Face::Regular,
+                        10.0,
+                        content_x + 16.0,
+                        ty,
+                        my3_muted(),
+                        &fitted,
+                    );
+                    ty += 13.0;
+                }
+                let provenance_btn = [content_x + 16.0, info_y + info_h - 36.0, 158.0, 30.0];
+                button(
+                    ui,
+                    &mut self.targets,
+                    provenance_btn,
+                    "Source & Actions",
+                    Action::Repository,
+                    false,
+                );
+                self.list_targets
+                    .push((provenance_btn, Action::Repository));
+                ui.set_clip(None);
+            }
+            SettingsCategory::Overview => {}
         }
     }
 
@@ -5989,7 +6199,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                         slug: (*id).to_owned(),
                         title: (*title).to_owned(),
                         summary: (*desc).to_owned(),
-                        author: "Apex Built-in".into(),
+                        author: "Nighty Built-in".into(),
                         downloads: 0,
                         icon: None,
                         page: String::new(),
@@ -6446,19 +6656,19 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     "https://github.com/JuanLuci/starling/releases/latest",
                 ) {
                     self.catalog.status =
-                        "Open github.com/JuanLuci/starling/releases to download Starling.".into();
+                        "Open github.com/JuanLuci/starling/releases to transfer worlds with Starling.".into();
                 }
             }
             Some(Action::GameFiles) => {
                 self.catalog.status = if crate::platform::open_documents(crate::document_store::ROOT) {
                     "Game files opened. Worlds, mods, packs, shaders and reports are available here."
-                } else { "Open system Files > Apex Android." }.into();
+                } else { "Open the system Files app and choose the Nighty documents folder." }.into();
             }
             Some(Action::WorldFiles) => {
                 let id = crate::document_store::folder_id(self.catalog.config.profile, "worlds");
                 self.catalog.status = if crate::platform::open_documents(&id) {
-                    "In Android Files, select a complete world folder, then Copy to a folder you choose. Keep Apex Android installed until you verify your worlds in Starling."
-                } else { "Open system Files > Apex Android > Worlds. Copy complete world folders while the game is closed." }.into();
+                    "In Android Files, select a complete world folder, then Copy to a folder you choose. Keep Nighty installed until you verify your worlds in Starling."
+                } else { "Open the Nighty documents folder > Worlds. Copy complete world folders while the game is closed." }.into();
             }
             Some(Action::WorkerLimit) => self.open_chooser(chooser::Kind::WorkerLimit),
             Some(Action::ChooseWorkerLimit(limit)) => {
@@ -6512,7 +6722,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 self.catalog.status = if crate::platform::open_documents(&id) {
                     "Opened in Files. Return here after copying files.".into()
                 } else {
-                    "Open the system Files app and choose Apex Android.".into()
+                    "Open the system Files app and choose the Nighty documents folder.".into()
                 };
             }
             Some(Action::Import(kind)) => {
@@ -6623,7 +6833,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             }
             Some(Action::Repository) => {
                 self.catalog.status = if crate::platform::open_repository() {
-                    "Repository opened in browser."
+                    "Source and GitHub Actions provenance opened in browser."
                 } else {
                     "No browser available to open the repository."
                 }
@@ -6932,7 +7142,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 self.catalog.status = if crate::platform::open_documents("reports") {
                     "Opened Reports folder in system Files.".into()
                 } else {
-                    "Reports are saved under Apex Android > Reports.".into()
+                    "Reports are saved in the Nighty documents folder > Reports.".into()
                 };
             }
             Some(Action::ToggleLauncherAnimations) => {
@@ -7108,7 +7318,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 apex_client::ui_theme::set_active_theme(self.catalog.config.theme.resolve());
                 self.anim.trigger_theme_pulse();
                 self.catalog.config.save(&self.home)?;
-                self.catalog.status = "Theme reset to Apex default.".into();
+                self.catalog.status = "Theme reset to Nighty default.".into();
             }
             Some(Action::ToggleLiquidGlass) => {
                 self.catalog.config.theme.liquid_glass = !self.catalog.config.theme.liquid_glass;

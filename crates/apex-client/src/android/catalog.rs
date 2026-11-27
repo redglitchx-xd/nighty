@@ -16,6 +16,14 @@ pub fn source_only_mod(project: &Project) -> bool {
     matches!(project.kind, Kind::Mod | Kind::Modpack)
 }
 
+fn source_label(source: browser::SourceId) -> &'static str {
+    if source == browser::SourceId::Apex {
+        "Nighty"
+    } else {
+        source.label()
+    }
+}
+
 /// Temporary dev registration published as Minecraft Nintendo Switch by PrismarineJS.
 /// Account tokens and client secrets are never bundled.
 pub const MICROSOFT_CLIENT_ID: &str = "00000000441cc96b";
@@ -318,14 +326,14 @@ impl Page {
         Self::Datapacks,
         Self::Shaders,
         Self::Installed,
-        Self::Settings,
         Self::Skins,
+        Self::Settings,
     ];
     pub fn name(self) -> &'static str {
         match self {
             Self::Play => "Play",
             Self::Mods => "Mods",
-            Self::Packs => "Resource Pack",
+            Self::Packs => "Packs",
             Self::Datapacks => "Datapacks",
             Self::Shaders => "Shaders",
             Self::Installed => "Installed",
@@ -363,7 +371,7 @@ impl SettingsCategory {
             Self::Controls => "Controls & HUD Layout",
             Self::Experimental => "Experimental Stuff",
             Self::Diagnostics => "Diagnostics & Logs",
-            Self::Account => "Account",
+            Self::Account => "Security & Privacy",
         }
     }
 }
@@ -513,8 +521,8 @@ impl InstalledFilter {
         match self {
             Self::All => "All",
             Self::Mods => "Mods",
-            Self::Packs => "Resource Packs",
-            Self::Datapacks => "Data Packs",
+            Self::Packs => "Packs",
+            Self::Datapacks => "Datapacks",
             Self::Shaders => "Shaders",
         }
     }
@@ -769,11 +777,11 @@ impl Catalog {
                     apex_client::content_files::Kind::Shaders => "SHADER",
                 };
                 let ext_tag = if name.ends_with(".hmod") {
-                    "Apex Mod (.hmod)"
+                    "Nighty Mod (.hmod)"
                 } else if name.ends_with(".jar") {
                     "Java Mod (.jar)"
                 } else if name.ends_with(".hshader") {
-                    "Apex Shader (.hshader)"
+                    "Nighty Shader (.hshader)"
                 } else if kind == apex_client::content_files::Kind::Datapacks {
                     "Data Pack (.zip)"
                 } else if kind == apex_client::content_files::Kind::Shaders {
@@ -883,7 +891,7 @@ impl Catalog {
                     size_bytes,
                     badge: "MOD",
                     subtitle: format!(
-                        "Apex Native Mod (.hnmod) [Roadmap / Future Update]  •  {}  •  {name}",
+                        "Nighty Native Mod (.hnmod) [Roadmap / Future Update]  •  {}  •  {name}",
                         format_file_size(size_bytes)
                     ),
                 });
@@ -901,7 +909,7 @@ impl Catalog {
                         enabled: true,
                         size_bytes: 0,
                         badge: "MOD",
-                        subtitle: format!("Built-in Apex Mod  •  {b_desc}  •  {b_id}"),
+                        subtitle: format!("Built-in Nighty Mod  •  {b_desc}  •  {b_id}"),
                     });
                 }
             }
@@ -1396,7 +1404,7 @@ impl Catalog {
             published: "2026".into(),
             game_versions: vec![browser::GAME.into()],
             loaders: if project.loaders.is_empty() {
-                vec![project.source.label().to_lowercase()]
+                vec![source_label(project.source).to_lowercase()]
             } else {
                 project.loaders.clone()
             },
@@ -1406,7 +1414,7 @@ impl Catalog {
         }];
         self.project_modal = Some(ProjectModal {
             author: if project.author.is_empty() {
-                project.source.label().to_owned()
+                source_label(project.source).to_owned()
             } else {
                 project.author.clone()
             },
@@ -1570,7 +1578,7 @@ impl Catalog {
         if self.page == Page::Mods && self.query.trim().starts_with("https://") {
             self.searches.cancel_interest();
             self.results.clear();
-            self.status = "External .hmod imports are disabled in Apex Alpha; only the four built-in Apex mods are available.".into();
+            self.status = "External .hmod imports are disabled in Nighty Alpha; only the four built-in Nighty mods are available.".into();
             return;
         }
         self.scroll = 0.0;
@@ -1596,10 +1604,10 @@ impl Catalog {
             && items.is_empty()
             && self.config.shader_source == crate::shader_catalog::Origin::Apex
         {
-            "No Apex shader packs match this search. Try another query or import a .hshader."
+            "No Nighty shader packs match this search. Try another query or import a .hshader."
                 .into()
         } else if self.page == Page::Mods {
-            "External mods are disabled in Apex Alpha; use the four built-in Apex mods.".into()
+            "External mods are disabled in Nighty Alpha; use the four built-in Nighty mods.".into()
         } else if self.page == Page::Datapacks {
             format!(
                 "{} Data packs found - select Install to download",
@@ -1646,7 +1654,7 @@ impl Catalog {
         });
     }
     pub fn import_native(&mut self, _home: &Path) {
-        self.status = "External .hmod imports are disabled in Apex Alpha; only the four built-in Apex mods are available.".into();
+        self.status = "External .hmod imports are disabled in Nighty Alpha; only the four built-in Nighty mods are available.".into();
     }
     pub fn install(&mut self, home: &Path, index: usize) {
         let Some(project) = self.results.get(index).cloned() else {
@@ -1654,7 +1662,7 @@ impl Catalog {
         };
 
         if source_only_mod(&project) {
-            self.status = "External mods are disabled in Apex Alpha; only the four built-in Apex mods are available.".into();
+            self.status = "External mods are disabled in Nighty Alpha; only the four built-in Nighty mods are available.".into();
             return;
         }
         if self.busy() || self.download_label(&project).is_some() {
@@ -1686,7 +1694,7 @@ impl Catalog {
             (Kind::Shader, browser::SourceId::Modrinth) => "Downloading shader pack ZIP...",
             (Kind::Mod, browser::SourceId::Modrinth) => "Downloading and porting Modrinth mod...",
             (Kind::DataPack, _) => "Downloading and installing Data Pack...",
-            (Kind::Mod, _) => "Downloading Apex mod package...",
+            (Kind::Mod, _) => "Downloading Nighty mod package...",
             _ => "Checking compatibility and downloading...",
         };
         self.job(status, move || {
@@ -2262,7 +2270,7 @@ fn normalize_datapack_zip(src: &Path, dst: &Path) -> Result<(), Box<dyn std::err
     }
     if !wrote_mcmeta {
         writer.start_file("pack.mcmeta", options)?;
-        writer.write_all(br#"{"pack":{"pack_format":61,"description":"Apex Data Pack"}}"#)?;
+        writer.write_all(br#"{"pack":{"pack_format":61,"description":"Nighty Data Pack"}}"#)?;
     }
     writer.finish()?;
     Ok(())

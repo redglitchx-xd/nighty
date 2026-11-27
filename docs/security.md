@@ -107,3 +107,29 @@ and some are waiting for Ludovic:
 
 Use GitHub's private vulnerability reporting (the repository's **Security** tab, "Report a vulnerability"), not a
 public issue or Discord. Say what you found and how to reproduce it; we answer there.
+
+## Nighty Android alpha releases
+
+Nighty is an unofficial ARM64 Android launcher built on Apex Android. It is not affiliated with, endorsed by, or
+connected to Mojang Studios, Microsoft, Starling or Zalith. Starling and Zalith are named only as UI inspiration;
+no code is copied from them. The Apex release pipeline described above is upstream's; it does not automatically
+apply to Nighty's APK releases.
+
+What applies to the Nighty APK:
+
+- **No game files bundled.** The APK carries no Mojang game files. Build inputs are prepared from hash-pinned
+  sources and are not shipped as game resources. Playing still requires your own legally purchased copy of
+  Minecraft Java Edition 26.3.
+- **Settings stay local.** Theme, control and other launcher settings are saved on your device.
+- **User-chosen downloads.** In the app, downloads happen only from sources you select, such as local files and
+  the catalog you browse; it does not silently install third-party content.
+- **Reviewable provenance.** The source and the GitHub Actions workflow that builds `nighty-arm64.apk` are public.
+  Alpha 3 (`v1.0.0-alpha.3`, versionCode 32) publishes `SHA256SUMS.txt` alongside the APK and quotes the checksum
+  in the release notes.
+- **What a checksum does and does not prove.** `sha256sum -c SHA256SUMS.txt` confirms that the downloaded bytes
+  match the published asset. It does not prove the code is trustworthy or free of malware. Antivirus products can
+  flag unfamiliar native builds, and no tool can promise that any product will always consider Nighty safe.
+  Review the source, the workflow and the APK's signing certificate before installing if that matters to you.
+
+Report Nighty-specific security issues through private vulnerability reporting as above, not in a public issue
+with exploit details.

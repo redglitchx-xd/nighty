@@ -300,6 +300,17 @@ Light); `tokens.css` carries them as `--night-*`. The game's menus don't use it.
   stable version), and the name follows the choice ("Fabric 1.21.4") until the player types one.
   Create is the main action.
 
+## Nighty Android (alpha.3)
+
+Nighty is the ARM64 Android skin built on Apex Android. It keeps the engine and the vanilla game screens described above, and applies a deeper purple, liquid-glass rebuild to the launcher and Nighty's own overlays. Its mark is `docs/media/brand/nighty.png`; the upstream Apex mark and tokens stay as they are.
+
+- **Deeper purple.** Nighty purple is the default: the `ObsidianViolet` theme preset uses `#9A7BFF`, and touch controls use a deeper `#6B4BFF` accent. Settings can pick another hue, and the choice is saved on the device (`launcher/src/themes.rs`, `launcher/src/themes_page.rs`).
+- **Liquid glass.** Panels are translucent layered fills rather than opaque cards: a thin top sheen, low-opacity accent corners and gently drifting wave bands over the gradient (`crates/apex-client/src/ui_theme.rs`). The effect changes Nighty's UI only; it does not restyle vanilla gameplay screens.
+- **What stays Apex.** Gameplay and the HUD keep vanilla parity, and the engine, prepare flow, mod limits and upstream attribution are unchanged. Starling and Zalith are named only as UI inspiration for the purple/glass direction; no code is copied from them.
+- **Release metadata.** Alpha 3 is `v1.0.0-alpha.3`, `versionName 1.0.0-alpha.3`, `versionCode 32`, ARM64 only, with a published SHA-256 manifest for the APK.
+
+Nighty's trust and privacy notes are in [security](security.md): no Mojang game files bundled, settings kept locally, downloads only from sources the user selects, and public source and GitHub Actions provenance. A checksum proves which file was published, not that it is free of malware.
+
 ## The mark
 
 **Apex line.** A sun half set below a apex, drawn as three apextal bars of 4, 8 and

@@ -124,8 +124,7 @@ impl Game<'_> {
         if let Some(strike) = self.pvp_strike()
             && self.pvp_land(&mut host, Victim::Guest(conn), &strike)
         {
-            let home = apex_client::logging::game_home();
-            self.audio.play_apex_hit_sound(Some(&home));
+            self.audio.note_hitmarker();
             self.weapon_hit_player(Self::pvp_victim_on_ground(&host, Victim::Guest(conn), None));
             self.pvp_exhaustion();
             if strike.stops_sprint() {

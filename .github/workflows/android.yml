@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - nighty-build
+      - nighty-ui-v2
     paths:
       - 'crates/**'
       - 'launcher/**'
@@ -100,41 +101,60 @@ jobs:
           cp .local/android/apk/arm64-v8a/apex-android-public.apk dist/nighty-arm64.apk
           ls -lh dist/
 
+      - name: Generate SHA-256 checksum
+        working-directory: dist
+        run: sha256sum nighty-arm64.apk > SHA256SUMS.txt
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nighty-arm64.apk
-          path: dist/nighty-arm64.apk
+          path: |
+            dist/nighty-arm64.apk
+            dist/SHA256SUMS.txt
 
-      - name: Publish to GitHub Releases (v1.0.0-alpha.2)
+      - name: Publish to GitHub Releases (v1.0.0-alpha.3)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat << 'EOF' > release_notes.md
-          ### [>] Nighty Android (ARM64) - Alpha 2
+          ### [>] Nighty Android (ARM64) - Alpha 3
 
-          Minecraft Java Edition 26.3 ultra-fast native Rust client for Android, built on Apex Android.
-          Nighty brings a purple Starling-inspired glass launcher, a new logo, and the locked Apex alpha feature set.
+          Nighty Android is an unofficial ARM64 client for Minecraft Java Edition 26.3, built on Apex Android.
+          Alpha 3 continues the deeper Nighty purple liquid-glass rebuild and keeps the alpha feature set.
 
           #### Credits:
           - **Android Edition:** Actively ported, optimized, and maintained for ARM64 mobile devices by **RedGlitchX** ([@tubers9999](https://github.com/tubers9999)).
           - Upstream attribution is preserved in `LICENSE` and `THIRD_PARTY_NOTICES.md`.
 
           #### Alpha features:
-          - [+] Nighty Purple Liquid Glass: Apex's frosted-acrylic launcher with Starling's violet accent, the new Nighty logo, and saved theme settings.
+          - [+] Nighty Purple Liquid Glass: deeper violet accents, translucent layered panels, the new Nighty logo, and theme choices saved on the device.
           - [+] Apex-Only Mod Set: exactly four built-in mods (Minimap, Zoom, Recipes, SmartF3). External .hmod/.hnmod mods are disabled on Android.
           - [+] Add-on Support Kept: resource packs, shader packs, and data packs still install from files and the catalog.
           - [+] Background Audio Off by Default: launcher BGM no longer starts on its own and remembers the muted choice.
           - [+] Resizable Touch Controls: control sizes can be changed in Settings and stay clamped in the HUD editor.
-          - [+] Visual PvP Hitmarker & "Ack" Sound: razor-sharp crimson crosshair with instant PvP audio feedback.
+          - [+] Visual PvP Hitmarker: accent-coloured crosshair feedback on landed hits, following the active Nighty theme.
           - [+] Live Keystrokes & CPS Overlay: WASD + Space visualizer with 1-second CPS counters.
           - [+] 1-Tap Ultra FPS Booster: entity culling, cave culling, animated textures, and LOD optimizations.
           - [+] Custom Media Pickers: import wallpapers, videos, or audio from phone storage.
           - [+] Live Performance Stats Overlay: real-time FPS, frame timings, CPU/GPU graph.
           - [+] Native Storage Access (SAF): Android DocumentsProvider integrated seamlessly.
-          EOF
 
-          gh release create v1.0.0-alpha.2 dist/nighty-arm64.apk \
+          #### Security and privacy:
+          - Nighty is unofficial and is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft, Starling or Zalith. Starling and Zalith are named only as UI inspiration; no code is copied from them.
+          - No Mojang game files are bundled in the APK. Game inputs are prepared from hash-pinned sources and are not shipped as game resources.
+          - Settings stay on your device. In the app, downloads happen only from sources you select, such as local files and the catalog you browse.
+          - The source and this GitHub Actions workflow are public, so the build inputs and release provenance can be reviewed.
+          - Verify `SHA256SUMS.txt` against the APK before installing (`sha256sum -c SHA256SUMS.txt`). A matching hash proves the file is the one published here, not that it is free of malware. Antivirus tools may flag unfamiliar native builds; no tool can promise it will always consider Nighty safe.
+          EOF
+          {
+            printf '\n#### SHA-256\n\n'
+            printf 'Verify the download from the published `SHA256SUMS.txt`.\n\n```\n'
+            cat dist/SHA256SUMS.txt
+            printf '```\n'
+          } >> release_notes.md
+
+          gh release create v1.0.0-alpha.3 dist/nighty-arm64.apk dist/SHA256SUMS.txt \
             --target "$GITHUB_SHA" \
-            --title "Nighty Android (ARM64) - Alpha 2" \
+            --title "Nighty Android (ARM64) - Alpha 3" \
             --notes-file release_notes.md

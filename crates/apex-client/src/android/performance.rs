@@ -184,7 +184,7 @@ pub fn export(home: &Path) -> std::result::Result<(), String> {
     if crate::platform::open_documents("reports") {
         Ok(())
     } else {
-        Err("Open the system Files app, then Apex Android / Reports.".into())
+        Err("Open the system Files app, then the Nighty documents folder > Reports.".into())
     }
 }
 

@@ -8192,10 +8192,13 @@ impl Game<'_> {
                 if let Some(t) = self.audio.last_hit_time {
                     let elapsed = t.elapsed().as_millis();
                     if elapsed < 160 {
-                        let alpha = (255.0 * (1.0 - (elapsed as f32 / 160.0))) as u8;
+                        let fade = 1.0 - elapsed as f32 / 160.0;
                         let cx = wi as f32 * 0.5;
                         let cy = hi as f32 * 0.5;
-                        let color = rgba(245, 28, 72, alpha);
+                        let color = apex_client::ui_theme::color::with_alpha(
+                            apex_client::ui_theme::active_theme().accent,
+                            fade,
+                        );
                         let d = 5.0;
                         let len = 4.0;
                         batch.fill(&self.gui.atlas, cx - d - len, cy - d - len, len, 1.5, color);
@@ -11274,8 +11277,7 @@ impl Game<'_> {
                 || self.mobs[index].kind.id == "minecraft:player"
                 || self.mobs[index].ai.target.is_some();
             if is_hostile_or_player {
-                let home = apex_client::logging::game_home();
-                self.audio.play_apex_hit_sound(Some(&home));
+                self.audio.note_hitmarker();
             }
         }
         if let Some(p) = self.player.as_mut() {
@@ -16312,7 +16314,7 @@ impl ApplicationHandler for Game<'_> {
         let size = self.options.window_size.map(f64::from);
         self.fullscreen = apex_client::window::FullscreenState::new(fullscreen);
         let attributes = Window::default_attributes()
-            .with_title("Apex")
+            .with_title("Nighty")
             .with_window_icon(apex_client::window::icon());
         // Wayland names the window by its app id, which the apex.desktop entry matches.
         #[cfg(target_os = "linux")]
@@ -20640,7 +20642,7 @@ impl Loading {
             .map(f64::from);
         self.fullscreen = apex_client::window::FullscreenState::new(fullscreen);
         let attributes = Window::default_attributes()
-            .with_title("Apex")
+            .with_title("Nighty")
             .with_window_icon(apex_client::window::icon());
         // Wayland names the window by its app id, which the apex.desktop entry matches.
         #[cfg(target_os = "linux")]

@@ -2,11 +2,12 @@
   <img src="docs/media/brand/nighty.png" width="96" height="96" alt="Nighty Android Logo" />
   <h1>Nighty Android Edition</h1>
   <p><strong>Ultra-Fast Native Ahead-of-Time Rust Client for Minecraft Java Edition 26.3</strong></p>
-  <p><em>Built on Apex Android · Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
+  <p><em>Built on Apex Android · Nighty purple liquid glass · Direct Vulkan Pipeline · Zero JVM Overhead · Sub-1.5s Cold Boots · WebAssembly Mods</em></p>
   <br>
   <p>
-    <a href="https://github.com/tubers9999/apex/releases">Download APK</a> · 
-    <a href="docs/">Documentation</a>
+    <a href="https://github.com/tubers9999/nighty/releases">Download APK</a> ·
+    <a href="docs/">Documentation</a> ·
+    <a href="docs/security.md">Security &amp; privacy</a>
   </p>
 </div>
 
@@ -14,10 +15,17 @@
 
 ### Unofficial Project & Collaboration Notice
 
-Apex is an independent community project. It is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB.
+Apex is an independent community project. Nighty is an unofficial launcher built on Apex Android. Nighty is not affiliated with, endorsed by, or connected to Mojang Studios, Microsoft Corporation, Starling or Zalith, or any of their subsidiaries. Minecraft is a registered trademark of Mojang Synergies AB. Starling and Zalith are mentioned only as UI inspiration; no code is copied from them.
 
 - **Android Port:** Maintained and optimized for ARM64 mobile hardware by [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
 - *Apex Android is developed independently for mobile devices.*
+- *No Mojang game files are bundled; settings stay local, and in-app downloads come only from sources you choose. See [security and privacy](docs/security.md).*
+
+---
+
+## Nighty UI: deeper purple, liquid glass
+
+The alpha.3 release (`v1.0.0-alpha.3`, `versionCode 32`) continues the Nighty rebuild on top of Apex Android: deeper purple tones, frosted translucent panels with subtle wave and sheen bands, the `docs/media/brand/nighty.png` mark, and theme choices saved on the device. The launcher and Nighty overlays use this look; the game's vanilla screens stay unchanged where parity matters. The design direction is documented in [docs/design-system.md](docs/design-system.md), and the Android packaging details in [docs/android-publication.md](docs/android-publication.md).
 
 ---
 
@@ -43,7 +51,7 @@ Custom WGSL shaders compiled with Naga communicate directly with Qualcomm Adreno
 Mod extensions compile to WebAssembly (`.hmod`) and run in a deterministic, memory-safe Wasmtime sandbox with strict capability boundaries.
 
 ### Zero-Latency PvP Feedback & Overlays
-- **PvP Hitmarker Synthesizer:** Zero-latency in-memory PCM audio feedback synchronized with visual hitmarker feedback upon striking targets.
+- **Visual PvP Hitmarker:** Accent-coloured hit feedback synchronized with landed hits, following the active Nighty theme.
 - **Keystrokes & CPS Visualizer:** Live WASD and Space overlay with a 1,000ms sliding-window frequency tracker for Left and Right click speeds.
 - **Hardware Performance Optimization:** 1-tap entity and cave occlusion culling tuned for mobile chipsets.
 
@@ -115,10 +123,11 @@ Apex does not download or redistribute copyrighted Mojang assets. To build or ru
 
 ### Notă privind caracterul neoficial și colaborarea
 
-Apex este un proiect comunitar independent. Nu este afiliat, aprobat sau asociat cu Mojang Studios, Microsoft Corporation sau oricare dintre filialele acestora. Minecraft este o marcă înregistrată a Mojang Synergies AB.
+Apex este un proiect comunitar independent. Nighty este un launcher neoficial construit pe Apex Android. Nighty nu este afiliat, aprobat sau asociat cu Mojang Studios, Microsoft Corporation, Starling sau Zalith, sau cu oricare dintre filialele acestora. Minecraft este o marcă înregistrată a Mojang Synergies AB. Starling și Zalith sunt menționate doar ca inspirație vizuală; nu a fost copiat cod din ele.
 
 - **Portarea Android:** Menținută și optimizată pentru dispozitive mobile ARM64 de [RedGlitchX (@tubers9999)](https://github.com/tubers9999).
 - Apex Android este dezvoltat independent pentru dispozitive mobile.
+- Interfața Nighty: violet mai adânc, panouri translucide cu valuri și reflexii subtile, sigla nouă, iar setările temei se salvează local. Detalii: [securitate și confidențialitate](security.md).
 
 ### Caracteristici de bază
 
@@ -126,7 +135,7 @@ Apex este un proiect comunitar independent. Nu este afiliat, aprobat sau asociat
 - **Consum redus de memorie:** Rulează stabil într-o amprentă de ~140–220 MB RAM.
 - **Randare prin Vulkan 1.1:** Pipeline direct WGSL/Naga optimizat pentru GPU-urile mobile Qualcomm Adreno și ARM Mali.
 - **Moduri sigure în WebAssembly (`.hmod`):** Extensii izolate într-un sandbox Wasmtime cu memorie deterministă. Modurile clasice Forge/Fabric nu sunt suportate.
-- **Feedback PvP & Keystrokes:** Semnal acustic și vizual instantaneu la lovituri în PvP, afișaj Keystrokes WASD și contor CPS.
+- **Feedback PvP & Keystrokes:** Hitmarker vizual colorat cu accentul temei la loviturile PvP, afișaj Keystrokes WASD și contor CPS.
 - **Comenzi tactile avansate:** Presets Pojav și Bedrock, butoane poligonale configurabile și mouse virtual.
 
 ### Compatibilitate
