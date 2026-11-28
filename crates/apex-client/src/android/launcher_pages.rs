@@ -7690,6 +7690,11 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         (rect[2] - 16.0).max(1.0)
     }
 
+    #[inline]
+    fn nighty_alpha(value: u8) -> f32 {
+        f32::from(value) / 255.0
+    }
+
     fn nighty_clean(value: &str) -> String {
         value
             .replace("Apex", "Nighty")
@@ -7702,14 +7707,14 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         let [x, y, w, h] = rect;
         let th = apex_client::ui_theme::active_theme();
         let fill = if emphasis { th.surface_selected } else { th.surface };
-        ui.rounded(x, y, w, h, 18.0, color::with_alpha(fill, 255));
-        ui.border(x, y, w, h, 18.0, color::with_alpha(th.border, 255));
+        ui.rounded(x, y, w, h, 18.0, color::with_alpha(fill, Self::nighty_alpha(255)));
+        ui.border(x, y, w, h, 18.0, color::with_alpha(th.border, Self::nighty_alpha(255)));
         ui.fill(
             x + 14.0,
             y + 12.0,
             2.0,
             (h - 24.0).max(1.0),
-            color::with_alpha(th.accent, if emphasis { 210 } else { 78 }),
+            color::with_alpha(th.accent, Self::nighty_alpha(if emphasis { 210 } else { 78 })),
         );
     }
 
@@ -7726,7 +7731,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         let fill = if primary {
             th.accent
         } else {
-            color::with_alpha(th.surface_bright, 255)
+            color::with_alpha(th.surface_bright, Self::nighty_alpha(255))
         };
         ui.rounded(x, y, w, h, (h * 0.38).clamp(9.0, 16.0), fill);
         if !primary {
@@ -7766,7 +7771,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 w,
                 h,
                 12.0,
-                color::with_alpha(th.accent, 34),
+                color::with_alpha(th.accent, Self::nighty_alpha(34)),
             );
             ui.fill(x, y + 7.0, 3.0, h - 14.0, th.accent);
         }
@@ -7801,8 +7806,8 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
     ) {
         let [x, y, w, h] = rect;
         let th = apex_client::ui_theme::active_theme();
-        ui.rounded(x, y, w, h, 14.0, color::with_alpha(th.surface_dim, 255));
-        ui.border(x, y, w, h, 14.0, color::with_alpha(th.border, 190));
+        ui.rounded(x, y, w, h, 14.0, color::with_alpha(th.surface_dim, Self::nighty_alpha(255)));
+        ui.border(x, y, w, h, 14.0, color::with_alpha(th.border, Self::nighty_alpha(190)));
         ui.text(
             Face::Medium,
             13.5,
@@ -7831,7 +7836,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 if on {
                     th.accent
                 } else {
-                    color::with_alpha(th.surface_bright, 255)
+                    color::with_alpha(th.surface_bright, Self::nighty_alpha(255))
                 },
             );
             ui.rounded(
@@ -7859,8 +7864,8 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
 
     fn nighty_background(ui: &mut Ui<'_>, w: f32, h: f32) {
         let th = apex_client::ui_theme::active_theme();
-        ui.fill(0.0, 0.0, w, h, color::with_alpha(th.bg_solid, 255));
-        ui.fill(0.0, 0.0, 3.0, h, color::with_alpha(th.accent, 210));
+        ui.fill(0.0, 0.0, w, h, color::with_alpha(th.bg_solid, Self::nighty_alpha(255)));
+        ui.fill(0.0, 0.0, 3.0, h, color::with_alpha(th.accent, Self::nighty_alpha(210)));
         let panel_x = w * 0.58;
         ui.rounded(
             panel_x,
@@ -7868,7 +7873,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             (w - panel_x) * 0.78,
             h + 100.0,
             140.0,
-            color::with_alpha(th.accent, 10),
+            color::with_alpha(th.accent, Self::nighty_alpha(10)),
         );
         for i in 0..5 {
             ui.fill(
@@ -7876,7 +7881,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 0.0,
                 1.0,
                 h,
-                color::with_alpha(th.border, 54),
+                color::with_alpha(th.border, Self::nighty_alpha(54)),
             );
         }
         ui.fill(
@@ -7884,7 +7889,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             h * 0.71,
             w,
             1.0,
-            color::with_alpha(th.border, 110),
+            color::with_alpha(th.border, Self::nighty_alpha(110)),
         );
     }
 
@@ -8079,7 +8084,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             52.0,
             52.0,
             16.0,
-            color::with_alpha(th.accent, 42),
+            color::with_alpha(th.accent, Self::nighty_alpha(42)),
         );
         ui.rounded(
             orb_x + 13.0,
@@ -8140,7 +8145,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                 hero_w - 40.0,
                 6.0,
                 3.0,
-                color::with_alpha(th.surface_bright, 255),
+                color::with_alpha(th.surface_bright, Self::nighty_alpha(255)),
             );
             ui.rounded(
                 x + 20.0,
@@ -8181,10 +8186,11 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             "Session",
         );
         let player = Self::nighty_clean(&self.catalog.config.name);
+        let resolution = format!("{}%", self.catalog.config.render_scale.percent());
         let rows = [
             ("Player", player.as_str()),
             ("Renderer", self.catalog.config.renderer.label()),
-            ("Resolution", self.catalog.config.render_scale.label()),
+            ("Resolution", resolution.as_str()),
             ("Profile", "Local"),
         ];
         for (i, (label, value)) in rows.iter().enumerate() {
@@ -8249,7 +8255,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             field_rect[2],
             field_rect[3],
             12.0,
-            color::with_alpha(th.surface_dim, 255),
+            color::with_alpha(th.surface_dim, Self::nighty_alpha(255)),
         );
         ui.border(field_rect[0], field_rect[1], field_rect[2], field_rect[3], 12.0, th.border);
         ui.icon(Icon::Search, x + 10.0, toolbar_y + 10.0, 18.0, th.text_muted);
@@ -8322,14 +8328,14 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
             let stride = 54.0;
             let scroll = self.catalog.scroll.max(0.0);
             let visible = (list_rect[3] / stride).ceil() as usize + 1;
-            let total = self.catalog.local.len() * stride;
+            let total = self.catalog.local.len() as f32 * stride;
             for (i, item) in self.catalog.local.iter().enumerate().take(visible + 1) {
                 let row_y = list_y + 8.0 + i as f32 * stride - scroll;
                 if row_y + stride < list_y || row_y > list_y + list_rect[3] {
                     continue;
                 }
-                let rect = [list_x(list_rect), row_y, rect_w(list_rect) - 16.0, stride - 6.0];
-                ui.rounded(rect[0], rect[1], rect[2], rect[3], 12.0, color::with_alpha(th.surface_dim, 255));
+                let rect = [Self::list_x(list_rect), row_y, Self::rect_w(list_rect) - 16.0, stride - 6.0];
+                ui.rounded(rect[0], rect[1], rect[2], rect[3], 12.0, color::with_alpha(th.surface_dim, Self::nighty_alpha(255)));
                 ui.text(Face::Medium, 12.5, rect[0] + 10.0, rect[1] + 6.0, th.text_primary, &Self::nighty_clean(&item.title));
                 ui.text(Face::Regular, 10.5, rect[0] + 10.0, rect[1] + 25.0, th.text_muted, &Self::nighty_clean(&item.subtitle));
                 let label = if item.enabled { "On" } else { "Off" };
@@ -8338,19 +8344,19 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     self.list_targets.push((c, Action::ToggleLocal(i)));
                 }
             }
-            self.list_view = Some([list_y, list_y + list_rect[3], total as f32]);
+            self.list_view = Some([list_y, list_y + list_rect[3], total]);
         } else {
             let stride = 58.0;
             let scroll = self.catalog.scroll.max(0.0);
             let visible = (list_rect[3] / stride).ceil() as usize + 1;
-            let total = self.catalog.results.len() * stride;
+            let total = self.catalog.results.len() as f32 * stride;
             for (i, project) in self.catalog.results.iter().enumerate().take(visible + 1) {
                 let row_y = list_y + 8.0 + i as f32 * stride - scroll;
                 if row_y + stride < list_y || row_y > list_y + list_rect[3] {
                     continue;
                 }
-                let rect = [list_x(list_rect), row_y, rect_w(list_rect) - 16.0, stride - 6.0];
-                ui.rounded(rect[0], rect[1], rect[2], rect[3], 12.0, color::with_alpha(th.surface_dim, 255));
+                let rect = [Self::list_x(list_rect), row_y, Self::rect_w(list_rect) - 16.0, stride - 6.0];
+                ui.rounded(rect[0], rect[1], rect[2], rect[3], 12.0, color::with_alpha(th.surface_dim, Self::nighty_alpha(255)));
                 ui.text(Face::Medium, 12.5, rect[0] + 10.0, rect[1] + 5.0, th.text_primary, &Self::nighty_clean(&project.title));
                 ui.text(Face::Regular, 10.5, rect[0] + 10.0, rect[1] + 23.0, th.text_muted, &Self::nighty_clean(&project.summary));
                 let meta = format!("{} · {}", project.author, format_downloads(project.downloads));
@@ -8359,7 +8365,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
                     self.list_targets.push((c, Action::OpenProject(i)));
                 }
             }
-            self.list_view = Some([list_y, list_y + list_rect[3], total as f32]);
+            self.list_view = Some([list_y, list_y + list_rect[3], total]);
         }
         ui.set_clip(None);
     }
@@ -8387,8 +8393,8 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
 
         let name = Self::nighty_clean(&self.catalog.config.name);
         let avatar = [x + 20.0, y + 82.0, 72.0, 72.0];
-        ui.rounded(avatar[0], avatar[1], avatar[2], avatar[3], 18.0, color::with_alpha(th.accent, 38));
-        ui.rounded(avatar[0] + 20.0, avatar[1] + 18.0, 32.0, 32.0, 10.0, color::with_alpha(th.accent, 220));
+        ui.rounded(avatar[0], avatar[1], avatar[2], avatar[3], 18.0, color::with_alpha(th.accent, Self::nighty_alpha(38)));
+        ui.rounded(avatar[0] + 20.0, avatar[1] + 18.0, 32.0, 32.0, 10.0, color::with_alpha(th.accent, Self::nighty_alpha(220)));
         ui.text(Face::SemiBold, 15.0, x + 106.0, y + 88.0, th.text_primary, &name);
         ui.text(
             Face::Regular,
@@ -8438,7 +8444,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         x: f32,
         y: f32,
         w: f32,
-        h: f32,
+        _h: f32,
     ) {
         let th = apex_client::ui_theme::active_theme();
         ui.text(Face::SemiBold, 19.0, x, y, th.text_primary, "Settings");
@@ -8487,8 +8493,8 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         h: f32,
     ) {
         let th = apex_client::ui_theme::active_theme();
-        ui.rounded(x, y, w, h, 12.0, color::with_alpha(th.surface_dim, 235));
-        ui.border(x, y, w, h, 12.0, color::with_alpha(th.border, 160));
+        ui.rounded(x, y, w, h, 12.0, color::with_alpha(th.surface_dim, Self::nighty_alpha(235)));
+        ui.border(x, y, w, h, 12.0, color::with_alpha(th.border, Self::nighty_alpha(160)));
         let status = Self::nighty_clean(&self.catalog.status);
         ui.text(
             Face::Regular,
@@ -8510,7 +8516,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
         }
         if progress >= 0.0 {
             let bar_x = x + w - 94.0;
-            ui.rounded(bar_x, y + (h - 6.0) * 0.5, 76.0, 6.0, 3.0, color::with_alpha(th.surface_bright, 255));
+            ui.rounded(bar_x, y + (h - 6.0) * 0.5, 76.0, 6.0, 3.0, color::with_alpha(th.surface_bright, Self::nighty_alpha(255)));
             ui.rounded(
                 bar_x,
                 y + (h - 6.0) * 0.5,
@@ -8526,7 +8532,7 @@ fn draw_live_video_background(ui: &mut Ui<'_>, w: f32, h: f32, th: &apex_client:
 
     fn draw_nighty_exit(&mut self, ui: &mut Ui<'_>, w: f32, h: f32) {
         let th = apex_client::ui_theme::active_theme();
-        ui.fill(0.0, 0.0, w, h, color::with_alpha(th.bg_solid, 230));
+        ui.fill(0.0, 0.0, w, h, color::with_alpha(th.bg_solid, Self::nighty_alpha(230)));
         let mw = (w * 0.42).clamp(280.0, 460.0);
         let mh = 150.0;
         let rect = [(w - mw) * 0.5, (h - mh) * 0.5, mw, mh];
